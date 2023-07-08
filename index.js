@@ -26,8 +26,22 @@ const ShipFactory = (length, name) => {
   };
 };
 
+const GameboardFactory = () => {
+  function createGameboard(horizontalSize, verticalSize) {
+    let gameboard = [];
+    for (let i = 0; i < (horizontalSize * verticalSize); i++) {
+      gameboard.push({cell: i, isHit: false, isMiss: false, name: null})
+    }
+    return gameboard;
+  }
 
-module.exports = { ShipFactory };
+  return {
+    createGameboard,
+  };
+};
+
+
+module.exports = { ShipFactory, GameboardFactory };
 
 
 
