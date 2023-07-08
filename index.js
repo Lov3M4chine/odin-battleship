@@ -1,24 +1,31 @@
 const ShipFactory = (length, name) => {
-    let hits = 0;
-    let isSunk = false;
-  
-    const hit = () => {
+  if (!Number.isInteger(length) || length < 1) {
+      throw new Error('Invalid ship length: must be a positive integer.');
+  }
+
+  if (typeof name !== 'string' || name.trim() === '') {
+      throw new Error('Invalid ship name: must be a non-empty string.');
+  }
+
+  let hits = 0;
+
+  const hit = () => {
+    if (hits < length) {
       hits += 1;
-      if (hits >= length) {
-        isSunk = true;
-      }
-    };
-  
-    const getHits = () => hits;
-    const getSunkStatus = () => isSunk;
-  
-    return {
-      hit,
-      getHits,
-      getSunkStatus,
-      name,
-    };
+    }
+  };
+
+  const getHits = () => hits;
+  const isSunk = () => hits >= length;
+
+  return {
+    hit,
+    getHits,
+    isSunk,
+    name,
+  };
 };
+
 
 module.exports = { ShipFactory };
 
