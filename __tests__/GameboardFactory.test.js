@@ -23,3 +23,11 @@ test('createGameboard throws an error when horizontal or vertical size is not > 
     expect(() => gameboardFactory.createGameboard(10, 5)).toThrow();
     expect(() => gameboardFactory.createGameboard(5, 5)).toThrow();
 });
+
+test('placeShip adds ship name to cell', () => {
+    const gameboard = gameboardFactory.createGameboard(10, 10);
+    gameboardFactory.placeShip(gameboard, 0, false, 3, 'submarine');
+    expect(gameboard[0].name).toBe('submarine');
+    expect(gameboard[1].name).toBe('submarine');
+    expect(gameboard[2].name).toBe('submarine');
+})
