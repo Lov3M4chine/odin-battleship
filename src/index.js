@@ -67,8 +67,6 @@ module.exports = { ShipFactory, GameboardFactory };
 
 const gameboardFactory = GameboardFactory();
 const gameboard = gameboardFactory.createGameboard(10, 10);
-console.log(gameboard);
-
 
 
   
