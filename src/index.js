@@ -65,8 +65,9 @@ const GameboardFactory = () => {
 
 module.exports = { ShipFactory, GameboardFactory };
 
-// const gameboard = GameboardFactory.createGameboard(10, 10);
-// console.log(gameboard);
+const gameboardFactory = GameboardFactory();
+const gameboard = gameboardFactory.createGameboard(10, 10);
+console.log(gameboard);
 
 
 
