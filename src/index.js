@@ -40,11 +40,15 @@ const GameboardFactory = () => {
     for (let i = 0; i < (horizontalSize * verticalSize); i++) {
       gameboard.push({cell: i, isHit: false, isMiss: false, name: null})
     }
-    return gameboard;
+    return {
+      gameboard,
+      horizontalSize,
+      verticalSize
+    }
   }
 
-  function placeShip(gameboard, initialCell, isVertical, length, name) {
-    if (!gameboard) {
+  function placeShip(gameboardState, initialCell, isVertical, length, name) {
+    if (!gameboardState.gameboard) {
       throw new Error("a gameboard must be passed");
     }
     if (!Number.isInteger(initialCell)) {
@@ -56,16 +60,20 @@ const GameboardFactory = () => {
     if (typeof isVertical !== "boolean") {
       throw new Error("isVertical must be a boolean");
     }
+    if (!(isVertical) && (gameboardState.horizontalSize - (initialCell % gameboardState.horizontalSize)) <= length) {
+      throw new Error("The length of the ship exceeds the gameboard's horizontal boundary, starting from the initial cell");
+    }
+
     if (isVertical) {
-      for (let i = initialCell; i <= (initialCell + length * 10); i+=10) {
-        gameboard[i].name = name;
+      for (let i = initialCell; i < (initialCell + length * 10); i+=10) {
+        gameboardState.gameboard[i].name = name;
       }
     } else {
-      for (let i = initialCell; i <= (initialCell + length); i+=1) {
-        gameboard[i].name = name;
+      for (let i = initialCell; i < (initialCell + length); i+=1) {
+        gameboardState.gameboard[i].name = name;
       }
     }
-    return gameboard;
+    return gameboardState.gameboard;
   }
 
   return {
@@ -74,11 +82,12 @@ const GameboardFactory = () => {
   };
 };
 
+const gameboardFactory = GameboardFactory();
+let gameboardState = gameboardFactory.createGameboard(10, 10);
+gameboardFactory.placeShip(gameboardState, 0, false, 3, 'submarine')
+
 
 module.exports = { ShipFactory, GameboardFactory };
-
-const gameboardFactory = GameboardFactory();
-const gameboard = gameboardFactory.createGameboard(10, 10);
 
 
   
