@@ -52,13 +52,22 @@ var GameboardFactory = function GameboardFactory() {
     }
     return gameboard;
   }
-  function placeShip(gameboard, cell, isVertical, length, name) {
+  function placeShip(gameboard, initialCell, isVertical, length, name) {
+    if (!gameboard) {
+      throw new Error("a gameboard must be passed");
+    }
+    if (!Number.isInteger(initialCell)) {
+      throw new Error("initialCell must be an integer.");
+    }
+    if (initialCell < 0) {
+      throw new Error("initialCell must be greater than or equal to zero. It represents the initial cell the ship starts on.");
+    }
     if (isVertical) {
-      for (var i = cell; i <= cell + length * 10; i += 10) {
+      for (var i = initialCell; i <= initialCell + length * 10; i += 10) {
         gameboard[i].name = name;
       }
     } else {
-      for (var _i = cell; _i <= cell + length; _i += 1) {
+      for (var _i = initialCell; _i <= initialCell + length; _i += 1) {
         gameboard[_i].name = name;
       }
     }

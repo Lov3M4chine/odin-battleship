@@ -24,10 +24,23 @@ test('createGameboard throws an error when horizontal or vertical size is not > 
     expect(() => gameboardFactory.createGameboard(5, 5)).toThrow();
 });
 
+let gameboard = gameboardFactory.createGameboard(10, 10);
+
 test('placeShip adds ship name to cell', () => {
-    const gameboard = gameboardFactory.createGameboard(10, 10);
     gameboardFactory.placeShip(gameboard, 0, false, 3, 'submarine');
     expect(gameboard[0].name).toBe('submarine');
     expect(gameboard[1].name).toBe('submarine');
     expect(gameboard[2].name).toBe('submarine');
-})
+});
+
+test('placeShip throws error when gameboard is not passed', () => {
+    expect(() => gameboardFactory.placeShip(0, false, 3, 'submarine')).toThrow();
+});
+
+test('placeShip throws error when initialCell is not an integer', () => {
+    expect(() => gameboardFactory.placeShip(gameboard, "test", false, 3, 'submarine')).toThrow();
+});
+
+test('placeShip throws error when initialCell is not >= 0', () => {
+    expect(() => gameboardFactory.placeShip(gameboard, (-4), false, 3, 'submarine')).toThrow();
+});
