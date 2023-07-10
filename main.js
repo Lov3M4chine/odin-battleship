@@ -50,10 +50,14 @@ var GameboardFactory = function GameboardFactory() {
         name: null
       });
     }
-    return gameboard;
+    return {
+      gameboard: gameboard,
+      horizontalSize: horizontalSize,
+      verticalSize: verticalSize
+    };
   }
-  function placeShip(gameboard, initialCell, isVertical, length, name) {
-    if (!gameboard) {
+  function placeShip(gameboardState, initialCell, isVertical, length, name) {
+    if (!gameboardState.gameboard) {
       throw new Error("a gameboard must be passed");
     }
     if (!Number.isInteger(initialCell)) {
@@ -65,28 +69,32 @@ var GameboardFactory = function GameboardFactory() {
     if (typeof isVertical !== "boolean") {
       throw new Error("isVertical must be a boolean");
     }
+    if (!isVertical && gameboardState.horizontalSize - initialCell % gameboardState.horizontalSize <= length) {
+      throw new Error("The length of the ship exceeds the gameboard's horizontal boundary, starting from the initial cell");
+    }
     if (isVertical) {
-      for (var i = initialCell; i <= initialCell + length * 10; i += 10) {
-        gameboard[i].name = name;
+      for (var i = initialCell; i < initialCell + length * 10; i += 10) {
+        gameboardState.gameboard[i].name = name;
       }
     } else {
-      for (var _i = initialCell; _i <= initialCell + length; _i += 1) {
-        gameboard[_i].name = name;
+      for (var _i = initialCell; _i < initialCell + length; _i += 1) {
+        gameboardState.gameboard[_i].name = name;
       }
     }
-    return gameboard;
+    return gameboardState.gameboard;
   }
   return {
     createGameboard: createGameboard,
     placeShip: placeShip
   };
 };
+var gameboardFactory = GameboardFactory();
+var gameboardState = gameboardFactory.createGameboard(10, 10);
+gameboardFactory.placeShip(gameboardState, 0, false, 3, 'submarine');
 module.exports = {
   ShipFactory: ShipFactory,
   GameboardFactory: GameboardFactory
 };
-var gameboardFactory = GameboardFactory();
-var gameboard = gameboardFactory.createGameboard(10, 10);
 
 /***/ })
 
