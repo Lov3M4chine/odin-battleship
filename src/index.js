@@ -53,6 +53,9 @@ const GameboardFactory = () => {
     if (initialCell < 0) {
       throw new Error("initialCell must be greater than or equal to zero. It represents the initial cell the ship starts on.")
     }
+    if (typeof isVertical !== "boolean") {
+      throw new Error("isVertical must be a boolean");
+    }
     if (isVertical) {
       for (let i = initialCell; i <= (initialCell + length * 10); i+=10) {
         gameboard[i].name = name;

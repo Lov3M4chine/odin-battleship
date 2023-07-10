@@ -44,3 +44,8 @@ test('placeShip throws error when initialCell is not an integer', () => {
 test('placeShip throws error when initialCell is not >= 0', () => {
     expect(() => gameboardFactory.placeShip(gameboard, (-4), false, 3, 'submarine')).toThrow();
 });
+
+test('placeShip throws error when isVertical is not a boolean', () => {
+    expect(() => gameboardFactory.placeShip(gameboard, 0, 3, 'submarine')).toThrow();
+    expect(() => gameboardFactory.placeShip(gameboard, 0, 'false', 3, 'submarine')).toThrow();
+});
