@@ -3,13 +3,17 @@ var __webpack_exports__ = {};
 /*!**********************!*\
   !*** ./src/index.js ***!
   \**********************/
-// import { GameboardFactory } from "./GameboardFactory";
-// import { ShipFactory } from "./ShipFactory";
+// const PlayerFactory = require("./PlayerFactory");
 
-// let gameboardFactory = GameboardFactory();
-// let gameboardState = gameboardFactory.createGameboard(10, 10);
-// gameboardFactory.placeShip(gameboardState, 0, false, 2, 'submarine');
-// gameboardFactory.receiveAttack(gameboardState, 0);
+// let playerOne = PlayerFactory(10, 10);
+// playerOne.placeShip(0, false, 2, 'submarine');
+// playerOne.placeShip(5, false, 3, 'carrier');
+// playerOne.receiveAttack(0);
+// playerOne.receiveAttack(1);
+// playerOne.receiveAttack(5);
+// playerOne.receiveAttack(6);
+// playerOne.receiveAttack(7);
+// playerOne.placeShip(20, false, 4, 'battleship');
 /******/ })()
 ;
 //# sourceMappingURL=main.js.map
