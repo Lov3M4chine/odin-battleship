@@ -1,4 +1,4 @@
-export const ShipFactory = (length, name) => {
+const ShipFactory = (length, name) => {
     if (!Number.isInteger(length) || length < 1) {
         throw new Error('Invalid ship length: must be a positive integer.');
     }
@@ -27,6 +27,8 @@ export const ShipFactory = (length, name) => {
       coordinates
     };
   };
+
+  module.exports = ShipFactory;
   
   
   
