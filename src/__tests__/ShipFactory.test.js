@@ -1,4 +1,4 @@
-const { ShipFactory } = require('../index.js');
+import { ShipFactory } from "../ShipFactory";
 
 test('newly created ship has zero hits and is not sunk', () => {
   const ship = ShipFactory(3, 'submarine');

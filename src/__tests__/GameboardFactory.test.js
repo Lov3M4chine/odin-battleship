@@ -1,4 +1,5 @@
-const { GameboardFactory } = require('../index.js');
+import { GameboardFactory } from "../GameboardFactory";
+
 
 let gameboardFactory;
 let gameboardState;
@@ -86,6 +87,18 @@ test('receiveAttack determines if ship is hit and updates the ship' , () => {
     expect(gameboardFactory.ships['submarine'].getHits()).toBe(2);
 });
 
+test('receiveAttack throws error when gameboardState is not passed', () => {
+    expect(() => gameboardFactory.receiveAttack(0)).toThrow('gameboardState must be passed as a parameter');
+});
+
+test('receiveAttack throws an error when coordinate is not a positive integer', () => {
+    expect(() => gameboardFactory.receiveAttack(gameboardState, "10")).toThrow('coordinate must be an integer');
+});
+
+test('receiveAttack throws an error when coordinate is not on the gameboard', () => {
+    expect(() => gameboardFactory.receiveAttack(gameboardState, 101)).toThrow('coordinate passed is not on the gameboard');
+});
+
 test('checkShipStatuses determines if all ships have been sunk', () => {
     gameboardFactory.placeShip(gameboardState, 0, false, 2, 'submarine');
     gameboardFactory.placeShip(gameboardState, 5, false, 2, 'carrier');
@@ -93,5 +106,7 @@ test('checkShipStatuses determines if all ships have been sunk', () => {
     gameboardFactory.receiveAttack(gameboardState, 1);
     gameboardFactory.receiveAttack(gameboardState, 5);
     gameboardFactory.receiveAttack(gameboardState, 6);
-    expect(() => gameboardFactory.checkIfAllShipsSunk(gameboardState).toBe(true));
+    expect(() => gameboardFactory.checkIfAllShipsSunk().toBe(true));
+    gameboardFactory.placeShip(gameboardState, 20, false, 2, 'battleship');
+    expect(() => gameboardFactory.checkIfAllShipsSunk().toBe(false));
 })
