@@ -7,6 +7,7 @@ const ShipFactory = (length, name) => {
       throw new Error('Invalid ship name: must be a non-empty string.');
   }
 
+  let coordinates = [];
   let hits = 0;
 
   const hit = () => {
@@ -23,10 +24,13 @@ const ShipFactory = (length, name) => {
     getHits,
     isSunk,
     name,
+    coordinates
   };
 };
 
 const GameboardFactory = () => {
+  let ships = {};
+
   function createGameboard(horizontalSize, verticalSize) {
     // Error Checking
     if ((!Number.isInteger(horizontalSize)) || (!Number.isInteger(verticalSize))) {
@@ -83,22 +87,33 @@ const GameboardFactory = () => {
       }
     }
 
+    let newShip = ShipFactory(length, name);
+    ships[name] = newShip;
+    ships[name][length] = length;
+     
+
     // Ship Placement
     if (isVertical) {
       for (let i = initialCell; i < (initialCell + (length * gameboardState.horizontalSize)); i+=gameboardState.horizontalSize) {
         gameboardState.gameboard[i].name = name;
+        newShip.coordinates.push(i);
       }
+      ships[name].coordinates = newShip.coordinates;
+
     } else {
       for (let i = initialCell; i < (initialCell + length); i+=1) {
         gameboardState.gameboard[i].name = name;
+        newShip.coordinates.push(i);
       }
+      ships[name].coordinates = newShip.coordinates;
     }
-    return { gameboardState }
-    }
+    return ships;
+  }
 
   function receiveAttack(gameboardState, coordinate) {
     if (gameboardState.gameboard[coordinate].name !== null) {
       gameboardState.gameboard[coordinate].isHit = true;
+      ships[gameboardState.gameboard[coordinate].name].hit();
     } else {
       gameboardState.gameboard[coordinate].isMiss = true;
     }
@@ -108,13 +123,16 @@ const GameboardFactory = () => {
     createGameboard,
     placeShip,
     receiveAttack,
+    ships
   };
 };
 
 // const gameboardFactory = GameboardFactory();
 // let gameboardState = gameboardFactory.createGameboard(10, 10);
 // gameboardFactory.placeShip(gameboardState, 0, false, 3, 'submarine');
-// gameboardFactory.placeShip(gameboardState, 60, true, 3, 'submarine');
+// // gameboardFactory.placeShip(gameboardState, 60, true, 3, 'submarine');
+// gameboardFactory.receiveAttack(gameboardState, 0);
+// console.log(gameboardFactory.ships['submarine'].coordinates);
 
 
 module.exports = { ShipFactory, GameboardFactory };

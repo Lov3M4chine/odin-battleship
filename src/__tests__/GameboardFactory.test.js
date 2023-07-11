@@ -77,3 +77,11 @@ test('receiveAttack determines if ship is missed and registers it on gameboard' 
     gameboardFactory.receiveAttack(gameboardState, 50);
     expect(gameboardState.gameboard[50].isMiss).toBe(true)
 });
+
+test('receiveAttack determines if ship is hit and updates the ship' , () => {
+    gameboardFactory.placeShip(gameboardState, 0, false, 3, 'submarine');
+    gameboardFactory.receiveAttack(gameboardState, 0);
+    expect(gameboardFactory.ships['submarine'].getHits()).toBe(1);
+    gameboardFactory.receiveAttack(gameboardState, 1);
+    expect(gameboardFactory.ships['submarine'].getHits()).toBe(2);
+});

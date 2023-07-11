@@ -14,6 +14,7 @@ var ShipFactory = function ShipFactory(length, name) {
   if (typeof name !== 'string' || name.trim() === '') {
     throw new Error('Invalid ship name: must be a non-empty string.');
   }
+  var coordinates = [];
   var hits = 0;
   var hit = function hit() {
     if (hits < length) {
@@ -30,10 +31,12 @@ var ShipFactory = function ShipFactory(length, name) {
     hit: hit,
     getHits: getHits,
     isSunk: isSunk,
-    name: name
+    name: name,
+    coordinates: coordinates
   };
 };
 var GameboardFactory = function GameboardFactory() {
+  var ships = {};
   function createGameboard(horizontalSize, verticalSize) {
     // Error Checking
     if (!Number.isInteger(horizontalSize) || !Number.isInteger(verticalSize)) {
@@ -92,24 +95,30 @@ var GameboardFactory = function GameboardFactory() {
         }
       }
     }
+    var newShip = ShipFactory(length, name);
+    ships[name] = newShip;
+    ships[name][length] = length;
 
     // Ship Placement
     if (isVertical) {
       for (var _i2 = initialCell; _i2 < initialCell + length * gameboardState.horizontalSize; _i2 += gameboardState.horizontalSize) {
         gameboardState.gameboard[_i2].name = name;
+        newShip.coordinates.push(_i2);
       }
+      ships[name].coordinates = newShip.coordinates;
     } else {
       for (var _i3 = initialCell; _i3 < initialCell + length; _i3 += 1) {
         gameboardState.gameboard[_i3].name = name;
+        newShip.coordinates.push(_i3);
       }
+      ships[name].coordinates = newShip.coordinates;
     }
-    return {
-      gameboardState: gameboardState
-    };
+    return ships;
   }
   function receiveAttack(gameboardState, coordinate) {
     if (gameboardState.gameboard[coordinate].name !== null) {
       gameboardState.gameboard[coordinate].isHit = true;
+      ships[gameboardState.gameboard[coordinate].name].hit();
     } else {
       gameboardState.gameboard[coordinate].isMiss = true;
     }
@@ -117,14 +126,17 @@ var GameboardFactory = function GameboardFactory() {
   return {
     createGameboard: createGameboard,
     placeShip: placeShip,
-    receiveAttack: receiveAttack
+    receiveAttack: receiveAttack,
+    ships: ships
   };
 };
 
 // const gameboardFactory = GameboardFactory();
 // let gameboardState = gameboardFactory.createGameboard(10, 10);
 // gameboardFactory.placeShip(gameboardState, 0, false, 3, 'submarine');
-// gameboardFactory.placeShip(gameboardState, 60, true, 3, 'submarine');
+// // gameboardFactory.placeShip(gameboardState, 60, true, 3, 'submarine');
+// gameboardFactory.receiveAttack(gameboardState, 0);
+// console.log(gameboardFactory.ships['submarine'].coordinates);
 
 module.exports = {
   ShipFactory: ShipFactory,
