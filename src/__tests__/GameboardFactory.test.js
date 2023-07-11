@@ -50,6 +50,10 @@ test('placeShip throws error when isVertical is not a boolean', () => {
     expect(() => gameboardFactory.placeShip(gameboardState, 0, 'false', 3, 'submarine')).toThrow();
 });
 
-test('throws an error when length is beyond scope of gameboard', () => {
+test('throws an error when horizontal length is beyond scope of gameboard', () => {
     expect(() => gameboardFactory.placeShip(gameboardState, 9, false, 3, 'submarine')).toThrow();
-})
+});
+
+test('throws an error when vertical length is beyond scope of gameboard', () => {
+    expect(() => gameboardFactory.placeShip(gameboardState, 80, true, 3, 'submarine')).toThrow();
+});
