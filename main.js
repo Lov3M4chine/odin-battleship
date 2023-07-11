@@ -69,11 +69,14 @@ var GameboardFactory = function GameboardFactory() {
     if (typeof isVertical !== "boolean") {
       throw new Error("isVertical must be a boolean");
     }
-    if (!isVertical && gameboardState.horizontalSize - initialCell % gameboardState.horizontalSize <= length) {
+    if (!isVertical && gameboardState.horizontalSize - initialCell % gameboardState.horizontalSize < length) {
       throw new Error("The length of the ship exceeds the gameboard's horizontal boundary, starting from the initial cell");
     }
+    if (isVertical && gameboardState.verticalSize - Math.floor(initialCell / gameboardState.horizontalSize) < length) {
+      throw new Error("The length of the ship exceeds the gameboard's vertical boundary, starting from the initial cell");
+    }
     if (isVertical) {
-      for (var i = initialCell; i < initialCell + length * 10; i += 10) {
+      for (var i = initialCell; i < initialCell + length * gameboardState.horizontalSize; i += gameboardState.horizontalSize) {
         gameboardState.gameboard[i].name = name;
       }
     } else {
@@ -91,6 +94,7 @@ var GameboardFactory = function GameboardFactory() {
 var gameboardFactory = GameboardFactory();
 var gameboardState = gameboardFactory.createGameboard(10, 10);
 gameboardFactory.placeShip(gameboardState, 0, false, 3, 'submarine');
+gameboardFactory.placeShip(gameboardState, 60, true, 3, 'submarine');
 module.exports = {
   ShipFactory: ShipFactory,
   GameboardFactory: GameboardFactory
