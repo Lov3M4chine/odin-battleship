@@ -123,11 +123,23 @@ var GameboardFactory = function GameboardFactory() {
       gameboardState.gameboard[coordinate].isMiss = true;
     }
   }
+  function checkIfAllShipsSunk(gameboardState) {
+    var allShipsSunk = true;
+    for (var shipKey in ships) {
+      var ship = ships[shipKey];
+      if (ship.isSunk === false) {
+        allShipsSunk = false;
+        break;
+      }
+    }
+    return allShipsSunk;
+  }
   return {
     createGameboard: createGameboard,
     placeShip: placeShip,
     receiveAttack: receiveAttack,
-    ships: ships
+    ships: ships,
+    checkIfAllShipsSunk: checkIfAllShipsSunk
   };
 };
 

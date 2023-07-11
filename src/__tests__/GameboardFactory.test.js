@@ -85,3 +85,13 @@ test('receiveAttack determines if ship is hit and updates the ship' , () => {
     gameboardFactory.receiveAttack(gameboardState, 1);
     expect(gameboardFactory.ships['submarine'].getHits()).toBe(2);
 });
+
+test('checkShipStatuses determines if all ships have been sunk', () => {
+    gameboardFactory.placeShip(gameboardState, 0, false, 2, 'submarine');
+    gameboardFactory.placeShip(gameboardState, 5, false, 2, 'carrier');
+    gameboardFactory.receiveAttack(gameboardState, 0);
+    gameboardFactory.receiveAttack(gameboardState, 1);
+    gameboardFactory.receiveAttack(gameboardState, 5);
+    gameboardFactory.receiveAttack(gameboardState, 6);
+    expect(() => gameboardFactory.checkIfAllShipsSunk(gameboardState).toBe(true));
+})

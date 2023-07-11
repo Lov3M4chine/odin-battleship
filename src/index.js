@@ -119,11 +119,25 @@ const GameboardFactory = () => {
     }
   }
 
+  function checkIfAllShipsSunk(gameboardState) {
+    let allShipsSunk = true;
+    for (let shipKey in ships) {
+      const ship = ships[shipKey];
+      if (ship.isSunk === false) {
+        allShipsSunk = false;
+        break;
+      }
+    }
+    return allShipsSunk;
+  }
+  
+
   return {
     createGameboard,
     placeShip,
     receiveAttack,
-    ships
+    ships,
+    checkIfAllShipsSunk
   };
 };
 
