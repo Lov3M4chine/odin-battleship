@@ -35,12 +35,15 @@ var ShipFactory = function ShipFactory(length, name) {
 };
 var GameboardFactory = function GameboardFactory() {
   function createGameboard(horizontalSize, verticalSize) {
+    // Error Checking
     if (!Number.isInteger(horizontalSize) || !Number.isInteger(verticalSize)) {
       throw new Error('Horizontal and Vertical Size must be integers');
     }
     if (horizontalSize < 8 || verticalSize < 8) {
       throw new Error("Horizontal and Vertical Size must be at least 7");
     }
+
+    // Gameboard creation
     var gameboard = [];
     for (var i = 0; i < horizontalSize * verticalSize; i++) {
       gameboard.push({
@@ -57,8 +60,9 @@ var GameboardFactory = function GameboardFactory() {
     };
   }
   function placeShip(gameboardState, initialCell, isVertical, length, name) {
+    // Error Checking
     if (!gameboardState.gameboard) {
-      throw new Error("a gameboard must be passed");
+      throw new Error("a gameboardState must be passed");
     }
     if (!Number.isInteger(initialCell)) {
       throw new Error("initialCell must be an integer.");
@@ -77,24 +81,51 @@ var GameboardFactory = function GameboardFactory() {
     }
     if (isVertical) {
       for (var i = initialCell; i < initialCell + length * gameboardState.horizontalSize; i += gameboardState.horizontalSize) {
-        gameboardState.gameboard[i].name = name;
+        if (gameboardState.gameboard[i].name !== null) {
+          throw new Error("Space is already occupied. Please choose another.");
+        }
       }
     } else {
       for (var _i = initialCell; _i < initialCell + length; _i += 1) {
-        gameboardState.gameboard[_i].name = name;
+        if (gameboardState.gameboard[_i].name !== null) {
+          throw new Error("Space is already occupied. Please choose another.");
+        }
       }
     }
-    return gameboardState.gameboard;
+
+    // Ship Placement
+    if (isVertical) {
+      for (var _i2 = initialCell; _i2 < initialCell + length * gameboardState.horizontalSize; _i2 += gameboardState.horizontalSize) {
+        gameboardState.gameboard[_i2].name = name;
+      }
+    } else {
+      for (var _i3 = initialCell; _i3 < initialCell + length; _i3 += 1) {
+        gameboardState.gameboard[_i3].name = name;
+      }
+    }
+    return {
+      gameboardState: gameboardState
+    };
+  }
+  function receiveAttack(gameboardState, coordinate) {
+    if (gameboardState.gameboard[coordinate].name !== null) {
+      gameboardState.gameboard[coordinate].isHit = true;
+    } else {
+      gameboardState.gameboard[coordinate].isMiss = true;
+    }
   }
   return {
     createGameboard: createGameboard,
-    placeShip: placeShip
+    placeShip: placeShip,
+    receiveAttack: receiveAttack
   };
 };
-var gameboardFactory = GameboardFactory();
-var gameboardState = gameboardFactory.createGameboard(10, 10);
-gameboardFactory.placeShip(gameboardState, 0, false, 3, 'submarine');
-gameboardFactory.placeShip(gameboardState, 60, true, 3, 'submarine');
+
+// const gameboardFactory = GameboardFactory();
+// let gameboardState = gameboardFactory.createGameboard(10, 10);
+// gameboardFactory.placeShip(gameboardState, 0, false, 3, 'submarine');
+// gameboardFactory.placeShip(gameboardState, 60, true, 3, 'submarine');
+
 module.exports = {
   ShipFactory: ShipFactory,
   GameboardFactory: GameboardFactory
