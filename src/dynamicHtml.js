@@ -1,6 +1,4 @@
-const mainContainer = document.getElementById("main-container");
-
-function createBattlegridForOnePlayer (horizontalSize, verticalSize) {
+function createBattlegridForPlayerOne (horizontalSize, verticalSize) {
 
     const playerOneBattlegridContainer = document.createElement('div');
     playerOneBattlegridContainer.id = 'playerone-battlegrid-container';
@@ -9,13 +7,16 @@ function createBattlegridForOnePlayer (horizontalSize, verticalSize) {
     playerOneBattlegrid.id = 'playerone-battlegrid';
     playerOneBattlegrid.className = 'grid grid-rows-[repeat(10,_minmax(0,_1fr))] grid-cols-10';
 
+    let mainContainer = document.getElementById("main-container");
+
     for (let i = 0; i < (horizontalSize * verticalSize); i++) {
         let playeroneCell = null;
 
         playeroneCell = document.createElement('button');
         playeroneCell.id = `playerone-cell-${i}`;
-        playeroneCell.className = 'btn bg-primary cell';
+        playeroneCell.className = 'btn bg-primary playerone-cell';
         playeroneCell.title = `cell ${i}`;
+        playeroneCell.setAttribute('data-cellNumber', i);
 
         playerOneBattlegrid.appendChild(playeroneCell);
     }
@@ -25,7 +26,7 @@ function createBattlegridForOnePlayer (horizontalSize, verticalSize) {
   
 }
 
-function createBattlegridForTwoPlayer (horizontalSize, verticalSize) {
+function createBattlegridForPlayerTwo (horizontalSize, verticalSize) {
     const playerTwoBattlegridContainer = document.createElement('div');
     playerTwoBattlegridContainer.id = 'playerTwo-battlegrid-container';
   
@@ -38,8 +39,9 @@ function createBattlegridForTwoPlayer (horizontalSize, verticalSize) {
 
         playerTwoCell = document.createElement('button');
         playerTwoCell.id = `playerTwo-cell-${i}`;
-        playerTwoCell.className = 'btn bg-primary cell';
+        playerTwoCell.className = 'btn bg-primary playertwo-cell hidden';
         playerTwoCell.title = `cell ${i}`;
+        playerTwoCell.setAttribute('data-cellNumber', i);
 
         playerTwoBattlegrid.appendChild(playerTwoCell);
     }
@@ -48,5 +50,7 @@ function createBattlegridForTwoPlayer (horizontalSize, verticalSize) {
     mainContainer.appendChild(playerTwoBattlegridContainer);
 }
 
-module.exports = createBattlegridForOnePlayer;
-module.exports = createBattlegridForTwoPlayer;
+module.exports = { 
+    createBattlegridForPlayerOne,
+    createBattlegridForPlayerTwo
+};

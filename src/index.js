@@ -1,5 +1,6 @@
-import './styles.css';
-const addGameModeClickEvents = require ("./clickEvents.js");
+require ('./styles.css');
+const { addGameModeClickEvents } = require ("./clickEvents.js");
+
 
 // Battlegrid size
 const horizontalSize = 10;

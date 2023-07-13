@@ -8,6 +8,7 @@
     "daisyui": "^3.2.1",
     "html-webpack-plugin": "^5.5.3",
     "jest": "^29.6.1",
+    "jest-environment-jsdom": "^29.6.1",
     "postcss-loader": "^7.3.3",
     "style-loader": "^3.3.3",
     "tailwindcss": "^3.3.2",
@@ -20,6 +21,8 @@
     "build": "webpack --watch"
   },
   "jest": {
+    "testEnvironment": "jest-environment-jsdom",
+    "testURL": "http://localhost:8080/Dashboard/index.html",
     "transform": {
       "^.+\\.jsx?$": "babel-jest"
     }

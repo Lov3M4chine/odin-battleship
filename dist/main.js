@@ -193,16 +193,21 @@ module.exports = ShipFactory;
   \****************************/
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
-var createBattlegridForOnePlayer = __webpack_require__(/*! ./dynamicHtml.js */ "./src/dynamicHtml.js");
-var createBattlegridForTwoPlayer = __webpack_require__(/*! ./dynamicHtml.js */ "./src/dynamicHtml.js");
+var _require = __webpack_require__(/*! ./dynamicHtml.js */ "./src/dynamicHtml.js"),
+  createBattlegridForPlayerOne = _require.createBattlegridForPlayerOne,
+  createBattlegridForPlayerTwo = _require.createBattlegridForPlayerTwo;
 var PlayerFactory = __webpack_require__(/*! ./PlayerFactory.js */ "./src/PlayerFactory.js");
 var playerModeInitializations = function () {
   var modeSelectContainer = document.getElementById("mode-select-container");
+  var playerone;
+  var playertwo;
+  var computerPlayer;
   function initializeOnePlayerMode(horizontalSize, verticalSize) {
     modeSelectContainer.classList.add("hidden");
-    createBattlegridForOnePlayer(horizontalSize, verticalSize);
-    var playerone = PlayerFactory(horizontalSize, verticalSize);
-    var computerPlayer = PlayerFactory(horizontalSize, verticalSize);
+    createBattlegridForPlayerOne(horizontalSize, verticalSize);
+    playerone = PlayerFactory(horizontalSize, verticalSize);
+    computerPlayer = PlayerFactory(horizontalSize, verticalSize);
+    battlegridClickEvents.addPlayeroneBattlegridCellClickEvents(playerone);
     return {
       playerone: playerone,
       computerPlayer: computerPlayer
@@ -210,37 +215,74 @@ var playerModeInitializations = function () {
   }
   function initializeTwoPlayerMode(horizontalSize, verticalSize) {
     modeSelectContainer.classList.add("hidden");
-    createBattlegridForTwoPlayer(horizontalSize, verticalSize);
-    var playerone = PlayerFactory(horizontalSize, verticalSize);
-    var playertwo = PlayerFactory(horizontalSize, verticalSize);
+    createBattlegridForPlayerOne(horizontalSize, verticalSize);
+    createBattlegridForPlayerTwo(horizontalSize, verticalSize);
+    playerone = PlayerFactory(horizontalSize, verticalSize);
+    playertwo = PlayerFactory(horizontalSize, verticalSize);
     return {
       playerone: playerone,
       playertwo: playertwo
     };
   }
+  function getPlayerOne() {
+    return playerone;
+  }
+  function getPlayerTwo() {
+    return playertwo;
+  }
+  function getComputerPlayer() {
+    return computerPlayer;
+  }
   return {
     initializeOnePlayerMode: initializeOnePlayerMode,
-    initializeTwoPlayerMode: initializeTwoPlayerMode
+    initializeTwoPlayerMode: initializeTwoPlayerMode,
+    getPlayerOne: getPlayerOne,
+    getPlayerTwo: getPlayerTwo,
+    getComputerPlayer: getComputerPlayer
   };
 }();
 function addGameModeClickEvents(horizontalSize, verticalSize) {
-  var onePlayer = document.getElementById("one-player");
-  var twoPlayer = document.getElementById("two-player");
-  onePlayer.addEventListener('click', function () {
+  // Error Checking
+  if (!Number.isInteger(horizontalSize) || !Number.isInteger(verticalSize)) {
+    throw new Error('Horizontal and Vertical Size must be integers');
+  }
+  if (horizontalSize < 8 || verticalSize < 8) {
+    throw new Error("Horizontal and Vertical Size must be at least 7");
+  }
+  var onePlayerMode = document.getElementById("one-player-mode");
+  var twoPlayerMode = document.getElementById("two-player-mode");
+  onePlayerMode.addEventListener('click', function () {
     return playerModeInitializations.initializeOnePlayerMode(horizontalSize, verticalSize);
   });
-  twoPlayer.addEventListener('click', function () {
+  twoPlayerMode.addEventListener('click', function () {
     return playerModeInitializations.initializeTwoPlayerMode(horizontalSize, verticalSize);
   });
 }
-function addBattlegridCellClickEvents() {
-  var cells = document.querySelectorAll(".cell");
-  cells.forEach(function (cell) {
-    cell.addEventListener('click');
-  });
-}
-function registerCellClick() {}
-module.exports = addGameModeClickEvents;
+var battlegridClickEvents = function () {
+  function registerCellClickForPlayerone(cell, playerone) {
+    if (cell.classList.contains("playerone")) {
+      if (playerone.gameboardState.gameboard[cell.dataset.cellNumber].name === null) {
+        playerone.gameboardState.gameboard[cell.dataset.cellNumber].isMiss = true;
+        cell.classList.add("bg-secondary");
+      }
+    }
+  }
+  function addPlayeroneBattlegridCellClickEvents(playerone) {
+    var playeroneCells = document.querySelectorAll(".playerone-cell");
+    playeroneCells.forEach(function (cell) {
+      cell.addEventListener('click', function (event) {
+        registerCellClickForPlayerone(event.target, playerone);
+      });
+    });
+  }
+  return {
+    addPlayeroneBattlegridCellClickEvents: addPlayeroneBattlegridCellClickEvents
+  };
+}();
+module.exports = {
+  addGameModeClickEvents: addGameModeClickEvents,
+  playerModeInitializations: playerModeInitializations
+};
 
 /***/ }),
 
@@ -250,25 +292,26 @@ module.exports = addGameModeClickEvents;
   \****************************/
 /***/ ((module) => {
 
-var mainContainer = document.getElementById("main-container");
-function createBattlegridForOnePlayer(horizontalSize, verticalSize) {
+function createBattlegridForPlayerOne(horizontalSize, verticalSize) {
   var playerOneBattlegridContainer = document.createElement('div');
   playerOneBattlegridContainer.id = 'playerone-battlegrid-container';
   var playerOneBattlegrid = document.createElement('div');
   playerOneBattlegrid.id = 'playerone-battlegrid';
   playerOneBattlegrid.className = 'grid grid-rows-[repeat(10,_minmax(0,_1fr))] grid-cols-10';
+  var mainContainer = document.getElementById("main-container");
   for (var i = 0; i < horizontalSize * verticalSize; i++) {
     var playeroneCell = null;
     playeroneCell = document.createElement('button');
     playeroneCell.id = "playerone-cell-".concat(i);
-    playeroneCell.className = 'btn bg-primary cell';
+    playeroneCell.className = 'btn bg-primary playerone-cell';
     playeroneCell.title = "cell ".concat(i);
+    playeroneCell.setAttribute('data-cellNumber', i);
     playerOneBattlegrid.appendChild(playeroneCell);
   }
   playerOneBattlegridContainer.appendChild(playerOneBattlegrid);
   mainContainer.appendChild(playerOneBattlegridContainer);
 }
-function createBattlegridForTwoPlayer(horizontalSize, verticalSize) {
+function createBattlegridForPlayerTwo(horizontalSize, verticalSize) {
   var playerTwoBattlegridContainer = document.createElement('div');
   playerTwoBattlegridContainer.id = 'playerTwo-battlegrid-container';
   var playerTwoBattlegrid = document.createElement('div');
@@ -278,15 +321,18 @@ function createBattlegridForTwoPlayer(horizontalSize, verticalSize) {
     var playerTwoCell = null;
     playerTwoCell = document.createElement('button');
     playerTwoCell.id = "playerTwo-cell-".concat(i);
-    playerTwoCell.className = 'btn bg-primary cell';
+    playerTwoCell.className = 'btn bg-primary playertwo-cell hidden';
     playerTwoCell.title = "cell ".concat(i);
+    playerTwoCell.setAttribute('data-cellNumber', i);
     playerTwoBattlegrid.appendChild(playerTwoCell);
   }
   playerTwoBattlegridContainer.appendChild(playerTwoBattlegrid);
   mainContainer.appendChild(playerTwoBattlegridContainer);
 }
-module.exports = createBattlegridForOnePlayer;
-module.exports = createBattlegridForTwoPlayer;
+module.exports = {
+  createBattlegridForPlayerOne: createBattlegridForPlayerOne,
+  createBattlegridForPlayerTwo: createBattlegridForPlayerTwo
+};
 
 /***/ }),
 
@@ -2901,16 +2947,14 @@ module.exports = styleTagTransform;
 /******/ 	
 /************************************************************************/
 var __webpack_exports__ = {};
-// This entry need to be wrapped in an IIFE because it need to be in strict mode.
+// This entry need to be wrapped in an IIFE because it need to be isolated against other modules in the chunk.
 (() => {
-"use strict";
 /*!**********************!*\
   !*** ./src/index.js ***!
   \**********************/
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _styles_css__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./styles.css */ "./src/styles.css");
-
-var addGameModeClickEvents = __webpack_require__(/*! ./clickEvents.js */ "./src/clickEvents.js");
+__webpack_require__(/*! ./styles.css */ "./src/styles.css");
+var _require = __webpack_require__(/*! ./clickEvents.js */ "./src/clickEvents.js"),
+  addGameModeClickEvents = _require.addGameModeClickEvents;
 
 // Battlegrid size
 var horizontalSize = 10;
