@@ -1,4 +1,8 @@
 import './styles.css';
 const createBattlegrid = require ("./dynamicHtml.js");
 
-createBattlegrid(10, 10);
+// Battlegrid size
+const horizontalSize = 10;
+const verticalSize = 10;
+
+createBattlegrid(horizontalSize, verticalSize);
