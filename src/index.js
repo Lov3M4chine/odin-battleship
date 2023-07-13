@@ -1,8 +1,8 @@
 import './styles.css';
-const createBattlegrid = require ("./dynamicHtml.js");
+const addGameModeClickEvents = require ("./clickEvents.js");
 
 // Battlegrid size
 const horizontalSize = 10;
 const verticalSize = 10;
 
-createBattlegrid(horizontalSize, verticalSize);
+addGameModeClickEvents(horizontalSize, verticalSize);
