@@ -2662,7 +2662,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _styles_css__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./styles.css */ "./src/styles.css");
 
 var createBattlegrid = __webpack_require__(/*! ./dynamicHtml.js */ "./src/dynamicHtml.js");
-createBattlegrid(10, 10);
+
+// Battlegrid size
+var horizontalSize = 10;
+var verticalSize = 10;
+createBattlegrid(horizontalSize, verticalSize);
 })();
 
 /******/ })()
