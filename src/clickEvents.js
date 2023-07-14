@@ -9,6 +9,7 @@ const playerModeInitializations = (function() {
     let computerPlayer;
 
     function initializeOnePlayerMode (horizontalSize, verticalSize) {
+        
         modeSelectContainer.classList.add("hidden");
         createBattlegridForPlayerOne(horizontalSize, verticalSize);
         

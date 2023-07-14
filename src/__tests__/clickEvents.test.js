@@ -1,4 +1,4 @@
-const { addGameModeClickEvents, playerModeInitializations } = require('../clickEvents');
+import '@testing-library/jest-dom'
 
 let horizontalSize;
 let verticalSize;
@@ -17,8 +17,8 @@ beforeEach(() => {
             <div class="text-primary-content flex justify-center text-5xl">Battleship</div>
     
             <!-- Mode Select -->
-            <div id="mode-select-container" class="flex flex-col justify-center items-center gap-10 flex-grow">
-                <button id="one-player-mode" class="btn bg-accent text-accent-content text-lg">One Player</button>
+            <div id="mode-select-container" data-testid="mode-select-container" class="flex flex-col justify-center items-center gap-10 flex-grow">
+                <button id="one-player-mode" data-testid="one-player-mode" class="btn bg-accent text-accent-content text-lg">One Player</button>
                 <div class="text-primary-content flex justify-center">OR</div>
                 <button id="two-player-mode" class="btn bg-secondary text-secondary-content text-lg">Two Player</button>
             </div>
@@ -33,6 +33,8 @@ afterEach(() => {
     document.body.innerHTML = '';
   });
 
+  const { addGameModeClickEvents, playerModeInitializations } = require('../clickEvents');
+
 test('addGameModeClickEvents throws an error when horizontal or vertical size is not an integer', () => {
     expect(() => addGameModeClickEvents("string", 10)).toThrow();
     expect(() => addGameModeClickEvents(10, "string")).toThrow();
@@ -45,19 +47,42 @@ test('addGameModeClickEvents throws an error when horizontal or vertical size is
     expect(() => addGameModeClickEvents(5, 5)).toThrow();
 });
 
-test('should add event listeners to one-player-mode button', () => {
+test('addGameModeClickEvents should add event listeners to one-player-mode button', () => {
     playerModeInitializations.initializeOnePlayerMode = jest.fn();
     addGameModeClickEvents(horizontalSize, verticalSize);
     document.getElementById('one-player-mode').click();
     expect(playerModeInitializations.initializeOnePlayerMode).toHaveBeenCalledWith(horizontalSize, verticalSize);
 });
 
-test('should add event listeners to two-player-mode button', () => {
+test('addGameModeClickEvents should add event listeners to two-player-mode button', () => {
     playerModeInitializations.initializeTwoPlayerMode = jest.fn();
     addGameModeClickEvents(horizontalSize, verticalSize);
     document.getElementById('two-player-mode').click();
     expect(playerModeInitializations.initializeTwoPlayerMode).toHaveBeenCalledWith(horizontalSize, verticalSize);
 });
+
+test('initializeOnePlayerMode should hide modeSelectContainer', () => {
+    playerModeInitializations.initializeOnePlayerMode(horizontalSize, verticalSize);
+    const onePlayerModeButton = document.querySelector('[data-testid="one-player-mode"]');
+    const modeSelectContainer = document.querySelector('[data-testid="mode-select-container"]');
+    expect(modeSelectContainer).toBeVisible();
+    onePlayerModeButton.click();
+    expect(modeSelectContainer).toHaveClass("hidden");
+  });
+  
+  
+  
+
+// test('initializeOnePlayerMode should create playerone with expected properties', () => {
+//     const result = playerModeInitializations.initializeOnePlayerMode(horizontalSize, verticalSize);
+
+//     expect(result.playerone).toEqual(expect.objectContaining({ size: horizontalSize }));
+// });
+  
+  
+
+
+
 
 
 
