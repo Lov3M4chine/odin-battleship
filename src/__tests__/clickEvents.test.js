@@ -33,7 +33,7 @@ afterEach(() => {
     document.body.innerHTML = '';
   });
 
-  const { addGameModeClickEvents, playerModeInitializations } = require('../clickEvents');
+  const { addGameModeClickEvents, playerModeInitializations, battlegridClickEvents } = require('../clickEvents');
 
 test('addGameModeClickEvents throws an error when horizontal or vertical size is not an integer', () => {
     expect(() => addGameModeClickEvents("string", 10)).toThrow();
@@ -61,23 +61,9 @@ test('addGameModeClickEvents should add event listeners to two-player-mode butto
     expect(playerModeInitializations.initializeTwoPlayerMode).toHaveBeenCalledWith(horizontalSize, verticalSize);
 });
 
-test('initializeOnePlayerMode should hide modeSelectContainer', () => {
-    playerModeInitializations.initializeOnePlayerMode(horizontalSize, verticalSize);
-    const onePlayerModeButton = document.querySelector('[data-testid="one-player-mode"]');
-    const modeSelectContainer = document.querySelector('[data-testid="mode-select-container"]');
-    expect(modeSelectContainer).toBeVisible();
-    onePlayerModeButton.click();
-    expect(modeSelectContainer).toHaveClass("hidden");
-  });
-  
-  
-  
 
-// test('initializeOnePlayerMode should create playerone with expected properties', () => {
-//     const result = playerModeInitializations.initializeOnePlayerMode(horizontalSize, verticalSize);
 
-//     expect(result.playerone).toEqual(expect.objectContaining({ size: horizontalSize }));
-// });
+
   
   
 

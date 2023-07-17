@@ -79,9 +79,10 @@ function addGameModeClickEvents (horizontalSize, verticalSize) {
 const battlegridClickEvents = (function() {
 
     function registerCellClickForPlayerone (cell, playerone) {
-        if (cell.classList.contains("playerone")) {
-            if (playerone.gameboardState.gameboard[cell.dataset.cellNumber].name === null) {
-                playerone.gameboardState.gameboard[cell.dataset.cellNumber].isMiss = true;
+        let cellNumber = cell.getAttribute('data-cellNumber');
+        if (cell.classList.contains("playerone-cell")) {
+            if (playerone.gameboardState.gameboard[cellNumber].name === null) {
+                playerone.gameboardState.gameboard[cellNumber].isMiss = true;
                 cell.classList.add("bg-secondary");
             }
         }
@@ -97,10 +98,29 @@ const battlegridClickEvents = (function() {
     }
 
     return {
-        addPlayeroneBattlegridCellClickEvents
+        addPlayeroneBattlegridCellClickEvents,
     }
 
 })();
+
+function addPlayeronePlaceShipsClickEvents (playerone) {
+    const playeroneCells = document.querySelectorAll(".playerone-cell");
+    playeroneCells.forEach(function(cell) {
+        cell.addEventListener('click', function(event) {
+            registerPlaceShipClickForPlayerone(event.target, playerone);
+        })
+    })
+}
+
+function registerPlaceShipClickForPlayerone(shipFromList) {
+    let cellNumber = cell.getAttribute('data-cellNumber');
+    if (cell.classList.contains("playerone-cell")) {
+        if (playerone.gameboardState.gameboard[cellNumber].name === null) {
+            const shipFromList = placeShip
+            cell.classList.add("bg-secondary");
+        }
+    }
+}
 
 module.exports = {
     addGameModeClickEvents,
