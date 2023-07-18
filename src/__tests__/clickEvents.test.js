@@ -33,7 +33,7 @@ afterEach(() => {
     document.body.innerHTML = '';
   });
 
-  const { addGameModeClickEvents, playerModeInitializations, battlegridClickEvents } = require('../clickEvents');
+  const { addGameModeClickEvents, playerModeInitializations, battlegridClickEvents } = require('../modules/clickEvents');
 
 test('addGameModeClickEvents throws an error when horizontal or vertical size is not an integer', () => {
     expect(() => addGameModeClickEvents("string", 10)).toThrow();

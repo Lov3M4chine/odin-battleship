@@ -1,4 +1,4 @@
-const PlayerFactory = require("../modules/PlayerFactory.js")
+const PlayerFactory = require("../modules/factories/PlayerFactory.js")
 
 let playerOne;
 

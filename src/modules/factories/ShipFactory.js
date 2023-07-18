@@ -24,6 +24,7 @@ const ShipFactory = (name, size) => {
       getHits,
       isSunk,
       name,
+      size,
       coordinates
     };
   };

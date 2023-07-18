@@ -1,4 +1,4 @@
-const GameboardFactory = require ("../GameboardFactory.js");
+const GameboardFactory = require ("../modules/factories/GameboardFactory.js");
 
 let gameboardFactory;
 let gameboardState;

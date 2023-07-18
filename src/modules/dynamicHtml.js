@@ -16,7 +16,7 @@ function createBattlegridForPlayerOne (horizontalSize, verticalSize) {
         playeroneCell.id = `playerone-cell-${i}`;
         playeroneCell.className = 'btn bg-primary playerone-cell';
         playeroneCell.title = `cell ${i}`;
-        playeroneCell.setAttribute('data-cellNumber', i);
+        playeroneCell.setAttribute('data-cell-number', i);
 
         playerOneBattlegrid.appendChild(playeroneCell);
     }
