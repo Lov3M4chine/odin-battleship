@@ -7,7 +7,7 @@ const PlayerFactory = (horizontalSize, verticalSize) => {
     let gameboardState = gameboardFactory.createGameboard(horizontalSize, verticalSize);
     let ships = {};
 
-    function placeShip(initialCell, isVertical, length, name) {
+    function placeShip(initialCell, isVertical, name, size) {
         // Error Checking
         if (!gameboardState.gameboard) {
         throw new Error("a gameboardState must be passed");
@@ -21,45 +21,45 @@ const PlayerFactory = (horizontalSize, verticalSize) => {
         if (typeof isVertical !== "boolean") {
         throw new Error("isVertical must be a boolean");
         }
-        if (!(isVertical) && (gameboardState.horizontalSize - (initialCell % gameboardState.horizontalSize)) < length) {
+        if (!(isVertical) && (gameboardState.horizontalSize - (initialCell % gameboardState.horizontalSize)) < size) {
         throw new Error("The length of the ship exceeds the gameboard's horizontal boundary, starting from the initial cell");
         }
-        if ((isVertical) && (gameboardState.verticalSize - Math.floor(initialCell / gameboardState.horizontalSize)) < length) {
+        if ((isVertical) && (gameboardState.verticalSize - Math.floor(initialCell / gameboardState.horizontalSize)) < size) {
         throw new Error("The length of the ship exceeds the gameboard's vertical boundary, starting from the initial cell");
         }
         if (isVertical) {
-        for (let i = initialCell; i < (initialCell + (length * gameboardState.horizontalSize)); i+=gameboardState.horizontalSize) {
+        for (let i = initialCell; i < (initialCell + (size * gameboardState.horizontalSize)); i+=gameboardState.horizontalSize) {
             if (gameboardState.gameboard[i].name !== null) {
             throw new Error("Space is already occupied. Please choose another.");
             }
         }
         } else {
-        for (let i = initialCell; i < (initialCell + length); i+=1) {
+        for (let i = initialCell; i < (initialCell + size); i+=1) {
             if (gameboardState.gameboard[i].name !== null) {
             throw new Error("Space is already occupied. Please choose another.");
             }
         }
         }
 
-        let newShip = ShipFactory(length, name);
+        let newShip = ShipFactory(name, size);
         ships[name] = newShip;
-        ships[name].length = length;
+        ships[name].size = size;
         
 
         // Ship Placement
         if (isVertical) {
-        for (let i = initialCell; i < (initialCell + (length * gameboardState.horizontalSize)); i+=gameboardState.horizontalSize) {
-            gameboardState.gameboard[i].name = name;
-            newShip.coordinates.push(i);
-        }
-        ships[name].coordinates = newShip.coordinates;
+            for (let i = initialCell; i < (initialCell + (size * gameboardState.horizontalSize)); i+=gameboardState.horizontalSize) {
+                gameboardState.gameboard[i].name = name;
+                newShip.coordinates.push(i);
+            }
+            ships[name].coordinates = newShip.coordinates;
 
         } else {
-        for (let i = initialCell; i < (initialCell + length); i+=1) {
-            gameboardState.gameboard[i].name = name;
-            newShip.coordinates.push(i);
-        }
-        ships[name].coordinates = newShip.coordinates;
+            for (let i = initialCell; i < (initialCell + size); i+=1) {
+                gameboardState.gameboard[i].name = name;
+                newShip.coordinates.push(i);
+            }
+            ships[name].coordinates = newShip.coordinates;
         }
         return ships;
     }

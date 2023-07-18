@@ -1,5 +1,6 @@
 const { createBattlegridForPlayerOne, createBattlegridForPlayerTwo } = require ("./dynamicHtml.js");
 const PlayerFactory = require ("./PlayerFactory.js");
+const { initializePlaceShips } = require("./placeShips.js");
 
 const playerModeInitializations = (function() {
 
@@ -16,7 +17,7 @@ const playerModeInitializations = (function() {
         playerone = PlayerFactory(horizontalSize, verticalSize);
         computerPlayer = PlayerFactory(horizontalSize, verticalSize);
 
-        battlegridClickEvents.addPlayeroneBattlegridCellClickEvents(playerone);
+        initializePlaceShips(playerone);
 
         return {
             playerone,
@@ -80,11 +81,9 @@ const battlegridClickEvents = (function() {
 
     function registerCellClickForPlayerone (cell, playerone) {
         let cellNumber = cell.getAttribute('data-cellNumber');
-        if (cell.classList.contains("playerone-cell")) {
-            if (playerone.gameboardState.gameboard[cellNumber].name === null) {
-                playerone.gameboardState.gameboard[cellNumber].isMiss = true;
-                cell.classList.add("bg-secondary");
-            }
+        if (playerone.gameboardState.gameboard[cellNumber].name === null) {
+            playerone.gameboardState.gameboard[cellNumber].isMiss = true;
+            cell.classList.add("bg-secondary");
         }
     }
 
@@ -124,5 +123,5 @@ function registerPlaceShipClickForPlayerone(shipFromList) {
 
 module.exports = {
     addGameModeClickEvents,
-    playerModeInitializations
+    playerModeInitializations,
 }

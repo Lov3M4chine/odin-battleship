@@ -1,5 +1,5 @@
-const ShipFactory = (length, name) => {
-    if (!Number.isInteger(length) || length < 1) {
+const ShipFactory = (name, size) => {
+    if (!Number.isInteger(size) || size < 1) {
         throw new Error('Invalid ship length: must be a positive integer.');
     }
   
@@ -11,13 +11,13 @@ const ShipFactory = (length, name) => {
     let hits = 0;
   
     const hit = () => {
-      if (hits < length) {
+      if (hits < size) {
         hits += 1;
       }
     };
   
     const getHits = () => hits;
-    const isSunk = () => hits >= length;
+    const isSunk = () => hits >= size;
   
     return {
       hit,
