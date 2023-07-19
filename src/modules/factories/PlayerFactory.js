@@ -57,7 +57,6 @@ const PlayerFactory = (horizontalSize, verticalSize) => {
         } else {
             for (let i = cellSelected; i < (cellSelected + size); i+=1) {
                 gameboardState.gameboard[i].name = name;
-                console.log(`Added ${name} to cell: ${i}`);
                 newShip.coordinates.push(i);
             }
             ships[name].coordinates = newShip.coordinates;

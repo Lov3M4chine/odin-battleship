@@ -1,6 +1,5 @@
 require ('./styles.css');
-const PlayerFactory = require('./modules/factories/PlayerFactory');
-const { addGameModeClickEvents } = require ("./modules/clickEvents.js");
+const { addGameModeClickEvents } = require('./modules/addGameModeClickEvents');
 
 
 // Battlegrid size
