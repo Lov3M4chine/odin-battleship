@@ -63,10 +63,8 @@ module.exports = {
 var messageBox = document.getElementById("message-box");
 var submitButton = document.getElementById("submit-button");
 var horizontalButton = document.getElementById("horizontal-button");
-var verticalButton = document.getElementById("vertical-button");
 var modeSelectContainer = document.getElementById("mode-select-container");
 var mainContainer = document.getElementById("main-container");
-var highlightedArray = [];
 function createBattlegridForPlayerOne(horizontalSize, verticalSize) {
   var playerOneBattlegridContainer = document.createElement('div');
   playerOneBattlegridContainer.id = 'playerone-battlegrid-container';
@@ -127,35 +125,28 @@ function highlightShipPlacement(cell, playerOne, isVertical, currentShipSize, hi
   toggleSubmitButtonOn();
   console.log("Beginning cell highlighting...");
   highlightedArray = [];
-  console.log("Highlighted array reset from highlightShipPlacement");
   if (isVertical) {
-    for (var i = cellNumber; i < cellNumber + currentShipSize * playerOne.gameboardState.horizontalSize; i + playerOne.gameboardState.horizontalSize) {
+    for (var i = cellNumber; i < cellNumber + currentShipSize * playerOne.gameboardState.horizontalSize; i += playerOne.gameboardState.horizontalSize) {
       var cellToHighlight = document.querySelector("[data-cell-number=\"".concat(i, "\"]"));
-      console.log("Cell to highlight = ".concat(i));
       highlightedArray.push(i);
-      console.log("Cell pushed to highlighted array. Highlighted Array: ".concat(highlightedArray));
       cellToHighlight.classList.remove("bg-primary");
       cellToHighlight.classList.add("bg-accent");
-      console.log("Cell highlighted");
     }
   } else {
     for (var _i = cellNumber; _i < cellNumber + currentShipSize; _i += 1) {
       var _cellToHighlight = document.querySelector("[data-cell-number=\"".concat(_i, "\"]"));
-      console.log("Cell to highlight = ".concat(_i));
       highlightedArray.push(_i);
-      console.log("Cell pushed to highlighted array. Highlighted Array: ".concat(highlightedArray));
       _cellToHighlight.classList.remove("bg-primary");
       _cellToHighlight.classList.add("bg-accent");
-      console.log("Cell highlighted");
     }
   }
+  console.log("Cell highlighting complete. Highlight Array = ".concat(highlightedArray));
   return {
     cellSelected: cellSelected,
     highlightedArray: highlightedArray
   };
 }
 function removeHighlightedSelections(highlightedArray) {
-  console.log("removeHighlightedSelections array: ".concat(highlightedArray));
   for (var i = 0; i < highlightedArray.length; i++) {
     var cellToRemoveHighlight = document.querySelector("[data-cell-number=\"".concat(highlightedArray[i], "\"]"));
     cellToRemoveHighlight.classList.remove("bg-accent");
@@ -164,7 +155,6 @@ function removeHighlightedSelections(highlightedArray) {
   return highlightedArray;
 }
 function updateHighlightedFromSelectedToRegistered(highlightedArray) {
-  console.log("updateHighlightedFromSelectedToRegistered array: ".concat(highlightedArray));
   for (var i = 0; i < highlightedArray.length; i++) {
     var cellToRemoveHighlight = document.querySelector("[data-cell-number=\"".concat(highlightedArray[i], "\"]"));
     cellToRemoveHighlight.classList.remove("bg-primary");
@@ -172,17 +162,6 @@ function updateHighlightedFromSelectedToRegistered(highlightedArray) {
     console.log("Color updated to registerd on cell # ".concat(highlightedArray[i]));
   }
   return highlightedArray;
-}
-function toggleOrientation(orientation) {
-  if (orientation.isVertical === true) {
-    orientation.isVertical = false;
-    verticalButton.classList.add("hidden");
-    horizontalButton.classList.remove("hidden");
-  } else {
-    orientation.isVertical = true;
-    verticalButton.classList.remove("hidden");
-    horizontalButton.classList.add("hidden");
-  }
 }
 module.exports = {
   createBattlegridForPlayerOne: createBattlegridForPlayerOne,
@@ -194,8 +173,7 @@ module.exports = {
   toggleSubmitButtonOff: toggleSubmitButtonOff,
   highlightShipPlacement: highlightShipPlacement,
   removeHighlightedSelections: removeHighlightedSelections,
-  updateHighlightedFromSelectedToRegistered: updateHighlightedFromSelectedToRegistered,
-  toggleOrientation: toggleOrientation
+  updateHighlightedFromSelectedToRegistered: updateHighlightedFromSelectedToRegistered
 };
 
 /***/ }),
@@ -314,22 +292,22 @@ var PlayerFactory = function PlayerFactory(horizontalSize, verticalSize) {
     // }
 
     var newShip = ShipFactory(name, size);
-    ships[name] = newShip;
-    ships[name].size = size;
+    this.ships[name] = newShip;
+    this.ships[name].size = size;
 
     // Ship Placement
     if (isVertical) {
       for (var i = cellSelected; i < cellSelected + size * gameboardState.horizontalSize; i += gameboardState.horizontalSize) {
-        gameboardState.gameboard[i].name = name;
+        this.gameboardState.gameboard[i].name = name;
         newShip.coordinates.push(i);
       }
-      ships[name].coordinates = newShip.coordinates;
+      this.ships[name].coordinates = newShip.coordinates;
     } else {
       for (var _i = cellSelected; _i < cellSelected + size; _i += 1) {
-        gameboardState.gameboard[_i].name = name;
+        this.gameboardState.gameboard[_i].name = name;
         newShip.coordinates.push(_i);
       }
-      ships[name].coordinates = newShip.coordinates;
+      this.ships[name].coordinates = newShip.coordinates;
     }
     return ships;
   }
@@ -344,8 +322,8 @@ var PlayerFactory = function PlayerFactory(horizontalSize, verticalSize) {
     if (coordinate < 0 || coordinate >= gameboardState.gameboard.length) {
       throw new Error('coordinate passed is not on the gameboard');
     }
-    var name = gameboardState.gameboard[coordinate].name;
-    var ship = ships[name];
+    var name = this.gameboardState.gameboard[coordinate].name;
+    var ship = this.ships[name];
     if (name !== null) {
       gameboardState.gameboard[coordinate].isHit = true;
       ship.hit();
@@ -433,9 +411,15 @@ var _require = __webpack_require__(/*! ./dynamicHtml */ "./src/modules/dynamicHt
   updateHighlightedFromSelectedToRegistered = _require.updateHighlightedFromSelectedToRegistered;
 var _require2 = __webpack_require__(/*! ./factories/CreateShips */ "./src/modules/factories/CreateShips.js"),
   CreateShips = _require2.CreateShips;
+var horizontalButton = document.getElementById("horizontal-button");
+var verticalButton = document.getElementById("vertical-button");
 var highlightedArray = [];
 var isPlacementSuccessful = true;
-function addOrientationClickEvent(orientation) {
+var orientation = {
+  isVertical: false
+};
+var cellSelected;
+function addOrientationClickEvent() {
   var orientationButtons = document.querySelectorAll(".orientation-button");
   orientationButtons.forEach(function (button) {
     button.removeEventListener('click', function () {
@@ -446,51 +430,57 @@ function addOrientationClickEvent(orientation) {
     });
   });
 }
-function addHighlightShipEventListener(playerOne, isVertical, currentShipSize) {
+function toggleOrientation() {
+  if (orientation.isVertical === true) {
+    orientation.isVertical = false;
+    verticalButton.classList.add("hidden");
+    horizontalButton.classList.remove("hidden");
+  } else {
+    orientation.isVertical = true;
+    verticalButton.classList.remove("hidden");
+    horizontalButton.classList.add("hidden");
+  }
+}
+function addHighlightShipEventListener(playerOne, currentShipSize) {
   var playerOneCells = document.querySelectorAll(".playerone-cell");
   var highlightShipPlacementEventListener = function highlightShipPlacementEventListener(event) {
     removeHighlightedSelections(highlightedArray);
     console.log("Previous highlighted selections removed.");
-    var result = highlightShipPlacement(event.target, playerOne, isVertical, currentShipSize);
+    var result = highlightShipPlacement(event.target, playerOne, orientation.isVertical, currentShipSize);
     console.log("...current selection highlighted");
     highlightedArray = result.highlightedArray;
-    var cellSelected = result.cellSelected;
-    playerOneCells.forEach(function (cell) {
-      cell.removeEventListener('click', highlightShipPlacementEventListener);
-      console.log("highlightShipPlacementEventListener removed from cell clicked");
-    });
-    return cellSelected;
+    cellSelected = result.cellSelected;
   };
   playerOneCells.forEach(function (cell) {
     cell.addEventListener('click', highlightShipPlacementEventListener);
   });
   console.log("highlightShip Event Listener attached to all cells");
 }
-function registerPlaceShipForPlayerOne(cellSelected, playerOne, isVertical, currentShipName, currentShipSize) {
-  if (checkIsPlacementValid(cellSelected, playerOne, isVertical, currentShipSize)) {
-    playerOne.placeShip(cellSelected, isVertical, currentShipName, currentShipSize);
+function registerPlaceShipForPlayerOne(playerOne, currentShipName, currentShipSize) {
+  if (checkIsPlacementValid(cellSelected, playerOne, currentShipSize)) {
+    playerOne.placeShip(cellSelected, orientation.isVertical, currentShipName, currentShipSize);
     updateHighlightedFromSelectedToRegistered(highlightedArray);
     isPlacementSuccessful = true;
     return isPlacementSuccessful;
   } else {
     console.log("Try again.");
-    addPlaceShipEventListener(playerOne, isVertical, currentShipName, currentShipSize);
+    addPlaceShipEventListener(playerOne, orientation.isVertical, currentShipName, currentShipSize);
   }
 }
-function addSubmitButtonEventListener(cellSelected, playerOne, isVertical, currentShipName, currentShipSize) {
+function addSubmitButtonEventListener(playerOne, currentShipName, currentShipSize) {
   return new Promise(function (resolve) {
     var submitButton = document.getElementById("submit-button");
     var onClick = function onClick(event) {
-      registerPlaceShipForPlayerOne(cellSelected, playerOne, isVertical, currentShipName, currentShipSize);
+      registerPlaceShipForPlayerOne(playerOne, currentShipName, currentShipSize);
       submitButton.removeEventListener('click', onClick);
       resolve();
     };
     submitButton.addEventListener('click', onClick);
   });
 }
-function checkIsPlacementValid(cellNumber, playerOne, isVertical, currentShipSize) {
+function checkIsPlacementValid(cellNumber, playerOne, currentShipSize) {
   var isPlacementValid = true;
-  if (isVertical) {
+  if (orientation.isVertical) {
     if (playerOne.gameboardState.verticalSize - cellNumber % playerOne.gameboardState.verticalSize < currentShipSize) {
       isPlacementValid = false;
     }
@@ -504,7 +494,6 @@ function checkIsPlacementValid(cellNumber, playerOne, isVertical, currentShipSiz
       isPlacementValid = false;
     }
     for (var _i = cellNumber; _i < cellNumber + currentShipSize; _i += 1) {
-      console.log("name: ".concat(playerOne.gameboardState.gameboard[_i].name));
       if (playerOne.gameboardState.gameboard[_i].name) {
         isPlacementValid = false;
       }
@@ -517,15 +506,12 @@ function initializePlaceShips(_x) {
 }
 function _initializePlaceShips() {
   _initializePlaceShips = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee(playerOne) {
-    var orientation, loopCount, shipList, currentShipKey, currentShip, currentShipName, currentShipSize, cellSelected;
+    var loopCount, shipList, currentShipKey, currentShip, currentShipName, currentShipSize;
     return _regeneratorRuntime().wrap(function _callee$(_context) {
       while (1) switch (_context.prev = _context.next) {
         case 0:
-          orientation = {
-            isVertical: false
-          };
           loopCount = 0;
-          addOrientationClickEvent(orientation);
+          addOrientationClickEvent();
           console.log("Orientation click event added");
           initializePlaceShipsDynamicHTML();
           console.log("Ship placement screen dynamic html updated");
@@ -533,9 +519,9 @@ function _initializePlaceShips() {
           console.log("Ship List Created");
           console.log("Ship List: ".concat(JSON.stringify(shipList)));
           _context.t0 = _regeneratorRuntime().keys(shipList);
-        case 10:
+        case 9:
           if ((_context.t1 = _context.t0()).done) {
-            _context.next = 26;
+            _context.next = 27;
             break;
           }
           currentShipKey = _context.t1.value;
@@ -548,13 +534,15 @@ function _initializePlaceShips() {
           console.log("Ship Size: ".concat(currentShipSize));
           updateMessageBox("Please place your ".concat(currentShipName));
           console.log("Message box updated.");
-          cellSelected = addHighlightShipEventListener(playerOne, orientation.isVertical, currentShipSize);
-          _context.next = 24;
-          return addSubmitButtonEventListener(cellSelected, playerOne, orientation.isVertical, currentShipName, currentShipSize);
-        case 24:
-          _context.next = 10;
+          addHighlightShipEventListener(playerOne, currentShipSize);
+          _context.next = 23;
+          return addSubmitButtonEventListener(playerOne, currentShipName, currentShipSize);
+        case 23:
+          console.log(playerOne);
+          console.log(playerOne.ships);
+          _context.next = 9;
           break;
-        case 26:
+        case 27:
         case "end":
           return _context.stop();
       }
