@@ -1,10 +1,8 @@
 const messageBox = document.getElementById("message-box");
 const submitButton = document.getElementById("submit-button");
 const horizontalButton = document.getElementById("horizontal-button");
-const verticalButton = document.getElementById("vertical-button");
 const modeSelectContainer = document.getElementById("mode-select-container");
 const mainContainer = document.getElementById("main-container");
-let highlightedArray = [];
 
 function createBattlegridForPlayerOne (horizontalSize, verticalSize) {
     const playerOneBattlegridContainer = document.createElement('div');
@@ -84,28 +82,22 @@ function highlightShipPlacement (cell, playerOne, isVertical, currentShipSize, h
     toggleSubmitButtonOn();
     console.log("Beginning cell highlighting...")
     highlightedArray = [];
-    console.log("Highlighted array reset from highlightShipPlacement")
     if (isVertical) {
-        for (let i = cellNumber; i < (cellNumber + (currentShipSize * playerOne.gameboardState.horizontalSize)); i+playerOne.gameboardState.horizontalSize) {
+        for (let i = cellNumber; i < (cellNumber + (currentShipSize * playerOne.gameboardState.horizontalSize)); i+=playerOne.gameboardState.horizontalSize) {
             let cellToHighlight = document.querySelector(`[data-cell-number="${i}"]`);
-            console.log(`Cell to highlight = ${i}`)
             highlightedArray.push(i);
-            console.log(`Cell pushed to highlighted array. Highlighted Array: ${highlightedArray}`);
             cellToHighlight.classList.remove("bg-primary");
             cellToHighlight.classList.add("bg-accent");
-            console.log("Cell highlighted")
         }
     } else {
         for (let i = cellNumber; i < (cellNumber + currentShipSize); i+=1) {
             let cellToHighlight = document.querySelector(`[data-cell-number="${i}"]`);
-            console.log(`Cell to highlight = ${i}`)
             highlightedArray.push(i);
-            console.log(`Cell pushed to highlighted array. Highlighted Array: ${highlightedArray}`);
             cellToHighlight.classList.remove("bg-primary");
             cellToHighlight.classList.add("bg-accent");
-            console.log("Cell highlighted")
         }
     }
+    console.log(`Cell highlighting complete. Highlight Array = ${highlightedArray}`)
 
     return {
         cellSelected,
@@ -114,7 +106,6 @@ function highlightShipPlacement (cell, playerOne, isVertical, currentShipSize, h
 }
 
 function removeHighlightedSelections(highlightedArray) {
-    console.log(`removeHighlightedSelections array: ${highlightedArray}`)
     for (let i = 0; i < highlightedArray.length; i++) {
         let cellToRemoveHighlight = document.querySelector(`[data-cell-number="${highlightedArray[i]}"]`);
         cellToRemoveHighlight.classList.remove("bg-accent");
@@ -124,7 +115,6 @@ function removeHighlightedSelections(highlightedArray) {
 }
 
 function updateHighlightedFromSelectedToRegistered(highlightedArray) {
-    console.log(`updateHighlightedFromSelectedToRegistered array: ${highlightedArray}`)
     for (let i = 0; i < highlightedArray.length; i++) {
         let cellToRemoveHighlight = document.querySelector(`[data-cell-number="${highlightedArray[i]}"]`);
         cellToRemoveHighlight.classList.remove("bg-primary");
@@ -132,18 +122,6 @@ function updateHighlightedFromSelectedToRegistered(highlightedArray) {
         console.log(`Color updated to registerd on cell # ${highlightedArray[i]}`);
     }
     return highlightedArray;
-}
-
-function toggleOrientation(orientation) {
-    if (orientation.isVertical === true) {
-        orientation.isVertical = false;
-        verticalButton.classList.add("hidden");
-        horizontalButton.classList.remove("hidden");
-    } else {
-        orientation.isVertical = true;
-        verticalButton.classList.remove("hidden");
-        horizontalButton.classList.add("hidden");
-    }
 }
 
 module.exports = { 
@@ -157,5 +135,4 @@ module.exports = {
     highlightShipPlacement,
     removeHighlightedSelections,
     updateHighlightedFromSelectedToRegistered,
-    toggleOrientation
 };

@@ -1,10 +1,16 @@
 const { initializePlaceShipsDynamicHTML, updateMessageBox, removeHighlightedSelections, highlightShipPlacement, updateHighlightedFromSelectedToRegistered } = require("./dynamicHtml");
 const { CreateShips } = require("./factories/CreateShips");
+const horizontalButton = document.getElementById("horizontal-button");
+const verticalButton = document.getElementById("vertical-button");
 
 let highlightedArray = [];
 let isPlacementSuccessful = true;
+let orientation = {
+    isVertical: false
+  };
+let cellSelected;
 
-function addOrientationClickEvent(orientation) {
+function addOrientationClickEvent() {
     const orientationButtons = document.querySelectorAll(".orientation-button");
     orientationButtons.forEach(function(button) {
         button.removeEventListener('click', () => toggleOrientation(orientation));
@@ -12,26 +18,30 @@ function addOrientationClickEvent(orientation) {
     });
 }
 
-function addHighlightShipEventListener (playerOne, isVertical, currentShipSize) {
+function toggleOrientation() {
+    if (orientation.isVertical === true) {
+        orientation.isVertical = false;
+        verticalButton.classList.add("hidden");
+        horizontalButton.classList.remove("hidden");
+    } else {
+        orientation.isVertical = true;
+        verticalButton.classList.remove("hidden");
+        horizontalButton.classList.add("hidden");
+    }
+}
+
+function addHighlightShipEventListener (playerOne, currentShipSize) {
     const playerOneCells = document.querySelectorAll(".playerone-cell");
     const highlightShipPlacementEventListener = function(event) {
+        
         removeHighlightedSelections(highlightedArray);
         console.log("Previous highlighted selections removed.")
         
-        const result = highlightShipPlacement(event.target, playerOne, isVertical, currentShipSize);
+        const result = highlightShipPlacement(event.target, playerOne, orientation.isVertical, currentShipSize);
         console.log("...current selection highlighted");
     
-        
         highlightedArray = result.highlightedArray;
-
-        const cellSelected = result.cellSelected;
-    
-        playerOneCells.forEach(function(cell) {
-            cell.removeEventListener('click', highlightShipPlacementEventListener);
-            console.log("highlightShipPlacementEventListener removed from cell clicked");
-        });
-    
-        return cellSelected;
+        cellSelected = result.cellSelected;
     };    
     playerOneCells.forEach(function(cell) {
         cell.addEventListener('click', highlightShipPlacementEventListener);
@@ -39,24 +49,24 @@ function addHighlightShipEventListener (playerOne, isVertical, currentShipSize) 
     console.log("highlightShip Event Listener attached to all cells");
 }
 
-function registerPlaceShipForPlayerOne (cellSelected, playerOne, isVertical, currentShipName, currentShipSize) {
-    if (checkIsPlacementValid(cellSelected, playerOne, isVertical, currentShipSize)) {
-        playerOne.placeShip(cellSelected, isVertical, currentShipName, currentShipSize);
+function registerPlaceShipForPlayerOne (playerOne, currentShipName, currentShipSize) {
+    if (checkIsPlacementValid(cellSelected, playerOne, currentShipSize)) {
+        playerOne.placeShip(cellSelected, orientation.isVertical, currentShipName, currentShipSize);
         updateHighlightedFromSelectedToRegistered(highlightedArray);
         isPlacementSuccessful = true;
         return isPlacementSuccessful;
     } else {
         console.log("Try again.")
-        addPlaceShipEventListener(playerOne, isVertical, currentShipName, currentShipSize);
+        addPlaceShipEventListener(playerOne, orientation.isVertical, currentShipName, currentShipSize);
     }
 }
 
-function addSubmitButtonEventListener(cellSelected, playerOne, isVertical, currentShipName, currentShipSize, ) {
+function addSubmitButtonEventListener(playerOne, currentShipName, currentShipSize, ) {
     return new Promise(resolve => {
       const submitButton = document.getElementById("submit-button");
   
       const onClick = function(event) {
-        registerPlaceShipForPlayerOne(cellSelected, playerOne, isVertical, currentShipName, currentShipSize);
+        registerPlaceShipForPlayerOne(playerOne, currentShipName, currentShipSize);
         submitButton.removeEventListener('click', onClick);
         resolve();
       };
@@ -65,9 +75,9 @@ function addSubmitButtonEventListener(cellSelected, playerOne, isVertical, curre
     });
   }
 
-function checkIsPlacementValid (cellNumber, playerOne, isVertical, currentShipSize) {
+function checkIsPlacementValid (cellNumber, playerOne, currentShipSize) {
     let isPlacementValid = true;
-    if (isVertical) {
+    if (orientation.isVertical) {
         if (playerOne.gameboardState.verticalSize - (cellNumber % playerOne.gameboardState.verticalSize) < currentShipSize) {
             isPlacementValid = false;
         }
@@ -81,7 +91,6 @@ function checkIsPlacementValid (cellNumber, playerOne, isVertical, currentShipSi
             isPlacementValid = false;
         }
         for (let i = cellNumber; i < (cellNumber + currentShipSize); i+=1) {
-            console.log(`name: ${playerOne.gameboardState.gameboard[i].name}`);
             if (playerOne.gameboardState.gameboard[i].name) {
                 isPlacementValid = false;
             } 
@@ -91,12 +100,8 @@ function checkIsPlacementValid (cellNumber, playerOne, isVertical, currentShipSi
 }
 
 async function initializePlaceShips(playerOne) {
-    let orientation = {
-        isVertical: false
-      };
     let loopCount = 0;
-
-    addOrientationClickEvent(orientation);
+    addOrientationClickEvent();
     console.log("Orientation click event added");
     initializePlaceShipsDynamicHTML();
     console.log("Ship placement screen dynamic html updated");
@@ -114,11 +119,11 @@ async function initializePlaceShips(playerOne) {
         console.log(`Ship Size: ${currentShipSize}`);
         updateMessageBox(`Please place your ${currentShipName}`);
         console.log("Message box updated.");
-        let cellSelected = addHighlightShipEventListener(playerOne, orientation.isVertical, currentShipSize);
-        await addSubmitButtonEventListener(cellSelected, playerOne, orientation.isVertical, currentShipName, currentShipSize);
-        
+        addHighlightShipEventListener(playerOne, currentShipSize);
+        await addSubmitButtonEventListener(playerOne, currentShipName, currentShipSize);
+        console.log(playerOne);
+        console.log(playerOne.ships);
     }
-    
 }
 
 module.exports = {

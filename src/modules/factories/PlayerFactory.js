@@ -42,24 +42,24 @@ const PlayerFactory = (horizontalSize, verticalSize) => {
         // }
 
         let newShip = ShipFactory(name, size);
-        ships[name] = newShip;
-        ships[name].size = size;
+        this.ships[name] = newShip;
+        this.ships[name].size = size;
         
 
         // Ship Placement
         if (isVertical) {
             for (let i = cellSelected; i < (cellSelected + (size * gameboardState.horizontalSize)); i+=gameboardState.horizontalSize) {
-                gameboardState.gameboard[i].name = name;
+                this.gameboardState.gameboard[i].name = name;
                 newShip.coordinates.push(i);
             }
-            ships[name].coordinates = newShip.coordinates;
+            this.ships[name].coordinates = newShip.coordinates;
 
         } else {
             for (let i = cellSelected; i < (cellSelected + size); i+=1) {
-                gameboardState.gameboard[i].name = name;
+                this.gameboardState.gameboard[i].name = name;
                 newShip.coordinates.push(i);
             }
-            ships[name].coordinates = newShip.coordinates;
+            this.ships[name].coordinates = newShip.coordinates;
         }
         return ships;
     }
@@ -77,8 +77,8 @@ const PlayerFactory = (horizontalSize, verticalSize) => {
           }
           
 
-        const name = gameboardState.gameboard[coordinate].name;
-        const ship = ships[name];
+        const name = this.gameboardState.gameboard[coordinate].name;
+        const ship = this.ships[name];
 
         if (name !== null) {
         gameboardState.gameboard[coordinate].isHit = true;
