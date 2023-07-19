@@ -102,15 +102,6 @@ function addPlayeronePlaceShipsClickEvents(playerone) {
     });
   });
 }
-function registerPlaceShipClickForPlayerone(shipFromList) {
-  var cellNumber = cell.getAttribute('data-cellNumber');
-  if (cell.classList.contains("playerone-cell")) {
-    if (playerone.gameboardState.gameboard[cellNumber].name === null) {
-      var _shipFromList = placeShip;
-      cell.classList.add("bg-secondary");
-    }
-  }
-}
 module.exports = {
   addGameModeClickEvents: addGameModeClickEvents,
   playerModeInitializations: playerModeInitializations
@@ -138,6 +129,7 @@ function createBattlegridForPlayerOne(horizontalSize, verticalSize) {
     playeroneCell.className = 'btn bg-primary playerone-cell';
     playeroneCell.title = "cell ".concat(i);
     playeroneCell.setAttribute('data-cell-number', i);
+    playeroneCell.setAttribute('data-is-highlighted', false);
     playerOneBattlegrid.appendChild(playeroneCell);
   }
   playerOneBattlegridContainer.appendChild(playerOneBattlegrid);
@@ -220,54 +212,56 @@ var PlayerFactory = function PlayerFactory(horizontalSize, verticalSize) {
   var gameboardFactory = GameboardFactory();
   var gameboardState = gameboardFactory.createGameboard(horizontalSize, verticalSize);
   var ships = {};
-  function placeShip(initialCell, isVertical, name, size) {
+  function placeShip(cellSelected, isVertical, name, size) {
     // Error Checking
-    if (!gameboardState.gameboard) {
-      throw new Error("a gameboardState must be passed");
-    }
-    if (!Number.isInteger(initialCell)) {
-      throw new Error("initialCell must be an integer.");
-    }
-    if (initialCell < 0) {
-      throw new Error("initialCell must be greater than or equal to zero. It represents the initial cell the ship starts on.");
-    }
-    if (typeof isVertical !== "boolean") {
-      throw new Error("isVertical must be a boolean");
-    }
-    if (!isVertical && gameboardState.horizontalSize - initialCell % gameboardState.horizontalSize < size) {
-      throw new Error("The length of the ship exceeds the gameboard's horizontal boundary, starting from the initial cell");
-    }
-    if (isVertical && gameboardState.verticalSize - Math.floor(initialCell / gameboardState.horizontalSize) < size) {
-      throw new Error("The length of the ship exceeds the gameboard's vertical boundary, starting from the initial cell");
-    }
-    if (isVertical) {
-      for (var i = initialCell; i < initialCell + size * gameboardState.horizontalSize; i += gameboardState.horizontalSize) {
-        if (gameboardState.gameboard[i].name !== null) {
-          throw new Error("Space is already occupied. Please choose another.");
-        }
-      }
-    } else {
-      for (var _i = initialCell; _i < initialCell + size; _i += 1) {
-        if (gameboardState.gameboard[_i].name !== null) {
-          throw new Error("Space is already occupied. Please choose another.");
-        }
-      }
-    }
+    // if (!gameboardState.gameboard) {
+    // throw new Error("a gameboardState must be passed");
+    // }
+    // if (!(Number.isInteger(initialCell))) {
+    // throw new Error("initialCell must be an integer.");
+    // }
+    // if (initialCell < 0) {
+    // throw new Error("initialCell must be greater than or equal to zero. It represents the initial cell the ship starts on.")
+    // }
+    // if (typeof isVertical !== "boolean") {
+    // throw new Error("isVertical must be a boolean");
+    // }
+    // if (!(isVertical) && (gameboardState.horizontalSize - (initialCell % gameboardState.horizontalSize)) < size) {
+    // throw new Error("The length of the ship exceeds the gameboard's horizontal boundary, starting from the initial cell");
+    // }
+    // if ((isVertical) && (gameboardState.verticalSize - Math.floor(initialCell / gameboardState.horizontalSize)) < size) {
+    // throw new Error("The length of the ship exceeds the gameboard's vertical boundary, starting from the initial cell");
+    // }
+    // if (isVertical) {
+    // for (let i = initialCell; i < (initialCell + (size * gameboardState.horizontalSize)); i+=gameboardState.horizontalSize) {
+    //     if (gameboardState.gameboard[i].name !== null) {
+    //     throw new Error("Space is already occupied. Please choose another.");
+    //     }
+    // }
+    // } else {
+    // for (let i = initialCell; i < (initialCell + size); i+=1) {
+    //     if (gameboardState.gameboard[i].name !== null) {
+    //     throw new Error("Space is already occupied. Please choose another.");
+    //     }
+    // }
+    // }
+
     var newShip = ShipFactory(name, size);
     ships[name] = newShip;
     ships[name].size = size;
 
     // Ship Placement
     if (isVertical) {
-      for (var _i2 = initialCell; _i2 < initialCell + size * gameboardState.horizontalSize; _i2 += gameboardState.horizontalSize) {
-        gameboardState.gameboard[_i2].name = name;
-        newShip.coordinates.push(_i2);
+      for (var i = cellSelected; i < cellSelected + size * gameboardState.horizontalSize; i += gameboardState.horizontalSize) {
+        gameboardState.gameboard[i].name = name;
+        newShip.coordinates.push(i);
       }
       ships[name].coordinates = newShip.coordinates;
     } else {
-      for (var _i3 = initialCell; _i3 < initialCell + size; _i3 += 1) {
-        gameboardState.gameboard[_i3].name = name;
-        newShip.coordinates.push(_i3);
+      for (var _i = cellSelected; _i < cellSelected + size; _i += 1) {
+        gameboardState.gameboard[_i].name = name;
+        console.log("Added ".concat(name, " to cell: ").concat(_i));
+        newShip.coordinates.push(_i);
       }
       ships[name].coordinates = newShip.coordinates;
     }
@@ -379,12 +373,14 @@ var messageBox = document.getElementById("message-box");
 var submitButton = document.getElementById("submit-button");
 var horizontalButton = document.getElementById("horizontal-button");
 var isVertical = false;
+var highlightedArray = [];
 function waitForButtonClick(button) {
   return new Promise(function (resolve) {
-    button.addEventListener('click', function onClick() {
+    var onClick = function onClick() {
       button.removeEventListener('click', onClick);
       resolve();
-    });
+    };
+    button.addEventListener('click', onClick);
   });
 }
 function initializePlaceShips(_x) {
@@ -405,116 +401,144 @@ function _initializePlaceShips() {
           _iterator.s();
         case 7:
           if ((_step = _iterator.n()).done) {
-            _context.next = 19;
+            _context.next = 21;
             break;
           }
           currentShip = _step.value;
           currentShipName = currentShip.name;
           currentShipSize = currentShip.size;
+        case 11:
+          placementSuccessful = false;
           messageBox.innerHTML = "Please place your ".concat(currentShipName);
           addPlaceShipEventListener(playerone, isVertical, currentShipName, currentShipSize);
           submitButton.classList.remove("hidden");
-          _context.next = 16;
+          _context.next = 17;
           return waitForButtonClick(submitButton);
-        case 16:
-          submitButton.classList.add("hidden");
         case 17:
+          submitButton.classList.add("hidden");
+        case 18:
+          if (!placementSuccessful) {
+            _context.next = 11;
+            break;
+          }
+        case 19:
           _context.next = 7;
           break;
-        case 19:
-          _context.next = 24;
-          break;
         case 21:
-          _context.prev = 21;
+          _context.next = 26;
+          break;
+        case 23:
+          _context.prev = 23;
           _context.t0 = _context["catch"](5);
           _iterator.e(_context.t0);
-        case 24:
-          _context.prev = 24;
+        case 26:
+          _context.prev = 26;
           _iterator.f();
-          return _context.finish(24);
-        case 27:
+          return _context.finish(26);
+        case 29:
         case "end":
           return _context.stop();
       }
-    }, _callee, null, [[5, 21, 24, 27]]);
+    }, _callee, null, [[5, 23, 26, 29]]);
   }));
   return _initializePlaceShips.apply(this, arguments);
 }
 function addPlaceShipEventListener(playerone, isVertical, currentShipName, currentShipSize) {
   var playeroneCells = document.querySelectorAll(".playerone-cell");
-  playeroneCells.forEach(function (cell) {
-    cell.addEventListener('click', function (event) {
-      selectShipPlacement(event.target, playerone, isVertical, currentShipName, currentShipSize);
+  var onClick = function onClick(event) {
+    removeHighlightedSelections();
+    selectShipPlacement(event.target, playerone, isVertical, currentShipName, currentShipSize);
+    playeroneCells.forEach(function (cell) {
+      cell.removeEventListener('click', onClick);
     });
+  };
+  playeroneCells.forEach(function (cell) {
+    cell.addEventListener('click', onClick);
   });
 }
 function addSubmitButtonEventListener(cellSelected, playerone, isVertical, currentShipName, currentShipSize) {
-  submitButton.addEventListener('click', function (event) {
+  var onClick = function onClick(event) {
     registerPlaceShipForPlayerone(cellSelected, playerone, isVertical, currentShipName, currentShipSize);
-  });
+    submitButton.removeEventListener('click', onClick);
+  };
+  submitButton.addEventListener('click', onClick);
 }
 function selectShipPlacement(cell, playerone, isVertical, currentShipName, currentShipSize) {
   var cellNumber = Number(cell.dataset.cellNumber);
   var cellSelected = cellNumber;
   addSubmitButtonEventListener(cellSelected, playerone, isVertical, currentShipName, currentShipSize);
   submitButton.classList.remove("hidden");
-  if (isVertical) {
-    for (var i = cellNumber; i < cellNumber + currentShipSize * playerone.gameboardState.horizontalSize; i += playerone.gameboardState.horizontalSize) {
+  if (isVertical === true) {
+    for (var i = cellNumber; i < cellNumber + currentShipSize * playerone.gameboardState.horizontalSize; i + playerone.gameboardState.horizontalSize) {
       var cellToHighlight = document.querySelector("[data-cell-number=\"".concat(i, "\"]"));
+      highlightedArray.push(i);
+      console.log("Highlighted Array: ".concat(highlightedArray));
       cellToHighlight.classList.remove("bg-primary");
       cellToHighlight.classList.add("bg-accent");
-      submitButton.classList.remove("hidden");
     }
   } else {
     for (var _i = cellNumber; _i < cellNumber + currentShipSize; _i += 1) {
       var _cellToHighlight = document.querySelector("[data-cell-number=\"".concat(_i, "\"]"));
+      highlightedArray.push(_i);
+      console.log("Highlighted Array: ".concat(highlightedArray));
       _cellToHighlight.classList.remove("bg-primary");
       _cellToHighlight.classList.add("bg-accent");
     }
   }
   return cellSelected;
 }
+function removeHighlightedSelections() {
+  for (var i = 0; i < highlightedArray.length; i++) {
+    var cellToRemoveHighlight = document.querySelector("[data-cell-number=\"".concat(highlightedArray[i], "\"]"));
+    cellToRemoveHighlight.classList.remove("bg-accent");
+    cellToRemoveHighlight.classList.add("bg-primary");
+  }
+  highlightedArray = [];
+}
+function updateHighlightedSelectionToPermanent() {
+  for (var i = 0; i < highlightedArray.length; i++) {
+    var cellToRemoveHighlight = document.querySelector("[data-cell-number=\"".concat(highlightedArray[i], "\"]"));
+    cellToRemoveHighlight.classList.remove("bg-primary");
+    cellToRemoveHighlight.classList.add("bg-secondary");
+  }
+}
 function registerPlaceShipForPlayerone(cellSelected, playerone, isVertical, currentShipName, currentShipSize) {
-  console.log("Is Valid? ".concat(checkIsPlacementValid(cellSelected, playerone, isVertical, currentShipSize)));
   if (checkIsPlacementValid(cellSelected, playerone, isVertical, currentShipSize)) {
     playerone.placeShip(cellSelected, isVertical, currentShipName, currentShipSize);
+    updateHighlightedSelectionToPermanent();
+    placementSuccessful = true;
   } else {
+    messageBox.innerHTML = "Invalid placement. Please try again.";
     throw new Error("Ship placement is not valid");
   }
 }
 function checkIsPlacementValid(cellNumber, playerone, isVertical, currentShipSize) {
-  console.log("Cell Number: ".concat(cellNumber));
-  console.log("playerone: ".concat(playerone));
-  console.log("isVertical: ".concat(isVertical));
-  console.log("currentShipSize: ".concat(currentShipSize));
   var isPlacementValid = true;
-  if (isVertical) {
+  if (isVertical === true) {
     if (playerone.gameboardState.verticalSize - cellNumber % playerone.gameboardState.verticalSize < currentShipSize) {
-      console.log("Vertical Remainder: ".concat(cellNumber % playerone.gameboardState.horizontalSize));
-      console.log("Vertical Left Over: ".concat(playerone.gameboardState.horizontalSize - currentShipSize));
       isPlacementValid = false;
+      messageBox.innerHTML = "Invalid placement. Please try again.";
       throw new Error("Ship placement is outside boundaries. Please choose a difference space.");
     }
     for (var i = cellNumber; i < cellNumber + currentShipSize * playerone.gameboardState.horizontalSize; i += playerone.gameboardState.horizontalSize) {
-      if (playerone.gameboardState.gameboard[cellNumber].name) {
+      if (playerone.gameboardState.gameboard[i].name) {
         isPlacementValid = false;
+        messageBox.innerHTML = "Invalid placement. Please try again.";
         throw new Error("Ships cannot overlap. Please choose a difference space.");
-        return isPlacementValid;
       }
     }
   } else {
     if (playerone.gameboardState.horizontalSize - cellNumber % playerone.gameboardState.horizontalSize < currentShipSize) {
-      console.log("Horizontal Remainder: ".concat(cellNumber % playerone.gameboardState.horizontalSize));
-      console.log("Horizontal Left Over: ".concat(playerone.gameboardState.horizontalSize - currentShipSize));
       isPlacementValid = false;
+      messageBox.innerHTML = "Invalid placement. Please try again.";
       throw new Error("Ship placement is outside boundaries. Please choose a difference space.");
-      return isPlacementValid;
     }
     for (var _i2 = cellNumber; _i2 < cellNumber + currentShipSize; _i2 += 1) {
-      if (playerone.gameboardState.gameboard[cellNumber].name) {
+      console.log("name: ".concat(playerone.gameboardState.gameboard[_i2].name));
+      if (playerone.gameboardState.gameboard[_i2].name) {
         isPlacementValid = false;
-        throw new Error("Ships cannot overlap. Please choose a difference space.");
-        return isPlacementValid;
+        messageBox.innerHTML = "Invalid placement. Please try again.";
+        throw new Error("Ships cannot overlap. Please choose a differen space.");
       }
     }
   }
@@ -524,18 +548,22 @@ function addOrientationClickEvent(isVertical) {
   var orientationButtons = document.querySelectorAll(".orientation-button");
   var verticalButton = document.getElementById("vertical-button");
   var horizontalButton = document.getElementById("horizontal-button");
+  function toggleOrientation() {
+    if (isVertical === true) {
+      isVertical = false;
+      verticalButton.classList.add("hidden");
+      horizontalButton.classList.remove("hidden");
+    } else {
+      isVertical = true;
+      verticalButton.classList.remove("hidden");
+      horizontalButton.classList.add("hidden");
+    }
+  }
   orientationButtons.forEach(function (button) {
-    button.addEventListener('click', function () {
-      if (isVertical === true) {
-        isVertical = false;
-        verticalButton.classList.add("hidden");
-        horizontalButton.classList.remove("hidden");
-      } else {
-        isVertical = true;
-        verticalButton.classList.remove("hidden");
-        horizontalButton.classList.add("hidden");
-      }
-    });
+    // First, remove the old event listener (if it exists)
+    button.removeEventListener('click', toggleOrientation);
+    // Then, add the event listener back
+    button.addEventListener('click', toggleOrientation);
   });
   return isVertical;
 }
