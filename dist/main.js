@@ -374,6 +374,7 @@ var submitButton = document.getElementById("submit-button");
 var horizontalButton = document.getElementById("horizontal-button");
 var isVertical = false;
 var highlightedArray = [];
+var isPlacementSuccessful = true;
 function waitForButtonClick(button) {
   return new Promise(function (resolve) {
     var onClick = function onClick() {
@@ -401,45 +402,38 @@ function _initializePlaceShips() {
           _iterator.s();
         case 7:
           if ((_step = _iterator.n()).done) {
-            _context.next = 21;
+            _context.next = 19;
             break;
           }
           currentShip = _step.value;
           currentShipName = currentShip.name;
           currentShipSize = currentShip.size;
-        case 11:
-          placementSuccessful = false;
           messageBox.innerHTML = "Please place your ".concat(currentShipName);
           addPlaceShipEventListener(playerone, isVertical, currentShipName, currentShipSize);
           submitButton.classList.remove("hidden");
-          _context.next = 17;
+          _context.next = 16;
           return waitForButtonClick(submitButton);
-        case 17:
+        case 16:
           submitButton.classList.add("hidden");
-        case 18:
-          if (!placementSuccessful) {
-            _context.next = 11;
-            break;
-          }
-        case 19:
+        case 17:
           _context.next = 7;
           break;
-        case 21:
-          _context.next = 26;
+        case 19:
+          _context.next = 24;
           break;
-        case 23:
-          _context.prev = 23;
+        case 21:
+          _context.prev = 21;
           _context.t0 = _context["catch"](5);
           _iterator.e(_context.t0);
-        case 26:
-          _context.prev = 26;
+        case 24:
+          _context.prev = 24;
           _iterator.f();
-          return _context.finish(26);
-        case 29:
+          return _context.finish(24);
+        case 27:
         case "end":
           return _context.stop();
       }
-    }, _callee, null, [[5, 23, 26, 29]]);
+    }, _callee, null, [[5, 21, 24, 27]]);
   }));
   return _initializePlaceShips.apply(this, arguments);
 }
@@ -506,10 +500,11 @@ function registerPlaceShipForPlayerone(cellSelected, playerone, isVertical, curr
   if (checkIsPlacementValid(cellSelected, playerone, isVertical, currentShipSize)) {
     playerone.placeShip(cellSelected, isVertical, currentShipName, currentShipSize);
     updateHighlightedSelectionToPermanent();
-    placementSuccessful = true;
+    isPlacementSuccessful = true;
+    return isPlacementSuccessful;
   } else {
-    messageBox.innerHTML = "Invalid placement. Please try again.";
-    throw new Error("Ship placement is not valid");
+    console.log("Try again.");
+    addPlaceShipEventListener(playerone, isVertical, currentShipName, currentShipSize);
   }
 }
 function checkIsPlacementValid(cellNumber, playerone, isVertical, currentShipSize) {
@@ -517,28 +512,20 @@ function checkIsPlacementValid(cellNumber, playerone, isVertical, currentShipSiz
   if (isVertical === true) {
     if (playerone.gameboardState.verticalSize - cellNumber % playerone.gameboardState.verticalSize < currentShipSize) {
       isPlacementValid = false;
-      messageBox.innerHTML = "Invalid placement. Please try again.";
-      throw new Error("Ship placement is outside boundaries. Please choose a difference space.");
     }
     for (var i = cellNumber; i < cellNumber + currentShipSize * playerone.gameboardState.horizontalSize; i += playerone.gameboardState.horizontalSize) {
       if (playerone.gameboardState.gameboard[i].name) {
         isPlacementValid = false;
-        messageBox.innerHTML = "Invalid placement. Please try again.";
-        throw new Error("Ships cannot overlap. Please choose a difference space.");
       }
     }
   } else {
     if (playerone.gameboardState.horizontalSize - cellNumber % playerone.gameboardState.horizontalSize < currentShipSize) {
       isPlacementValid = false;
-      messageBox.innerHTML = "Invalid placement. Please try again.";
-      throw new Error("Ship placement is outside boundaries. Please choose a difference space.");
     }
     for (var _i2 = cellNumber; _i2 < cellNumber + currentShipSize; _i2 += 1) {
       console.log("name: ".concat(playerone.gameboardState.gameboard[_i2].name));
       if (playerone.gameboardState.gameboard[_i2].name) {
         isPlacementValid = false;
-        messageBox.innerHTML = "Invalid placement. Please try again.";
-        throw new Error("Ships cannot overlap. Please choose a differen space.");
       }
     }
   }
@@ -560,9 +547,7 @@ function addOrientationClickEvent(isVertical) {
     }
   }
   orientationButtons.forEach(function (button) {
-    // First, remove the old event listener (if it exists)
     button.removeEventListener('click', toggleOrientation);
-    // Then, add the event listener back
     button.addEventListener('click', toggleOrientation);
   });
   return isVertical;

@@ -12,6 +12,7 @@ const submitButton = document.getElementById("submit-button");
 let horizontalButton = document.getElementById("horizontal-button");
 let isVertical = false;
 let highlightedArray = [];
+let isPlacementSuccessful = true;
 
 function waitForButtonClick(button) {
     return new Promise(resolve => {
@@ -32,18 +33,13 @@ async function initializePlaceShips(playerone) {
     for (let currentShip of placeShipsList) {
         let currentShipName = currentShip.name;
         let currentShipSize = currentShip.size;
-
-        do {
-            placementSuccessful = false;
-            messageBox.innerHTML = `Please place your ${currentShipName}`;
-            addPlaceShipEventListener(playerone, isVertical, currentShipName, currentShipSize);
-            submitButton.classList.remove("hidden");
-            await waitForButtonClick(submitButton); 
-            submitButton.classList.add("hidden");
-        } while (!placementSuccessful);
+        messageBox.innerHTML = `Please place your ${currentShipName}`;
+        addPlaceShipEventListener(playerone, isVertical, currentShipName, currentShipSize);
+        submitButton.classList.remove("hidden");
+        await waitForButtonClick(submitButton);
+        submitButton.classList.add("hidden");
     }
 }
-
 
 function addPlaceShipEventListener (playerone, isVertical, currentShipName, currentShipSize) {
     const playeroneCells = document.querySelectorAll(".playerone-cell");
@@ -114,10 +110,11 @@ function registerPlaceShipForPlayerone (cellSelected, playerone, isVertical, cur
     if (checkIsPlacementValid(cellSelected, playerone, isVertical, currentShipSize)) {
         playerone.placeShip(cellSelected, isVertical, currentShipName, currentShipSize);
         updateHighlightedSelectionToPermanent();
-        placementSuccessful = true;
+        isPlacementSuccessful = true;
+        return isPlacementSuccessful;
     } else {
-        messageBox.innerHTML = "Invalid placement. Please try again."
-        throw new Error("Ship placement is not valid");
+        console.log("Try again.")
+        addPlaceShipEventListener(playerone, isVertical, currentShipName, currentShipSize);
     }
 }
 
@@ -126,28 +123,20 @@ function checkIsPlacementValid (cellNumber, playerone, isVertical, currentShipSi
     if (isVertical === true) {
         if (playerone.gameboardState.verticalSize - (cellNumber % playerone.gameboardState.verticalSize) < currentShipSize) {
             isPlacementValid = false;
-            messageBox.innerHTML = "Invalid placement. Please try again."
-            throw new Error("Ship placement is outside boundaries. Please choose a difference space.");
         }
         for (let i = cellNumber; i < (cellNumber + (currentShipSize * playerone.gameboardState.horizontalSize)); i+=playerone.gameboardState.horizontalSize) {
             if (playerone.gameboardState.gameboard[i].name) {
                 isPlacementValid = false;
-                messageBox.innerHTML = "Invalid placement. Please try again."
-                throw new Error("Ships cannot overlap. Please choose a difference space.");
             } 
         }
     } else {
         if ((playerone.gameboardState.horizontalSize - (cellNumber % playerone.gameboardState.horizontalSize)) < currentShipSize) {
             isPlacementValid = false;
-            messageBox.innerHTML = "Invalid placement. Please try again."
-            throw new Error("Ship placement is outside boundaries. Please choose a difference space.");
         }
         for (let i = cellNumber; i < (cellNumber + currentShipSize); i+=1) {
             console.log(`name: ${playerone.gameboardState.gameboard[i].name}`);
             if (playerone.gameboardState.gameboard[i].name) {
                 isPlacementValid = false;
-                messageBox.innerHTML = "Invalid placement. Please try again."
-                throw new Error("Ships cannot overlap. Please choose a differen space.")
             } 
         }
     }
@@ -170,9 +159,7 @@ function addOrientationClickEvent(isVertical) {
         }
     }
     orientationButtons.forEach(function(button) {
-        // First, remove the old event listener (if it exists)
         button.removeEventListener('click', toggleOrientation);
-        // Then, add the event listener back
         button.addEventListener('click', toggleOrientation);
     });
     return isVertical;
