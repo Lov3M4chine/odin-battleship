@@ -79,17 +79,12 @@ function toggleSubmitButtonOff () {
 }
 
 function highlightShipPlacement (cell, playerOne, isVertical, currentShipSize, highlightedArray) {
-    console.log(`highlightShipPlacement array: ${highlightedArray}`)
-    console.log(`isVertical: ${isVertical}`);
-    console.log(`Cell: ${cell}`);
-    console.log(`playerOne: ${playerOne}`);
-    console.log(`currentShipSize: ${currentShipSize}`);
-    console.log(`highlightedArray: ${highlightedArray}`);
-
     let cellNumber = Number(cell.dataset.cellNumber);
     let cellSelected = cellNumber;
     toggleSubmitButtonOn();
     console.log("Beginning cell highlighting...")
+    highlightedArray = [];
+    console.log("Highlighted array reset from highlightShipPlacement")
     if (isVertical) {
         for (let i = cellNumber; i < (cellNumber + (currentShipSize * playerOne.gameboardState.horizontalSize)); i+playerOne.gameboardState.horizontalSize) {
             let cellToHighlight = document.querySelector(`[data-cell-number="${i}"]`);
@@ -124,7 +119,6 @@ function removeHighlightedSelections(highlightedArray) {
         let cellToRemoveHighlight = document.querySelector(`[data-cell-number="${highlightedArray[i]}"]`);
         cellToRemoveHighlight.classList.remove("bg-accent");
         cellToRemoveHighlight.classList.add("bg-primary");
-        highlightedArray = [];
     }
     return highlightedArray;
 }
@@ -137,7 +131,6 @@ function updateHighlightedFromSelectedToRegistered(highlightedArray) {
         cellToRemoveHighlight.classList.add("bg-secondary");
         console.log(`Color updated to registerd on cell # ${highlightedArray[i]}`);
     }
-    highlightedArray = [];
     return highlightedArray;
 }
 
