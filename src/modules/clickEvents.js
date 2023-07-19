@@ -111,16 +111,6 @@ function addPlayeronePlaceShipsClickEvents (playerone) {
     })
 }
 
-function registerPlaceShipClickForPlayerone(shipFromList) {
-    let cellNumber = cell.getAttribute('data-cellNumber');
-    if (cell.classList.contains("playerone-cell")) {
-        if (playerone.gameboardState.gameboard[cellNumber].name === null) {
-            const shipFromList = placeShip
-            cell.classList.add("bg-secondary");
-        }
-    }
-}
-
 module.exports = {
     addGameModeClickEvents,
     playerModeInitializations,
