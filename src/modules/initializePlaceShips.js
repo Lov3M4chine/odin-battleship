@@ -101,25 +101,42 @@ const highlightShipPlacementModule = (function() {
             console.log("Beginning cell highlighting...");
             appContext.highlightedArray.length = 0;
             toggleSubmitButtonOn();
+            checkPlacementModule.checkIsPlacementValid();
 
             if (appContext.orientation.isVertical) {
-                for (let i = cellNumber; i < (cellNumber + appContext.currentShipSize * verticalSize); i += verticalSize) {
-                    let verticalSelectionRange = cellNumber + appContext.currentShipSize * verticalSize;
-                    if (i < 100 && (i % verticalSize) < (cellNumber % verticalSize + appContext.currentShipSize)) {
-                        pushAndHighlight(i);
-                    } else {
-                        if (i >= 0 && i < 100) {
-                            highlightSelectionAsInvalid(i);
+                if (appContext.isPlacementValid) {
+                    for (let i = cellNumber; i < (cellNumber + appContext.currentShipSize * verticalSize); i += verticalSize) {
+                        if (i < 100 && (i % verticalSize) < (cellNumber % verticalSize + appContext.currentShipSize)) {
+                            pushAndHighlight(i);
+                        } else {
+                            if (i >= 0 && i < 100) {
+                                break;
+                                
+                            }
+                        }
+                    }
+                } else {
+                    for (let i = cellNumber; i < (cellNumber + appContext.currentShipSize * verticalSize); i += verticalSize) {
+                        if (i < 100 && (i % verticalSize) < (cellNumber % verticalSize + appContext.currentShipSize)) {
+                            pushAndHighlightSelectionAsInvalid(i);
                         }
                     }
                 }
             } else {
-                for (let i = cellNumber; i < (cellNumber + appContext.currentShipSize); i++) {
-                    if (i < 100 && (i % horizontalSize) >= (cellNumber % horizontalSize)) {
-                        pushAndHighlight(i);
-                    } else {
-                        if (i >= 0 && i < 100) {
-                            highlightSelectionAsInvalid(i);
+                if (appContext.isPlacementValid) {
+                    for (let i = cellNumber; i < (cellNumber + appContext.currentShipSize); i++) {
+                        if (i < 100 && (i % horizontalSize) >= (cellNumber % horizontalSize)) {
+                            pushAndHighlight(i);
+                        } else {
+                            if (i >= 0 && i < 100) {
+                                break;
+                            }
+                        }
+                    }
+                } else {
+                    for (let i = cellNumber; i < (cellNumber + appContext.currentShipSize); i++) {
+                        if (i < 100 && (i % horizontalSize) >= (cellNumber % horizontalSize)) {
+                            pushAndHighlightSelectionAsInvalid(i);
                         }
                     }
                 }
@@ -135,6 +152,13 @@ const highlightShipPlacementModule = (function() {
             console.log(`${i} pushed to the array`)
             highlightSelected(cellToHighlight);
         }
+
+        function pushAndHighlightSelectionAsInvalid (i) {
+            let cellToHighlightInvalid = document.querySelector(`[data-cell-number="${i}"]`);
+            appContext.highlightedArray.push(i);
+            console.log(`${i} pushed to the array`)
+            highlightInvalid(cellToHighlightInvalid);
+        }
         
         function removeHighlightedSelections() {
             for (let i = 0; i < appContext.highlightedArray.length; i++) {
@@ -148,11 +172,6 @@ const highlightShipPlacementModule = (function() {
                 let cellToRegister = document.querySelector(`[data-cell-number="${appContext.highlightedArray[i]}"]`);
                 highlightRegistered(cellToRegister);
             }
-        }
-        
-        function highlightSelectionAsInvalid (i) {
-            let cellToHighlightInvalid = document.querySelector(`[data-cell-number="${i}"]`);
-            highlightInvalid(cellToHighlightInvalid);
         }
         
         function highlightSelected (cellToHighlight) {
@@ -171,6 +190,7 @@ const highlightShipPlacementModule = (function() {
         }
         
         function highlightRemove (cellToRemoveHighlight) {
+            cellToRemoveHighlight.classList.remove("bg-error");
             cellToRemoveHighlight.classList.remove("bg-accent");
             cellToRemoveHighlight.classList.add("bg-primary");
         }
