@@ -20,9 +20,9 @@ const GameboardFactory = () => {
         }
 }
 
-return {
-    createGameboard,
-};
+        return {
+            createGameboard,
+        };
 };
 
 module.exports = {
