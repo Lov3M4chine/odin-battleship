@@ -91,6 +91,67 @@ const highlightShipPlacementModule = (function() {
 })();
 
 const registerShipModule = (function () {
+
+    const checkPlacementModule = (function() {
+        function isCellOutOfBounds(cell) {
+            if (cell >= 100) {
+                return true;
+            }
+        }
+    
+        function isCellBeyondVerticalSize(cell, verticalSize) {
+            if ((cell % verticalSize) > (appContext.cellSelected % verticalSize + appContext.currentShipSize)) {
+                return true;
+            }
+        }
+    
+        function isCellBeyondHorizontalSize(cell, horizontalSize) {
+            if((cell % horizontalSize) < (appContext.cellSelected % horizontalSize)) {
+                return true
+            }
+        }
+    
+        function isCellOccupied(cell) {
+            if (appContext.playerOne.gameboardState.gameboard[cell].name) {
+                return true;
+            }
+        }
+    
+        function loopAndCheckVerticalSelection(verticalSize) {
+            let verticalSelectionRange = appContext.cellSelected + appContext.currentShipSize * verticalSize;
+            for (let i = appContext.cellSelected; i < verticalSelectionRange; i+=verticalSize) {
+                if (isCellOutOfBounds(i) || isCellBeyondVerticalSize(i,verticalSize) || isCellOccupied(i)) {
+                    appContext.isPlacementValid = false;
+                }
+            }
+        }
+        
+        function loopAndCheckHorizontalSelection(horizontalSize) {
+            let horizontalSelectionRange = appContext.cellSelected + appContext.currentShipSize;
+            for (let i = appContext.cellSelected; i < horizontalSelectionRange; i++) {
+                if (isCellOutOfBounds(i) || isCellBeyondHorizontalSize(i, horizontalSize) || isCellOccupied(i)) {
+                    appContext.isPlacementValid = false;
+                }
+            }
+        }
+    
+        function checkIsPlacementValid () {
+            let verticalSize = appContext.playerOne.gameboardState.verticalSize; 
+            let horizontalSize = appContext.playerOne.gameboardState.horizontalSize;
+
+            if (appContext.orientation.isVertical) {
+                loopAndCheckVerticalSelection(verticalSize);
+            } else {
+                loopAndCheckHorizontalSelection(horizontalSize);
+            }
+            console.log("Check if placement is valid: COMPLETE")
+        }
+
+        return {
+            checkIsPlacementValid
+        }
+    })();
+
     function processRegistrationSuccess() {
         appContext.playerOne.placeShip(appContext.cellSelected, appContext.orientation.isVertical, appContext.currentShipName, appContext.currentShipSize);
         updateHighlightedFromSelectedToRegistered(appContext.highlightedArray);
@@ -98,7 +159,7 @@ const registerShipModule = (function () {
     }
     
     function processRegistrationFailure() {
-        console.log("Try again.");
+        console.log("Process registration failed. Please try different placement.");
         removeHighlightedSelections(appContext.highlightedArray);
         console.log("Previous highlighted selections removed.");
         appContext.highlightedArray.length = 0;
@@ -107,7 +168,7 @@ const registerShipModule = (function () {
     
     function registerPlaceShipForPlayerOne() {
         return new Promise((resolve) => {
-            checkIsPlacementValid()
+            checkPlacementModule.checkIsPlacementValid()
             if (appContext.isPlacementValid) {
                 processRegistrationSuccess();
                 resolve(true);
@@ -163,36 +224,16 @@ const submitButtonEventListenerModule = (function () {
     }
 })();
 
-
-function checkIsPlacementValid () {
-    let verticalSize = appContext.playerOne.gameboardState.verticalSize; 
-    let horizontalSize = appContext.playerOne.gameboardState.horizontalSize;
-    if (appContext.orientation.isVertical) {
-        for (let i = appContext.cellSelected; i < (appContext.cellSelected + appContext.currentShipSize * verticalSize); i += horizontalSize) {
-            if (i >= 100 || (i % verticalSize) >= (appContext.cellSelected % verticalSize + appContext.currentShipSize) || appContext.playerOne.gameboardState.gameboard[i].name) {
-                console.log("triggered vertical error");
-                appContext.isPlacementValid = false;
-                break;
-            }
-        }
-    } else {
-        for (let i = appContext.cellSelected; i < (appContext.cellSelected + appContext.currentShipSize); i++) {
-            if (i >= 100 || (i % horizontalSize) >= (appContext.cellSelected % horizontalSize + appContext.currentShipSize) || appContext.playerOne.gameboardState.gameboard[i].name) {
-                console.log("triggered horizontal error");
-                appContext.isPlacementValid = false;
-                break;
-            }
-        }
-    }
-    console.log("Check if placement is valid: complete")
+function createShipList() {
+    appContext.shipList = CreateShips();
+    console.log("Ship creation: COMPLETE");
+    console.log(`Ship List: ${JSON.stringify(appContext.shipList)}`);
 }
 
 function contextCreation(playerOne) {
     orientationModule.addOrientationClickEvent();
     initializePlaceShipsDynamicHTML();
-    appContext.shipList = CreateShips();
-    console.log("Ship List Created");
-    console.log(`Ship List: ${JSON.stringify(appContext.shipList)}`);
+    createShipList();
     appContext.playerOne = playerOne;
 }
 
