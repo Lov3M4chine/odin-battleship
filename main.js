@@ -122,31 +122,21 @@ function toggleSubmitButtonOff() {
 function highlightShipPlacement(cell, playerOne, isVertical, currentShipSize, highlightedArray) {
   var cellNumber = Number(cell.dataset.cellNumber);
   var cellSelected = cellNumber;
-  toggleSubmitButtonOn();
+  var verticalSize = playerOne.gameboardState.verticalSize;
+  var horizontalSize = playerOne.gameboardState.horizontalSize;
   console.log("Beginning cell highlighting...");
-  highlightedArray = [];
+  highlightedArray.length = 0;
+  toggleSubmitButtonOn();
   if (isVertical) {
-    // If selected cells go beyond physical boundaries
-    if (playerOne.gameboardState.verticalSize - cellNumber % playerOne.gameboardState.verticalSize < currentShipSize) {
-      // Only highlight the cells within the boundary
-      for (var i = cellNumber; i <= (currentShipSize - (cellSelected - cellNumber) / playerOne.gameboardState.horizontalSize) * horizontalSize; i += playerOne.gameboardState.horizontalSize) {
+    for (var i = cellNumber; i < cellNumber + currentShipSize * verticalSize; i += verticalSize) {
+      if (i < 100 && i % verticalSize < cellNumber % verticalSize + currentShipSize) {
         pushAndHighlight(i, highlightedArray);
-      }
-    } else {
-      for (var _i = cellNumber; _i < cellNumber + currentShipSize * playerOne.gameboardState.horizontalSize; _i += playerOne.gameboardState.horizontalSize) {
-        pushAndHighlight(_i, highlightedArray);
       }
     }
   } else {
-    // If selected cells go beyond physical boundaries
-    if (playerOne.gameboardState.horizontalSize - cellNumber % playerOne.gameboardState.horizontalSize < currentShipSize) {
-      // Only highlight the cells within the boundary
-      for (var _i2 = cellNumber; _i2 <= currentShipSize - (cellSelected - cellNumber); _i2++) {
-        pushAndHighlight(_i2, highlightedArray);
-      }
-    } else {
-      for (var _i3 = cellNumber; _i3 < cellNumber + currentShipSize; _i3 += 1) {
-        pushAndHighlight(_i3, highlightedArray);
+    for (var _i = cellNumber; _i < cellNumber + currentShipSize; _i++) {
+      if (_i < 100 && _i % horizontalSize >= cellNumber % horizontalSize) {
+        pushAndHighlight(_i, highlightedArray);
       }
     }
   }
@@ -159,6 +149,7 @@ function highlightShipPlacement(cell, playerOne, isVertical, currentShipSize, hi
 function pushAndHighlight(i, highlightedArray) {
   var cellToHighlight = document.querySelector("[data-cell-number=\"".concat(i, "\"]"));
   highlightedArray.push(i);
+  console.log("".concat(i, " pushed to the array"));
   cellToHighlight.classList.remove("bg-primary");
   cellToHighlight.classList.add("bg-accent");
 }
@@ -424,13 +415,14 @@ var _require = __webpack_require__(/*! ./dynamicHtml */ "./src/modules/dynamicHt
   updateMessageBox = _require.updateMessageBox,
   removeHighlightedSelections = _require.removeHighlightedSelections,
   highlightShipPlacement = _require.highlightShipPlacement,
-  updateHighlightedFromSelectedToRegistered = _require.updateHighlightedFromSelectedToRegistered;
+  updateHighlightedFromSelectedToRegistered = _require.updateHighlightedFromSelectedToRegistered,
+  toggleSubmitButtonOff = _require.toggleSubmitButtonOff;
 var _require2 = __webpack_require__(/*! ./factories/CreateShips */ "./src/modules/factories/CreateShips.js"),
   CreateShips = _require2.CreateShips;
 var horizontalButton = document.getElementById("horizontal-button");
 var verticalButton = document.getElementById("vertical-button");
 var highlightedArray = [];
-var isPlacementSuccessful = true;
+var isPlacementValid = true;
 var orientation = {
   isVertical: false
 };
@@ -462,26 +454,29 @@ function addHighlightShipEventListener(playerOne, currentShipSize) {
   var highlightShipPlacementEventListener = function highlightShipPlacementEventListener(event) {
     removeHighlightedSelections(highlightedArray);
     console.log("Previous highlighted selections removed.");
-    var result = highlightShipPlacement(event.target, playerOne, orientation.isVertical, currentShipSize);
+    var result = highlightShipPlacement(event.target, playerOne, orientation.isVertical, currentShipSize, highlightedArray);
     console.log("...current selection highlighted");
     highlightedArray = result.highlightedArray;
     cellSelected = result.cellSelected;
   };
   playerOneCells.forEach(function (cell) {
+    cell.removeEventListener('click', highlightShipPlacementEventListener);
     cell.addEventListener('click', highlightShipPlacementEventListener);
   });
   console.log("highlightShip Event Listener attached to all cells");
 }
 function registerPlaceShipForPlayerOne(playerOne, currentShipName, currentShipSize) {
   return new Promise(function (resolve) {
-    if (checkIsPlacementValid(cellSelected, playerOne, currentShipSize)) {
+    if (checkIsPlacementValid(cellSelected, playerOne, currentShipSize, orientation.isVertical)) {
       playerOne.placeShip(cellSelected, orientation.isVertical, currentShipName, currentShipSize);
       updateHighlightedFromSelectedToRegistered(highlightedArray);
       console.log('Placement was successful');
       resolve(true);
     } else {
       console.log("Try again.");
-      console.log(highlightedArray);
+      removeHighlightedSelections(highlightedArray);
+      console.log("Previous highlighted selections removed.");
+      highlightedArray.length = 0;
       addHighlightShipEventListener(playerOne, currentShipSize);
       resolve(false);
     }
@@ -506,10 +501,13 @@ function addSubmitButtonEventListener(playerOne, currentShipName, currentShipSiz
                     case 2:
                       placementSuccessful = _context.sent;
                       if (placementSuccessful) {
+                        toggleSubmitButtonOff();
                         submitButton.removeEventListener('click', onClick);
                         resolve();
                       } else {
                         console.log('Placement was unsuccessful, trying again');
+                        toggleSubmitButtonOff();
+                        submitButton.removeEventListener('click', onClick);
                       }
                     case 4:
                     case "end":
@@ -533,27 +531,27 @@ function addSubmitButtonEventListener(playerOne, currentShipName, currentShipSiz
     };
   }());
 }
-function checkIsPlacementValid(cellNumber, playerOne, currentShipSize) {
-  var isPlacementValid = true;
-  if (orientation.isVertical) {
-    if (playerOne.gameboardState.verticalSize - cellNumber % playerOne.gameboardState.verticalSize < currentShipSize) {
-      isPlacementValid = false;
-    }
-    for (var i = cellNumber; i < cellNumber + currentShipSize * playerOne.gameboardState.horizontalSize; i += playerOne.gameboardState.horizontalSize) {
-      if (playerOne.gameboardState.gameboard[i].name) {
+function checkIsPlacementValid(cellNumber, playerOne, currentShipSize, isVertical) {
+  var verticalSize = playerOne.gameboardState.verticalSize;
+  var horizontalSize = playerOne.gameboardState.horizontalSize;
+  if (isVertical) {
+    for (var i = cellNumber; i < cellNumber + currentShipSize * verticalSize; i += horizontalSize) {
+      if (i >= 100 || i % verticalSize >= cellNumber % verticalSize + currentShipSize || playerOne.gameboardState.gameboard[i].name) {
+        console.log("triggered vertical error");
         isPlacementValid = false;
+        break;
       }
     }
   } else {
-    if (playerOne.gameboardState.horizontalSize - cellNumber % playerOne.gameboardState.horizontalSize < currentShipSize) {
-      isPlacementValid = false;
-    }
-    for (var _i = cellNumber; _i < cellNumber + currentShipSize; _i += 1) {
-      if (playerOne.gameboardState.gameboard[_i].name) {
+    for (var _i = cellNumber; _i < cellNumber + currentShipSize; _i++) {
+      if (_i >= 100 || _i % horizontalSize >= cellNumber % horizontalSize + currentShipSize || playerOne.gameboardState.gameboard[_i].name) {
+        console.log("triggered vertical error");
         isPlacementValid = false;
+        break;
       }
     }
   }
+  console.log("check placement complete");
   return isPlacementValid;
 }
 function initializePlaceShips(_x3) {
@@ -587,7 +585,7 @@ function _initializePlaceShips() {
           console.log("Ship Name: ".concat(currentShipName));
           currentShipSize = currentShip.size;
           console.log("Ship Size: ".concat(currentShipSize));
-          updateMessageBox("Please place your ".concat(currentShipName));
+          updateMessageBox("Please place your ".concat(currentShipName, " (").concat(currentShipSize, " slots)"));
           console.log("Message box updated.");
           addHighlightShipEventListener(playerOne, currentShipSize);
         case 21:
