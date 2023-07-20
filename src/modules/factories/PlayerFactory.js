@@ -2,12 +2,12 @@ const { GameboardFactory } = require ("./GameboardFactory.js");
 const { ShipFactory } = require ("./ShipFactory.js");
 
 
-const PlayerFactory = (horizontalSize, verticalSize) => {
-    let gameboardFactory = GameboardFactory();
-    let gameboardState = gameboardFactory.createGameboard(horizontalSize, verticalSize);
+const PlayerFactory = (appContext) => {
+    let gameboardFactory = GameboardFactory(appContext);
+    let gameboardState = gameboardFactory.createGameboard(appContext);
     let ships = {};
 
-    function placeShip(cellSelected, isVertical, name, size) {
+    function placeShip(cellSelected, isVertical, name, size, appContext) {
 
         let newShip = ShipFactory(name, size);
         this.ships[name] = newShip;
@@ -16,7 +16,7 @@ const PlayerFactory = (horizontalSize, verticalSize) => {
 
         // Ship Placement
         if (isVertical) {
-            for (let i = cellSelected; i < (cellSelected + (size * gameboardState.horizontalSize)); i+=gameboardState.horizontalSize) {
+            for (let i = cellSelected; i < (cellSelected + (size * appContext.horizontalSize)); i+=appContext.horizontalSize) {
                 this.gameboardState.gameboard[i].name = name;
                 newShip.coordinates.push(i);
             }

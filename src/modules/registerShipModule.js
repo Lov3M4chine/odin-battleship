@@ -3,7 +3,7 @@ const { highlightShipPlacementModule } = require("./highlightShipPlacementModule
 const registerShipModule = (function () {
 
     function processRegistrationSuccess(appContext) {
-        appContext.playerOne.placeShip(appContext.cellSelected, appContext.orientation.isVertical, appContext.currentShipName, appContext.currentShipSize);
+        appContext.playerOne.placeShip(appContext.cellSelected, appContext.orientation.isVertical, appContext.currentShipName, appContext.currentShipSize, appContext);
         highlightShipPlacementModule.highlightModule.updateHighlightedFromSelectedToRegistered(appContext);
         console.log('Placement was successful');
     }

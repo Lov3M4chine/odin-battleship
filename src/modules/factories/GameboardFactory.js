@@ -1,24 +1,22 @@
 const GameboardFactory = () => {
 
-    function createGameboard(horizontalSize, verticalSize) {
+    function createGameboard(appContext) {
         // Error Checking
-        if ((!Number.isInteger(horizontalSize)) || (!Number.isInteger(verticalSize))) {
+        if ((!Number.isInteger(appContext.horizontalSize)) || (!Number.isInteger(appContext.verticalSize))) {
         throw new Error('Horizontal and Vertical Size must be integers')
         }
-        if ((horizontalSize < 8) || (verticalSize < 8)) {
+        if ((appContext.horizontalSize < 8) || (appContext.verticalSize < 8)) {
         throw new Error("Horizontal and Vertical Size must be at least 7");
         }
 
         // Gameboard creation
         let gameboard = [];
 
-        for (let i = 0; i < (horizontalSize * verticalSize); i++) {
+        for (let i = 0; i < (appContext.horizontalSize * appContext.verticalSize); i++) {
         gameboard.push({cell: i, isHit: false, isMiss: false, name: null})
         }
         return {
-        gameboard,
-        horizontalSize,
-        verticalSize
+        gameboard
         }
 }
 
