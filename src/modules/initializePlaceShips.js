@@ -12,7 +12,8 @@ let appContext = {
     submitButtonListener: null,
     playerOne: null,
     currentShipName: null,
-    currentShipSize: null
+    currentShipSize: null,
+    shipList: []
 }
 
 
@@ -23,8 +24,8 @@ const orientationModule = (function() {
     function addOrientationClickEvent() {
         const orientationButtons = document.querySelectorAll(".orientation-button");
         orientationButtons.forEach(function(button) {
-            button.removeEventListener('click', () => toggleOrientation(appContext.orientation));
-            button.addEventListener('click', () => toggleOrientation(appContext.orientation));
+            button.removeEventListener('click', () => toggleOrientation());
+            button.addEventListener('click', () => toggleOrientation());
         });
         console.log("Orientation click event added");
     }
@@ -67,7 +68,7 @@ const highlightShipPlacementModule = (function() {
     }
 
     function processNewHighlightListener(cell) {
-        const listener = generateHighlightShipPlacementEventListener(appContext.playerOne, appContext.currentShipSize, appContext.orientation, appContext.highlightedArray);
+        const listener = generateHighlightShipPlacementEventListener();
     
         appContext.highlightListeners[cell.id] = listener;
         cell.addEventListener('click', listener);
@@ -78,7 +79,7 @@ const highlightShipPlacementModule = (function() {
     
         playerOneCells.forEach((cell) => {
             removeOldHighlightListener(cell);
-            processNewHighlightListener(cell, appContext.playerOne, appContext.currentShipSize);
+            processNewHighlightListener(cell);
         });
     
         console.log("highlightShip Event Listener attached to all cells");
@@ -101,16 +102,17 @@ const registerShipModule = (function () {
         removeHighlightedSelections(appContext.highlightedArray);
         console.log("Previous highlighted selections removed.");
         appContext.highlightedArray.length = 0;
-        highlightShipPlacementModule.addHighlightShipEventListener(appContext.playerOne, appContext.currentShipSize);
+        highlightShipPlacementModule.addHighlightShipEventListener();
     }
     
     function registerPlaceShipForPlayerOne() {
         return new Promise((resolve) => {
-            if (checkIsPlacementValid(appContext.cellSelected, appContext.playerOne, appContext.currentShipSize, appContext.orientation.isVertical)) {
-                processRegistrationSuccess(appContext.currentShipName, appContext.currentShipSize);
+            checkIsPlacementValid()
+            if (appContext.isPlacementValid) {
+                processRegistrationSuccess();
                 resolve(true);
             } else {
-                processRegistrationFailure(appContext.playerOne, appContext.currentShipSize);
+                processRegistrationFailure();
                 resolve(false);
             }
         });
@@ -126,7 +128,7 @@ const submitButtonEventListenerModule = (function () {
 
     function generateSubmitButtonEventListener(resolve) {
         return async function() {
-            let placementSuccessful = await registerShipModule.registerPlaceShipForPlayerOne(appContext.playerOne, appContext.currentShipName, appContext.currentShipSize);
+            let placementSuccessful = await registerShipModule.registerPlaceShipForPlayerOne();
             if (placementSuccessful) {
                 toggleSubmitButtonOff();
                 resolve();
@@ -176,37 +178,34 @@ function checkIsPlacementValid () {
     } else {
         for (let i = appContext.cellSelected; i < (appContext.cellSelected + appContext.currentShipSize); i++) {
             if (i >= 100 || (i % horizontalSize) >= (appContext.cellSelected % horizontalSize + appContext.currentShipSize) || appContext.playerOne.gameboardState.gameboard[i].name) {
-                console.log("triggered vertical error");
+                console.log("triggered horizontal error");
                 appContext.isPlacementValid = false;
                 break;
             }
         }
     }
-    console.log("check placement complete")
-    return appContext.isPlacementValid;
+    console.log("Check if placement is valid: complete")
 }
 
-function createShipList () {
-    const shipList = CreateShips();
+function contextCreation(playerOne) {
+    orientationModule.addOrientationClickEvent();
+    initializePlaceShipsDynamicHTML();
+    appContext.shipList = CreateShips();
     console.log("Ship List Created");
-    console.log(`Ship List: ${JSON.stringify(shipList)}`);
-    return shipList;
+    console.log(`Ship List: ${JSON.stringify(appContext.shipList)}`);
+    appContext.playerOne = playerOne;
 }
 
 async function initializePlaceShips(playerOne) {
-    orientationModule.addOrientationClickEvent();
-    initializePlaceShipsDynamicHTML();
-    const shipList = createShipList();
-    appContext.playerOne = playerOne;
-    console.log(`PlayerOne: ${JSON.stringify(appContext.playerOne)}`);
+    contextCreation(playerOne);
 
-    for (let currentShipKey in shipList) {
-        let { name: currentShipName, size: currentShipSize } = shipList[currentShipKey];
+    for (let currentShipKey in appContext.shipList) {
+        let { name: currentShipName, size: currentShipSize } = appContext.shipList[currentShipKey];
         appContext.currentShipName = currentShipName;
         appContext.currentShipSize = currentShipSize;
         updateMessageBox(`Please place your ${appContext.currentShipName} (${appContext.currentShipSize} slots)`);
-        highlightShipPlacementModule.addHighlightShipEventListener(appContext.currentShipSize);
-        await submitButtonEventListenerModule.addSubmitButtonEventListener(appContext.currentShipName, appContext.currentShipSize);
+        highlightShipPlacementModule.addHighlightShipEventListener();
+        await submitButtonEventListenerModule.addSubmitButtonEventListener();
     }
 }
 

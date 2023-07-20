@@ -432,7 +432,8 @@ var appContext = {
   submitButtonListener: null,
   playerOne: null,
   currentShipName: null,
-  currentShipSize: null
+  currentShipSize: null,
+  shipList: []
 };
 var orientationModule = function () {
   var horizontalButton = document.getElementById("horizontal-button");
@@ -441,10 +442,10 @@ var orientationModule = function () {
     var orientationButtons = document.querySelectorAll(".orientation-button");
     orientationButtons.forEach(function (button) {
       button.removeEventListener('click', function () {
-        return toggleOrientation(appContext.orientation);
+        return toggleOrientation();
       });
       button.addEventListener('click', function () {
-        return toggleOrientation(appContext.orientation);
+        return toggleOrientation();
       });
     });
     console.log("Orientation click event added");
@@ -481,7 +482,7 @@ var highlightShipPlacementModule = function () {
     }
   }
   function processNewHighlightListener(cell) {
-    var listener = generateHighlightShipPlacementEventListener(appContext.playerOne, appContext.currentShipSize, appContext.orientation, appContext.highlightedArray);
+    var listener = generateHighlightShipPlacementEventListener();
     appContext.highlightListeners[cell.id] = listener;
     cell.addEventListener('click', listener);
   }
@@ -489,7 +490,7 @@ var highlightShipPlacementModule = function () {
     var playerOneCells = document.querySelectorAll(".playerone-cell");
     playerOneCells.forEach(function (cell) {
       removeOldHighlightListener(cell);
-      processNewHighlightListener(cell, appContext.playerOne, appContext.currentShipSize);
+      processNewHighlightListener(cell);
     });
     console.log("highlightShip Event Listener attached to all cells");
   }
@@ -508,15 +509,16 @@ var registerShipModule = function () {
     removeHighlightedSelections(appContext.highlightedArray);
     console.log("Previous highlighted selections removed.");
     appContext.highlightedArray.length = 0;
-    highlightShipPlacementModule.addHighlightShipEventListener(appContext.playerOne, appContext.currentShipSize);
+    highlightShipPlacementModule.addHighlightShipEventListener();
   }
   function registerPlaceShipForPlayerOne() {
     return new Promise(function (resolve) {
-      if (checkIsPlacementValid(appContext.cellSelected, appContext.playerOne, appContext.currentShipSize, appContext.orientation.isVertical)) {
-        processRegistrationSuccess(appContext.currentShipName, appContext.currentShipSize);
+      checkIsPlacementValid();
+      if (appContext.isPlacementValid) {
+        processRegistrationSuccess();
         resolve(true);
       } else {
-        processRegistrationFailure(appContext.playerOne, appContext.currentShipSize);
+        processRegistrationFailure();
         resolve(false);
       }
     });
@@ -534,7 +536,7 @@ var submitButtonEventListenerModule = function () {
         while (1) switch (_context.prev = _context.next) {
           case 0:
             _context.next = 2;
-            return registerShipModule.registerPlaceShipForPlayerOne(appContext.playerOne, appContext.currentShipName, appContext.currentShipSize);
+            return registerShipModule.registerPlaceShipForPlayerOne();
           case 2:
             placementSuccessful = _context.sent;
             if (placementSuccessful) {
@@ -585,53 +587,50 @@ function checkIsPlacementValid() {
   } else {
     for (var _i = appContext.cellSelected; _i < appContext.cellSelected + appContext.currentShipSize; _i++) {
       if (_i >= 100 || _i % horizontalSize >= appContext.cellSelected % horizontalSize + appContext.currentShipSize || appContext.playerOne.gameboardState.gameboard[_i].name) {
-        console.log("triggered vertical error");
+        console.log("triggered horizontal error");
         appContext.isPlacementValid = false;
         break;
       }
     }
   }
-  console.log("check placement complete");
-  return appContext.isPlacementValid;
+  console.log("Check if placement is valid: complete");
 }
-function createShipList() {
-  var shipList = CreateShips();
+function contextCreation(playerOne) {
+  orientationModule.addOrientationClickEvent();
+  initializePlaceShipsDynamicHTML();
+  appContext.shipList = CreateShips();
   console.log("Ship List Created");
-  console.log("Ship List: ".concat(JSON.stringify(shipList)));
-  return shipList;
+  console.log("Ship List: ".concat(JSON.stringify(appContext.shipList)));
+  appContext.playerOne = playerOne;
 }
 function initializePlaceShips(_x) {
   return _initializePlaceShips.apply(this, arguments);
 }
 function _initializePlaceShips() {
   _initializePlaceShips = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee2(playerOne) {
-    var shipList, currentShipKey, _shipList$currentShip, currentShipName, currentShipSize;
+    var currentShipKey, _appContext$shipList$, currentShipName, currentShipSize;
     return _regeneratorRuntime().wrap(function _callee2$(_context2) {
       while (1) switch (_context2.prev = _context2.next) {
         case 0:
-          orientationModule.addOrientationClickEvent();
-          initializePlaceShipsDynamicHTML();
-          shipList = createShipList();
-          appContext.playerOne = playerOne;
-          console.log("PlayerOne: ".concat(JSON.stringify(appContext.playerOne)));
-          _context2.t0 = _regeneratorRuntime().keys(shipList);
-        case 6:
+          contextCreation(playerOne);
+          _context2.t0 = _regeneratorRuntime().keys(appContext.shipList);
+        case 2:
           if ((_context2.t1 = _context2.t0()).done) {
-            _context2.next = 17;
+            _context2.next = 13;
             break;
           }
           currentShipKey = _context2.t1.value;
-          _shipList$currentShip = shipList[currentShipKey], currentShipName = _shipList$currentShip.name, currentShipSize = _shipList$currentShip.size;
+          _appContext$shipList$ = appContext.shipList[currentShipKey], currentShipName = _appContext$shipList$.name, currentShipSize = _appContext$shipList$.size;
           appContext.currentShipName = currentShipName;
           appContext.currentShipSize = currentShipSize;
           updateMessageBox("Please place your ".concat(appContext.currentShipName, " (").concat(appContext.currentShipSize, " slots)"));
-          highlightShipPlacementModule.addHighlightShipEventListener(appContext.currentShipSize);
-          _context2.next = 15;
-          return submitButtonEventListenerModule.addSubmitButtonEventListener(appContext.currentShipName, appContext.currentShipSize);
-        case 15:
-          _context2.next = 6;
+          highlightShipPlacementModule.addHighlightShipEventListener();
+          _context2.next = 11;
+          return submitButtonEventListenerModule.addSubmitButtonEventListener();
+        case 11:
+          _context2.next = 2;
           break;
-        case 17:
+        case 13:
         case "end":
           return _context2.stop();
       }
