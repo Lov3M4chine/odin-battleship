@@ -79,35 +79,25 @@ function toggleSubmitButtonOff () {
 function highlightShipPlacement (cell, playerOne, isVertical, currentShipSize, highlightedArray) {
     let cellNumber = Number(cell.dataset.cellNumber);
     let cellSelected = cellNumber;
+    let verticalSize = playerOne.gameboardState.verticalSize; 
+    let horizontalSize = playerOne.gameboardState.horizontalSize;
+    console.log("Beginning cell highlighting...");
+    highlightedArray.length = 0;
     toggleSubmitButtonOn();
-    console.log("Beginning cell highlighting...")
-    highlightedArray = [];
     if (isVertical) {
-        // If selected cells go beyond physical boundaries
-        if (playerOne.gameboardState.verticalSize - (cellNumber % playerOne.gameboardState.verticalSize) < currentShipSize) {
-            // Only highlight the cells within the boundary
-            for (let i = cellNumber; i <= ((currentShipSize - ((cellSelected - cellNumber) / playerOne.gameboardState.horizontalSize)) * horizontalSize); i+=playerOne.gameboardState.horizontalSize) {
-                pushAndHighlight(i, highlightedArray);
-            }
-        } else {
-            for (let i = cellNumber; i < (cellNumber + (currentShipSize * playerOne.gameboardState.horizontalSize)); i+=playerOne.gameboardState.horizontalSize) {
+        for (let i = cellNumber; i < (cellNumber + currentShipSize * verticalSize); i += verticalSize) {
+            if (i < 100 && (i % verticalSize) < (cellNumber % verticalSize + currentShipSize)) {
                 pushAndHighlight(i, highlightedArray);
             }
         }
     } else {
-        // If selected cells go beyond physical boundaries
-        if (playerOne.gameboardState.horizontalSize - (cellNumber % playerOne.gameboardState.horizontalSize) < currentShipSize) {
-            // Only highlight the cells within the boundary
-            for (let i = cellNumber; i <= currentShipSize - (cellSelected - cellNumber); i++) {
-                pushAndHighlight(i, highlightedArray);
-            }
-        } else {
-            for (let i = cellNumber; i < (cellNumber + currentShipSize); i+=1) {
+        for (let i = cellNumber; i < (cellNumber + currentShipSize); i++) {
+            if (i < 100 && (i % horizontalSize) >= (cellNumber % horizontalSize)) {
                 pushAndHighlight(i, highlightedArray);
             }
         }
     }
-    console.log(`Cell highlighting complete. Highlight Array = ${highlightedArray}`)
+    console.log(`Cell highlighting complete. Highlight Array = ${highlightedArray}`);
 
     return {
         cellSelected,
@@ -115,9 +105,12 @@ function highlightShipPlacement (cell, playerOne, isVertical, currentShipSize, h
     }
 }
 
+
+
 function pushAndHighlight(i, highlightedArray, ) {
     let cellToHighlight = document.querySelector(`[data-cell-number="${i}"]`);
     highlightedArray.push(i);
+    console.log(`${i} pushed to the array`)
     cellToHighlight.classList.remove("bg-primary");
     cellToHighlight.classList.add("bg-accent");
 }
