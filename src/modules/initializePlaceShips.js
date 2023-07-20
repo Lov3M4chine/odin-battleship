@@ -1,5 +1,9 @@
-const { initializePlaceShipsDynamicHTML, updateMessageBox,toggleSubmitButtonOff, toggleSubmitButtonOn } = require("./dynamicHtml");
 const { CreateShips } = require("./factories/CreateShips");
+
+const messageBox = document.getElementById("message-box");
+const horizontalButton = document.getElementById("horizontal-button");
+const verticalButton = document.getElementById("vertical-button");
+const submitButton = document.getElementById("submit-button");
 
 let appContext = {
     orientation: {
@@ -16,10 +20,7 @@ let appContext = {
     shipList: []
 }
 
-
 const orientationModule = (function() {
-    const horizontalButton = document.getElementById("horizontal-button");
-    const verticalButton = document.getElementById("vertical-button");
 
     function addOrientationClickEvent() {
         const orientationButtons = document.querySelectorAll(".orientation-button");
@@ -91,6 +92,10 @@ const highlightShipPlacementModule = (function() {
     })();
 
     const highlightModule =  (function() {
+
+        function toggleSubmitButtonOn () {
+            submitButton.classList.remove("hidden");
+        }
 
         function highlightShipPlacement (targetedCell) {
             let cellNumber = Number(targetedCell.dataset.cellNumber);
@@ -306,8 +311,7 @@ const registerShipModule = (function () {
 })();
 
 const submitButtonEventListenerModule = (function () {
-    const submitButton = document.getElementById("submit-button");
-
+    
     function generateSubmitButtonEventListener(resolve) {
         return async function() {
             let placementSuccessful = await registerShipModule.registerPlaceShipForPlayerOne();
@@ -351,12 +355,28 @@ function createShipList() {
     console.log(`Ship List: ${JSON.stringify(appContext.shipList)}`);
 }
 
+function toggleSubmitButtonOff () {
+    submitButton.classList.add("hidden");
+}
+
+function initializePlaceShipsDynamicHTML () {
+    messageBox.classList.remove("hidden");
+    horizontalButton.classList.remove("hidden");
+    toggleSubmitButtonOff();
+    console.log("Ship placement screen dynamic html updated");
+}
+
 function contextCreation(playerOne) {
     orientationModule.addOrientationClickEvent();
     initializePlaceShipsDynamicHTML();
     createShipList();
     appContext.playerOne = playerOne;
     console.log(playerOne)
+}
+
+function updateMessageBox (message) {
+    messageBox.innerHTML = message;
+    console.log("Message box updated.");
 }
 
 async function initializePlaceShips(playerOne) {

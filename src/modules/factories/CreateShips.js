@@ -1,4 +1,4 @@
-const ShipFactory = require("./ShipFactory");
+const { ShipFactory } = require("./ShipFactory");
 
 
 const CreateShips = () => {

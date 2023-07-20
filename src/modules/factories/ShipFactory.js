@@ -29,7 +29,9 @@ const ShipFactory = (name, size) => {
     };
   };
 
-  module.exports = ShipFactory;
+  module.exports = {
+    ShipFactory
+  }
   
   
   
