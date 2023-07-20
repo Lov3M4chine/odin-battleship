@@ -290,7 +290,6 @@ const registerShipModule = (function () {
     
     function registerPlaceShipForPlayerOne() {
         return new Promise((resolve) => {
-            highlightShipPlacementModule.checkPlacementModule.checkIsPlacementValid()
             if (appContext.isPlacementValid) {
                 processRegistrationSuccess();
                 resolve(true);
