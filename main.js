@@ -450,24 +450,40 @@ var highlightShipPlacementModule = function () {
       console.log("Beginning cell highlighting...");
       appContext.highlightedArray.length = 0;
       toggleSubmitButtonOn();
+      checkPlacementModule.checkIsPlacementValid();
       if (appContext.orientation.isVertical) {
-        for (var i = cellNumber; i < cellNumber + appContext.currentShipSize * verticalSize; i += verticalSize) {
-          var verticalSelectionRange = cellNumber + appContext.currentShipSize * verticalSize;
-          if (i < 100 && i % verticalSize < cellNumber % verticalSize + appContext.currentShipSize) {
-            pushAndHighlight(i);
-          } else {
-            if (i >= 0 && i < 100) {
-              highlightSelectionAsInvalid(i);
+        if (appContext.isPlacementValid) {
+          for (var i = cellNumber; i < cellNumber + appContext.currentShipSize * verticalSize; i += verticalSize) {
+            if (i < 100 && i % verticalSize < cellNumber % verticalSize + appContext.currentShipSize) {
+              pushAndHighlight(i);
+            } else {
+              if (i >= 0 && i < 100) {
+                break;
+              }
+            }
+          }
+        } else {
+          for (var _i = cellNumber; _i < cellNumber + appContext.currentShipSize * verticalSize; _i += verticalSize) {
+            if (_i < 100 && _i % verticalSize < cellNumber % verticalSize + appContext.currentShipSize) {
+              pushAndHighlightSelectionAsInvalid(_i);
             }
           }
         }
       } else {
-        for (var _i = cellNumber; _i < cellNumber + appContext.currentShipSize; _i++) {
-          if (_i < 100 && _i % horizontalSize >= cellNumber % horizontalSize) {
-            pushAndHighlight(_i);
-          } else {
-            if (_i >= 0 && _i < 100) {
-              highlightSelectionAsInvalid(_i);
+        if (appContext.isPlacementValid) {
+          for (var _i2 = cellNumber; _i2 < cellNumber + appContext.currentShipSize; _i2++) {
+            if (_i2 < 100 && _i2 % horizontalSize >= cellNumber % horizontalSize) {
+              pushAndHighlight(_i2);
+            } else {
+              if (_i2 >= 0 && _i2 < 100) {
+                break;
+              }
+            }
+          }
+        } else {
+          for (var _i3 = cellNumber; _i3 < cellNumber + appContext.currentShipSize; _i3++) {
+            if (_i3 < 100 && _i3 % horizontalSize >= cellNumber % horizontalSize) {
+              pushAndHighlightSelectionAsInvalid(_i3);
             }
           }
         }
@@ -480,6 +496,12 @@ var highlightShipPlacementModule = function () {
       console.log("".concat(i, " pushed to the array"));
       highlightSelected(cellToHighlight);
     }
+    function pushAndHighlightSelectionAsInvalid(i) {
+      var cellToHighlightInvalid = document.querySelector("[data-cell-number=\"".concat(i, "\"]"));
+      appContext.highlightedArray.push(i);
+      console.log("".concat(i, " pushed to the array"));
+      highlightInvalid(cellToHighlightInvalid);
+    }
     function removeHighlightedSelections() {
       for (var i = 0; i < appContext.highlightedArray.length; i++) {
         var cellToRemoveHighlight = document.querySelector("[data-cell-number=\"".concat(appContext.highlightedArray[i], "\"]"));
@@ -491,10 +513,6 @@ var highlightShipPlacementModule = function () {
         var cellToRegister = document.querySelector("[data-cell-number=\"".concat(appContext.highlightedArray[i], "\"]"));
         highlightRegistered(cellToRegister);
       }
-    }
-    function highlightSelectionAsInvalid(i) {
-      var cellToHighlightInvalid = document.querySelector("[data-cell-number=\"".concat(i, "\"]"));
-      highlightInvalid(cellToHighlightInvalid);
     }
     function highlightSelected(cellToHighlight) {
       cellToHighlight.classList.remove("bg-primary");
@@ -509,6 +527,7 @@ var highlightShipPlacementModule = function () {
       cellToHighlightInvalid.classList.add("bg-error");
     }
     function highlightRemove(cellToRemoveHighlight) {
+      cellToRemoveHighlight.classList.remove("bg-error");
       cellToRemoveHighlight.classList.remove("bg-accent");
       cellToRemoveHighlight.classList.add("bg-primary");
     }
