@@ -1,4 +1,4 @@
-const { initializePlaceShipsDynamicHTML, updateMessageBox, removeHighlightedSelections, highlightShipPlacement, updateHighlightedFromSelectedToRegistered, toggleSubmitButtonOff } = require("./dynamicHtml");
+const { initializePlaceShipsDynamicHTML, updateMessageBox,toggleSubmitButtonOff, toggleSubmitButtonOn } = require("./dynamicHtml");
 const { CreateShips } = require("./factories/CreateShips");
 
 let appContext = {
@@ -6,7 +6,7 @@ let appContext = {
         isVertical: false
     },
     highlightedArray: [],
-    isPlacementValid: true,
+    isPlacementValid: null,
     cellSelected: null,
     highlightListeners: {},
     submitButtonListener: null,
@@ -47,50 +47,140 @@ const orientationModule = (function() {
     }
 })();
 
-const highlightShipPlacementModule = (function() {
-    function generateHighlightShipPlacementEventListener() {  
-        return function(event) {
-            removeHighlightedSelections(appContext.highlightedArray);
-            console.log("Previous highlighted selections removed.")
+const highlightShipPlacementModule = (function() { 
+
+    const highlightEventListenerModule = (function () {
+
+        function generateHighlightShipPlacementEventListener() {  
+            return function(event) {
+                highlightModule.removeHighlightedSelections(appContext.highlightedArray);
+                console.log("Previous highlighted selections removed.")
+            
+                highlightModule.highlightShipPlacement(event.target, appContext.playerOne, appContext.orientation.isVertical, appContext.currentShipSize, appContext.highlightedArray);
+                console.log("...current selection highlighted");
         
-            const result = highlightShipPlacement(event.target, appContext.playerOne, appContext.orientation.isVertical, appContext.currentShipSize, appContext.highlightedArray);
-            console.log("...current selection highlighted");
-    
-            appContext.highlightedArray = result.highlightedArray;
-            appContext.cellSelected = result.cellSelected;
-        };
-    }
-
-    function removeOldHighlightListener(cell) {
-        if (appContext.highlightListeners[cell.id]) {
-            cell.removeEventListener('click', appContext.highlightListeners[cell.id]);
+            };
         }
-    }
+    
+        function removeOldHighlightListener(cell) {
+            if (appContext.highlightListeners[cell.id]) {
+                cell.removeEventListener('click', appContext.highlightListeners[cell.id]);
+            }
+        }
+    
+        function processNewHighlightListener(cell) {
+            const listener = generateHighlightShipPlacementEventListener();
+        
+            appContext.highlightListeners[cell.id] = listener;
+            cell.addEventListener('click', listener);
+        }
+        
+        function addHighlightShipEventListener() {
+            const playerOneCells = document.querySelectorAll(".playerone-cell");
+        
+            playerOneCells.forEach((cell) => {
+                removeOldHighlightListener(cell);
+                processNewHighlightListener(cell);
+            });
+        
+            console.log("highlightShip Event Listener attached to all cells");
+        }
+        return {
+            addHighlightShipEventListener
+        }
+    })();
 
-    function processNewHighlightListener(cell) {
-        const listener = generateHighlightShipPlacementEventListener();
-    
-        appContext.highlightListeners[cell.id] = listener;
-        cell.addEventListener('click', listener);
-    }
-    
-    function addHighlightShipEventListener() {
-        const playerOneCells = document.querySelectorAll(".playerone-cell");
-    
-        playerOneCells.forEach((cell) => {
-            removeOldHighlightListener(cell);
-            processNewHighlightListener(cell);
-        });
-    
-        console.log("highlightShip Event Listener attached to all cells");
-    }
+    const highlightModule =  (function() {
 
-    return {
-        addHighlightShipEventListener
-    }
-})();
+        function highlightShipPlacement (targetedCell) {
+            let cellNumber = Number(targetedCell.dataset.cellNumber);
+            appContext.cellSelected = cellNumber;
+            let verticalSize = playerOne.gameboardState.verticalSize; 
+            let horizontalSize = playerOne.gameboardState.horizontalSize;
 
-const registerShipModule = (function () {
+            console.log("Beginning cell highlighting...");
+            appContext.highlightedArray.length = 0;
+            toggleSubmitButtonOn();
+
+            if (appContext.orientation.isVertical) {
+                for (let i = cellNumber; i < (cellNumber + appContext.currentShipSize * verticalSize); i += verticalSize) {
+                    let verticalSelectionRange = cellNumber + appContext.currentShipSize * verticalSize;
+                    if (i < 100 && (i % verticalSize) < (cellNumber % verticalSize + appContext.currentShipSize)) {
+                        pushAndHighlight(i);
+                    } else {
+                        if (i >= 0 && i < 100) {
+                            highlightSelectionAsInvalid(i);
+                        }
+                    }
+                }
+            } else {
+                for (let i = cellNumber; i < (cellNumber + appContext.currentShipSize); i++) {
+                    if (i < 100 && (i % horizontalSize) >= (cellNumber % horizontalSize)) {
+                        pushAndHighlight(i);
+                    } else {
+                        if (i >= 0 && i < 100) {
+                            highlightSelectionAsInvalid(i);
+                        }
+                    }
+                }
+            }
+
+            console.log(`Cell highlighting complete. Highlight Array = ${appContext.highlightedArray}`);
+
+        }
+        
+        function pushAndHighlight(i) {
+            let cellToHighlight = document.querySelector(`[data-cell-number="${i}"]`);
+            appContext.highlightedArray.push(i);
+            console.log(`${i} pushed to the array`)
+            highlightSelected(cellToHighlight);
+        }
+        
+        function removeHighlightedSelections() {
+            for (let i = 0; i < appContext.highlightedArray.length; i++) {
+                let cellToRemoveHighlight = document.querySelector(`[data-cell-number="${appContext.highlightedArray[i]}"]`);
+                highlightRemove(cellToRemoveHighlight)
+            }
+        }
+        
+        function updateHighlightedFromSelectedToRegistered() {
+            for (let i = 0; i < appContext.highlightedArray.length; i++) {
+                let cellToRegister = document.querySelector(`[data-cell-number="${appContext.highlightedArray[i]}"]`);
+                highlightRegistered(cellToRegister);
+            }
+        }
+        
+        function highlightSelectionAsInvalid (i) {
+            let cellToHighlightInvalid = document.querySelector(`[data-cell-number="${i}"]`);
+            highlightInvalid(cellToHighlightInvalid);
+        }
+        
+        function highlightSelected (cellToHighlight) {
+            cellToHighlight.classList.remove("bg-primary");
+            cellToHighlight.classList.add("bg-accent");
+        }
+        
+        function highlightRegistered (cellToRegister) {
+            cellToRegister.classList.remove("bg-primary");
+            cellToRegister.classList.add("bg-secondary");
+        }
+        
+        function highlightInvalid (cellToHighlightInvalid) {
+            cellToHighlightInvalid.classList.remove("bg-primary");
+            cellToHighlightInvalid.classList.add("bg-error");
+        }
+        
+        function highlightRemove (cellToRemoveHighlight) {
+            cellToRemoveHighlight.classList.remove("bg-accent");
+            cellToRemoveHighlight.classList.add("bg-primary");
+        }
+
+        return {
+            highlightShipPlacement,
+            removeHighlightedSelections,
+            updateHighlightedFromSelectedToRegistered
+        }
+    })();
 
     const checkPlacementModule = (function() {
         function isCellOutOfBounds(cell) {
@@ -138,6 +228,7 @@ const registerShipModule = (function () {
         function checkIsPlacementValid () {
             let verticalSize = appContext.playerOne.gameboardState.verticalSize; 
             let horizontalSize = appContext.playerOne.gameboardState.horizontalSize;
+            appContext.isPlacementValid = true;
 
             if (appContext.orientation.isVertical) {
                 loopAndCheckVerticalSelection(verticalSize);
@@ -152,23 +243,34 @@ const registerShipModule = (function () {
         }
     })();
 
+    return {
+        highlightEventListenerModule,
+        highlightModule,
+        checkPlacementModule
+    }
+
+    
+})();
+
+const registerShipModule = (function () {
+
     function processRegistrationSuccess() {
         appContext.playerOne.placeShip(appContext.cellSelected, appContext.orientation.isVertical, appContext.currentShipName, appContext.currentShipSize);
-        updateHighlightedFromSelectedToRegistered(appContext.highlightedArray);
+        highlightShipPlacementModule.highlightModule.updateHighlightedFromSelectedToRegistered(appContext.highlightedArray);
         console.log('Placement was successful');
     }
     
     function processRegistrationFailure() {
         console.log("Process registration failed. Please try different placement.");
-        removeHighlightedSelections(appContext.highlightedArray);
+        highlightShipPlacementModule.highlightModule.removeHighlightedSelections(appContext.highlightedArray);
         console.log("Previous highlighted selections removed.");
         appContext.highlightedArray.length = 0;
-        highlightShipPlacementModule.addHighlightShipEventListener();
+        highlightShipPlacementModule.highlightEventListenerModule.addHighlightShipEventListener();
     }
     
     function registerPlaceShipForPlayerOne() {
         return new Promise((resolve) => {
-            checkPlacementModule.checkIsPlacementValid()
+            highlightShipPlacementModule.checkPlacementModule.checkIsPlacementValid()
             if (appContext.isPlacementValid) {
                 processRegistrationSuccess();
                 resolve(true);
@@ -235,6 +337,7 @@ function contextCreation(playerOne) {
     initializePlaceShipsDynamicHTML();
     createShipList();
     appContext.playerOne = playerOne;
+    console.log(playerOne)
 }
 
 async function initializePlaceShips(playerOne) {
@@ -245,7 +348,7 @@ async function initializePlaceShips(playerOne) {
         appContext.currentShipName = currentShipName;
         appContext.currentShipSize = currentShipSize;
         updateMessageBox(`Please place your ${appContext.currentShipName} (${appContext.currentShipSize} slots)`);
-        highlightShipPlacementModule.addHighlightShipEventListener();
+        highlightShipPlacementModule.highlightEventListenerModule.addHighlightShipEventListener();
         await submitButtonEventListenerModule.addSubmitButtonEventListener();
     }
 }
