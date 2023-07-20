@@ -109,9 +109,11 @@ function initializePlaceShipsDynamicHTML() {
   messageBox.classList.remove("hidden");
   horizontalButton.classList.remove("hidden");
   toggleSubmitButtonOff();
+  console.log("Ship placement screen dynamic html updated");
 }
 function updateMessageBox(message) {
   messageBox.innerHTML = message;
+  console.log("Message box updated.");
 }
 function toggleSubmitButtonOn() {
   submitButton.classList.remove("hidden");
@@ -427,7 +429,8 @@ var orientation = {
   isVertical: false
 };
 var cellSelected;
-var listeners = {};
+var highlightListeners = {};
+var submitButtonListener;
 function addOrientationClickEvent() {
   var orientationButtons = document.querySelectorAll(".orientation-button");
   orientationButtons.forEach(function (button) {
@@ -438,6 +441,7 @@ function addOrientationClickEvent() {
       return toggleOrientation(orientation);
     });
   });
+  console.log("Orientation click event added");
 }
 function toggleOrientation() {
   if (orientation.isVertical === true) {
@@ -460,89 +464,88 @@ function generateHighlightShipPlacementEventListener(playerOne, currentShipSize,
     cellSelected = result.cellSelected;
   };
 }
+function removeOldHighlightListener(cell) {
+  if (highlightListeners[cell.id]) {
+    cell.removeEventListener('click', highlightListeners[cell.id]);
+  }
+}
+function processNewHighlightListener(cell, playerOne, currentShipSize) {
+  var listener = generateHighlightShipPlacementEventListener(playerOne, currentShipSize, orientation, highlightedArray);
+  highlightListeners[cell.id] = listener;
+  cell.addEventListener('click', listener);
+}
 function addHighlightShipEventListener(playerOne, currentShipSize) {
   var playerOneCells = document.querySelectorAll(".playerone-cell");
   playerOneCells.forEach(function (cell) {
-    var listener = generateHighlightShipPlacementEventListener(playerOne, currentShipSize, orientation, highlightedArray);
-
-    // Remove the old listener if it exists
-    if (listeners[cell.id]) {
-      cell.removeEventListener('click', listeners[cell.id]);
-    }
-
-    // Store the new listener in the object
-    listeners[cell.id] = listener;
-
-    // Add the new listener
-    cell.addEventListener('click', listener);
+    removeOldHighlightListener(cell);
+    processNewHighlightListener(cell, playerOne, currentShipSize);
   });
   console.log("highlightShip Event Listener attached to all cells");
+}
+function processRegistrationSuccess(currentShipName, currentShipSize) {
+  playerOne.placeShip(cellSelected, orientation.isVertical, currentShipName, currentShipSize);
+  updateHighlightedFromSelectedToRegistered(highlightedArray);
+  console.log('Placement was successful');
+}
+function processRegistrationFailure(playerOne, currentShipSize) {
+  console.log("Try again.");
+  removeHighlightedSelections(highlightedArray);
+  console.log("Previous highlighted selections removed.");
+  highlightedArray.length = 0;
+  addHighlightShipEventListener(playerOne, currentShipSize);
 }
 function registerPlaceShipForPlayerOne(playerOne, currentShipName, currentShipSize) {
   return new Promise(function (resolve) {
     if (checkIsPlacementValid(cellSelected, playerOne, currentShipSize, orientation.isVertical)) {
-      playerOne.placeShip(cellSelected, orientation.isVertical, currentShipName, currentShipSize);
-      updateHighlightedFromSelectedToRegistered(highlightedArray);
-      console.log('Placement was successful');
+      processRegistrationSuccess(currentShipName, currentShipSize);
       resolve(true);
     } else {
-      console.log("Try again.");
-      removeHighlightedSelections(highlightedArray);
-      console.log("Previous highlighted selections removed.");
-      highlightedArray.length = 0;
-      addHighlightShipEventListener(playerOne, currentShipSize);
+      processRegistrationFailure(playerOne, currentShipSize);
       resolve(false);
     }
   });
 }
+function generateSubmitButtonEventListener(playerOne, currentShipName, currentShipSize, resolve) {
+  return /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee() {
+    var placementSuccessful;
+    return _regeneratorRuntime().wrap(function _callee$(_context) {
+      while (1) switch (_context.prev = _context.next) {
+        case 0:
+          _context.next = 2;
+          return registerPlaceShipForPlayerOne(playerOne, currentShipName, currentShipSize);
+        case 2:
+          placementSuccessful = _context.sent;
+          if (placementSuccessful) {
+            toggleSubmitButtonOff();
+            resolve();
+          } else {
+            console.log('Placement was unsuccessful, trying again');
+            toggleSubmitButtonOff();
+          }
+        case 4:
+        case "end":
+          return _context.stop();
+      }
+    }, _callee);
+  }));
+}
+function removeOldSubmitButtonListener() {
+  var submitButton = document.getElementById("submit-button");
+  if (submitButtonListener) {
+    submitButton.removeEventListener('click', submitButtonListener);
+  }
+}
+function processNewSubmitButtonListener(playerOne, currentShipName, currentShipSize, resolve) {
+  var submitButton = document.getElementById("submit-button");
+  submitButtonListener = generateSubmitButtonEventListener(playerOne, currentShipName, currentShipSize, resolve);
+  submitButton.addEventListener('click', submitButtonListener);
+}
 function addSubmitButtonEventListener(playerOne, currentShipName, currentShipSize) {
-  return new Promise( /*#__PURE__*/function () {
-    var _ref = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee2(resolve) {
-      var submitButton, onClick;
-      return _regeneratorRuntime().wrap(function _callee2$(_context2) {
-        while (1) switch (_context2.prev = _context2.next) {
-          case 0:
-            submitButton = document.getElementById("submit-button");
-            onClick = /*#__PURE__*/function () {
-              var _ref2 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee(event) {
-                var placementSuccessful;
-                return _regeneratorRuntime().wrap(function _callee$(_context) {
-                  while (1) switch (_context.prev = _context.next) {
-                    case 0:
-                      _context.next = 2;
-                      return registerPlaceShipForPlayerOne(playerOne, currentShipName, currentShipSize);
-                    case 2:
-                      placementSuccessful = _context.sent;
-                      if (placementSuccessful) {
-                        toggleSubmitButtonOff();
-                        submitButton.removeEventListener('click', onClick);
-                        resolve();
-                      } else {
-                        console.log('Placement was unsuccessful, trying again');
-                        toggleSubmitButtonOff();
-                        submitButton.removeEventListener('click', onClick);
-                      }
-                    case 4:
-                    case "end":
-                      return _context.stop();
-                  }
-                }, _callee);
-              }));
-              return function onClick(_x2) {
-                return _ref2.apply(this, arguments);
-              };
-            }();
-            submitButton.addEventListener('click', onClick);
-          case 3:
-          case "end":
-            return _context2.stop();
-        }
-      }, _callee2);
-    }));
-    return function (_x) {
-      return _ref.apply(this, arguments);
-    };
-  }());
+  return new Promise(function (resolve) {
+    removeOldSubmitButtonListener();
+    processNewSubmitButtonListener(playerOne, currentShipName, currentShipSize, resolve);
+    console.log("submitButton Event Listener attached to submit button");
+  });
 }
 function checkIsPlacementValid(cellNumber, playerOne, currentShipSize, isVertical) {
   var verticalSize = playerOne.gameboardState.verticalSize;
@@ -567,64 +570,44 @@ function checkIsPlacementValid(cellNumber, playerOne, currentShipSize, isVertica
   console.log("check placement complete");
   return isPlacementValid;
 }
-function initializePlaceShips(_x3) {
+function createShipList() {
+  var shipList = CreateShips();
+  console.log("Ship List Created");
+  console.log("Ship List: ".concat(JSON.stringify(shipList)));
+  return shipList;
+}
+function initializePlaceShips(_x) {
   return _initializePlaceShips.apply(this, arguments);
 }
 function _initializePlaceShips() {
-  _initializePlaceShips = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee3(playerOne) {
-    var loopCount, shipList, currentShipKey, currentShip, currentShipName, currentShipSize;
-    return _regeneratorRuntime().wrap(function _callee3$(_context3) {
-      while (1) switch (_context3.prev = _context3.next) {
+  _initializePlaceShips = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee2(playerOne) {
+    var shipList, currentShipKey, _shipList$currentShip, currentShipName, currentShipSize;
+    return _regeneratorRuntime().wrap(function _callee2$(_context2) {
+      while (1) switch (_context2.prev = _context2.next) {
         case 0:
-          loopCount = 0;
           addOrientationClickEvent();
-          console.log("Orientation click event added");
           initializePlaceShipsDynamicHTML();
-          console.log("Ship placement screen dynamic html updated");
-          shipList = CreateShips();
-          console.log("Ship List Created");
-          console.log("Ship List: ".concat(JSON.stringify(shipList)));
-          _context3.t0 = _regeneratorRuntime().keys(shipList);
-        case 9:
-          if ((_context3.t1 = _context3.t0()).done) {
-            _context3.next = 37;
+          shipList = createShipList();
+          _context2.t0 = _regeneratorRuntime().keys(shipList);
+        case 4:
+          if ((_context2.t1 = _context2.t0()).done) {
+            _context2.next = 13;
             break;
           }
-          currentShipKey = _context3.t1.value;
-          loopCount += 1;
-          console.log("Loop ".concat(loopCount, " of shipList"));
-          currentShip = shipList[currentShipKey];
-          currentShipName = currentShip.name;
-          console.log("Ship Name: ".concat(currentShipName));
-          currentShipSize = currentShip.size;
-          console.log("Ship Size: ".concat(currentShipSize));
+          currentShipKey = _context2.t1.value;
+          _shipList$currentShip = shipList[currentShipKey], currentShipName = _shipList$currentShip.name, currentShipSize = _shipList$currentShip.size;
           updateMessageBox("Please place your ".concat(currentShipName, " (").concat(currentShipSize, " slots)"));
-          console.log("Message box updated.");
           addHighlightShipEventListener(playerOne, currentShipSize);
-        case 21:
-          if (false) {}
-          _context3.prev = 22;
-          _context3.next = 25;
+          _context2.next = 11;
           return addSubmitButtonEventListener(playerOne, currentShipName, currentShipSize);
-        case 25:
-          return _context3.abrupt("break", 33);
-        case 28:
-          _context3.prev = 28;
-          _context3.t2 = _context3["catch"](22);
-          console.log('Re-attaching submit button event listener');
-        case 31:
-          _context3.next = 21;
+        case 11:
+          _context2.next = 4;
           break;
-        case 33:
-          console.log(playerOne);
-          console.log(playerOne.ships);
-          _context3.next = 9;
-          break;
-        case 37:
+        case 13:
         case "end":
-          return _context3.stop();
+          return _context2.stop();
       }
-    }, _callee3, null, [[22, 28]]);
+    }, _callee2);
   }));
   return _initializePlaceShips.apply(this, arguments);
 }
