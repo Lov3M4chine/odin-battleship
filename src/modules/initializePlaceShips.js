@@ -9,6 +9,7 @@ let orientation = {
     isVertical: false
   };
 let cellSelected;
+let listeners = {};
 
 function addOrientationClickEvent() {
     const orientationButtons = document.querySelectorAll(".orientation-button");
@@ -30,25 +31,41 @@ function toggleOrientation() {
     }
 }
 
-function addHighlightShipEventListener (playerOne, currentShipSize) {
-    const playerOneCells = document.querySelectorAll(".playerone-cell");
-    const highlightShipPlacementEventListener = function(event) {
-        
+function generateHighlightShipPlacementEventListener(playerOne, currentShipSize, orientation, highlightedArray) {  
+    return function(event) {
         removeHighlightedSelections(highlightedArray);
         console.log("Previous highlighted selections removed.")
-        
+    
         const result = highlightShipPlacement(event.target, playerOne, orientation.isVertical, currentShipSize, highlightedArray);
         console.log("...current selection highlighted");
-    
+
         highlightedArray = result.highlightedArray;
         cellSelected = result.cellSelected;
-    };    
-    playerOneCells.forEach(function(cell) {
-        cell.removeEventListener('click', highlightShipPlacementEventListener);
-        cell.addEventListener('click', highlightShipPlacementEventListener);
+    };
+}
+
+function addHighlightShipEventListener(playerOne, currentShipSize) {
+    const playerOneCells = document.querySelectorAll(".playerone-cell");
+
+    playerOneCells.forEach((cell) => {
+        const listener = generateHighlightShipPlacementEventListener(playerOne, currentShipSize, orientation, highlightedArray);
+
+        // Remove the old listener if it exists
+        if (listeners[cell.id]) {
+            cell.removeEventListener('click', listeners[cell.id]);
+        }
+
+        // Store the new listener in the object
+        listeners[cell.id] = listener;
+
+        // Add the new listener
+        cell.addEventListener('click', listener);
     });
+
     console.log("highlightShip Event Listener attached to all cells");
 }
+
+
 
 function registerPlaceShipForPlayerOne(playerOne, currentShipName, currentShipSize) {
     return new Promise((resolve) => {
