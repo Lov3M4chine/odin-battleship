@@ -62,10 +62,12 @@ function initializePlaceShipsDynamicHTML () {
     messageBox.classList.remove("hidden");
     horizontalButton.classList.remove("hidden");
     toggleSubmitButtonOff();
+    console.log("Ship placement screen dynamic html updated");
 }
 
 function updateMessageBox (message) {
     messageBox.innerHTML = message;
+    console.log("Message box updated.");
 }
 
 function toggleSubmitButtonOn () {
