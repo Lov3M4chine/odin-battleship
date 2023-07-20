@@ -1,27 +1,6 @@
 /******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
-/***/ "./src/modules/CreatePlayers.js":
-/*!**************************************!*\
-  !*** ./src/modules/CreatePlayers.js ***!
-  \**************************************/
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-var PlayerFactory = __webpack_require__(/*! ./factories/PlayerFactory */ "./src/modules/factories/PlayerFactory.js");
-var CreatePlayersForOnePlayerMode = function CreatePlayersForOnePlayerMode(horizontalSize, verticalSize) {
-  playerOne = PlayerFactory(horizontalSize, verticalSize);
-  playerComputer = PlayerFactory(horizontalSize, verticalSize);
-  return {
-    playerOne: playerOne,
-    playerComputer: playerComputer
-  };
-};
-module.exports = {
-  CreatePlayersForOnePlayerMode: CreatePlayersForOnePlayerMode
-};
-
-/***/ }),
-
 /***/ "./src/modules/addGameModeClickEvents.js":
 /*!***********************************************!*\
   !*** ./src/modules/addGameModeClickEvents.js ***!
@@ -30,26 +9,43 @@ module.exports = {
 
 var _require = __webpack_require__(/*! ./playerModeInitializations */ "./src/modules/playerModeInitializations.js"),
   initializeOnePlayerMode = _require.initializeOnePlayerMode;
-function addGameModeClickEvents(horizontalSize, verticalSize) {
+function addGameModeClickEvents(appContext) {
   // Error Checking
-  if (!Number.isInteger(horizontalSize) || !Number.isInteger(verticalSize)) {
+  if (!Number.isInteger(appContext.horizontalSize) || !Number.isInteger(appContext.verticalSize)) {
     throw new Error('Horizontal and Vertical Size must be integers');
   }
-  if (horizontalSize < 8 || verticalSize < 8) {
+  if (appContext.horizontalSize < 8 || appContext.verticalSize < 8) {
     throw new Error("Horizontal and Vertical Size must be at least 7");
   }
   var onePlayerMode = document.getElementById("one-player-mode");
   var twoPlayerMode = document.getElementById("two-player-mode");
   onePlayerMode.addEventListener('click', function () {
-    initializeOnePlayerMode(horizontalSize, verticalSize);
+    initializeOnePlayerMode(appContext);
   });
   twoPlayerMode.addEventListener('click', function () {
-    return playerModeInitializations.initializeTwoPlayerMode(horizontalSize, verticalSize);
+    return playerModeInitializations.initializeTwoPlayerMode(appContext);
   });
   console.log("Game mode click events added.");
 }
 module.exports = {
   addGameModeClickEvents: addGameModeClickEvents
+};
+
+/***/ }),
+
+/***/ "./src/modules/factories/CreatePlayers.js":
+/*!************************************************!*\
+  !*** ./src/modules/factories/CreatePlayers.js ***!
+  \************************************************/
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+var PlayerFactory = __webpack_require__(/*! ./PlayerFactory */ "./src/modules/factories/PlayerFactory.js");
+var CreatePlayersForOnePlayerMode = function CreatePlayersForOnePlayerMode(appContext) {
+  appContext.playerOne = PlayerFactory(appContext);
+  appContext.playerComputer = PlayerFactory(appContext);
+};
+module.exports = {
+  CreatePlayersForOnePlayerMode: CreatePlayersForOnePlayerMode
 };
 
 /***/ }),
@@ -89,18 +85,18 @@ module.exports = {
 /***/ ((module) => {
 
 var GameboardFactory = function GameboardFactory() {
-  function createGameboard(horizontalSize, verticalSize) {
+  function createGameboard(appContext) {
     // Error Checking
-    if (!Number.isInteger(horizontalSize) || !Number.isInteger(verticalSize)) {
+    if (!Number.isInteger(appContext.horizontalSize) || !Number.isInteger(appContext.verticalSize)) {
       throw new Error('Horizontal and Vertical Size must be integers');
     }
-    if (horizontalSize < 8 || verticalSize < 8) {
+    if (appContext.horizontalSize < 8 || appContext.verticalSize < 8) {
       throw new Error("Horizontal and Vertical Size must be at least 7");
     }
 
     // Gameboard creation
     var gameboard = [];
-    for (var i = 0; i < horizontalSize * verticalSize; i++) {
+    for (var i = 0; i < appContext.horizontalSize * appContext.verticalSize; i++) {
       gameboard.push({
         cell: i,
         isHit: false,
@@ -109,9 +105,7 @@ var GameboardFactory = function GameboardFactory() {
       });
     }
     return {
-      gameboard: gameboard,
-      horizontalSize: horizontalSize,
-      verticalSize: verticalSize
+      gameboard: gameboard
     };
   }
   return {
@@ -134,18 +128,18 @@ var _require = __webpack_require__(/*! ./GameboardFactory.js */ "./src/modules/f
   GameboardFactory = _require.GameboardFactory;
 var _require2 = __webpack_require__(/*! ./ShipFactory.js */ "./src/modules/factories/ShipFactory.js"),
   ShipFactory = _require2.ShipFactory;
-var PlayerFactory = function PlayerFactory(horizontalSize, verticalSize) {
-  var gameboardFactory = GameboardFactory();
-  var gameboardState = gameboardFactory.createGameboard(horizontalSize, verticalSize);
+var PlayerFactory = function PlayerFactory(appContext) {
+  var gameboardFactory = GameboardFactory(appContext);
+  var gameboardState = gameboardFactory.createGameboard(appContext);
   var ships = {};
-  function placeShip(cellSelected, isVertical, name, size) {
+  function placeShip(cellSelected, isVertical, name, size, appContext) {
     var newShip = ShipFactory(name, size);
     this.ships[name] = newShip;
     this.ships[name].size = size;
 
     // Ship Placement
     if (isVertical) {
-      for (var i = cellSelected; i < cellSelected + size * gameboardState.horizontalSize; i += gameboardState.horizontalSize) {
+      for (var i = cellSelected; i < cellSelected + size * appContext.horizontalSize; i += appContext.horizontalSize) {
         this.gameboardState.gameboard[i].name = name;
         newShip.coordinates.push(i);
       }
@@ -242,7 +236,6 @@ module.exports = {
 var highlightShipPlacementModule = function () {
   var highlightEventListenerModule = function () {
     function generateHighlightShipPlacementEventListener(appContext) {
-      console.log("generateHighlightShipPlacementEventListener appContext: ".concat(appContext));
       return function (event) {
         highlightModule.removeHighlightedSelections(appContext);
         console.log("Previous highlighted selections removed.");
@@ -251,19 +244,16 @@ var highlightShipPlacementModule = function () {
       };
     }
     function removeOldHighlightListener(cell, appContext) {
-      console.log("removeOldHighlightListener appContext: ".concat(appContext));
       if (appContext.highlightListeners[cell.id]) {
         cell.removeEventListener('click', appContext.highlightListeners[cell.id]);
       }
     }
     function processNewHighlightListener(cell, appContext) {
-      console.log("processNewHighlightListener appContext: ".concat(appContext));
       var listener = generateHighlightShipPlacementEventListener(appContext);
       appContext.highlightListeners[cell.id] = listener;
       cell.addEventListener('click', listener);
     }
     function addHighlightShipEventListener(appContext) {
-      console.log("addHighlightShipEventListener appContext: ".concat(appContext));
       var playerOneCells = document.querySelectorAll(".playerone-cell");
       playerOneCells.forEach(function (cell) {
         removeOldHighlightListener(cell, appContext);
@@ -283,16 +273,14 @@ var highlightShipPlacementModule = function () {
     function highlightShipPlacement(targetedCell, appContext) {
       var cellNumber = Number(targetedCell.dataset.cellNumber);
       appContext.cellSelected = cellNumber;
-      var verticalSize = appContext.playerOne.gameboardState.verticalSize;
-      var horizontalSize = appContext.playerOne.gameboardState.horizontalSize;
       console.log("Beginning cell highlighting...");
       appContext.highlightedArray.length = 0;
       toggleSubmitButtonOn();
       checkPlacementModule.checkIsPlacementValid(appContext);
       if (appContext.orientation.isVertical) {
         if (appContext.isPlacementValid) {
-          for (var i = cellNumber; i < cellNumber + appContext.currentShipSize * verticalSize; i += verticalSize) {
-            if (i < 100 && i % verticalSize < cellNumber % verticalSize + appContext.currentShipSize) {
+          for (var i = cellNumber; i < cellNumber + appContext.currentShipSize * appContext.verticalSize; i += appContext.verticalSize) {
+            if (i < 100 && i % appContext.verticalSize < cellNumber % appContext.verticalSize + appContext.currentShipSize) {
               pushAndHighlight(i, appContext);
             } else {
               if (i >= 0 && i < 100) {
@@ -301,8 +289,8 @@ var highlightShipPlacementModule = function () {
             }
           }
         } else {
-          for (var _i = cellNumber; _i < cellNumber + appContext.currentShipSize * verticalSize; _i += verticalSize) {
-            if (_i < 100 && _i % verticalSize < cellNumber % verticalSize + appContext.currentShipSize) {
+          for (var _i = cellNumber; _i < cellNumber + appContext.currentShipSize * appContext.verticalSize; _i += appContext.verticalSize) {
+            if (_i < 100 && _i % appContext.verticalSize < cellNumber % appContext.verticalSize + appContext.currentShipSize) {
               pushAndHighlightSelectionAsInvalid(_i, appContext);
             }
           }
@@ -310,7 +298,7 @@ var highlightShipPlacementModule = function () {
       } else {
         if (appContext.isPlacementValid) {
           for (var _i2 = cellNumber; _i2 < cellNumber + appContext.currentShipSize; _i2++) {
-            if (_i2 < 100 && _i2 % horizontalSize >= cellNumber % horizontalSize) {
+            if (_i2 < 100 && _i2 % appContext.horizontalSize >= cellNumber % appContext.horizontalSize) {
               pushAndHighlight(_i2, appContext);
             } else {
               if (_i2 >= 0 && _i2 < 100) {
@@ -320,7 +308,7 @@ var highlightShipPlacementModule = function () {
           }
         } else {
           for (var _i3 = cellNumber; _i3 < cellNumber + appContext.currentShipSize; _i3++) {
-            if (_i3 < 100 && _i3 % horizontalSize >= cellNumber % horizontalSize) {
+            if (_i3 < 100 && _i3 % appContext.horizontalSize >= cellNumber % appContext.horizontalSize) {
               pushAndHighlightSelectionAsInvalid(_i3, appContext);
             }
           }
@@ -381,13 +369,13 @@ var highlightShipPlacementModule = function () {
         return true;
       }
     }
-    function isCellBeyondVerticalSize(cell, verticalSize, appContext) {
-      if (cell % verticalSize > appContext.cellSelected % verticalSize + appContext.currentShipSize) {
+    function isCellBeyondVerticalSize(cell, appContext) {
+      if (cell % appContext.verticalSize > appContext.cellSelected % appContext.verticalSize + appContext.currentShipSize) {
         return true;
       }
     }
-    function isCellBeyondHorizontalSize(cell, horizontalSize, appContext) {
-      if (cell % horizontalSize < appContext.cellSelected % horizontalSize) {
+    function isCellBeyondHorizontalSize(cell, appContext) {
+      if (cell % appContext.horizontalSize < appContext.cellSelected % appContext.horizontalSize) {
         return true;
       }
     }
@@ -396,30 +384,28 @@ var highlightShipPlacementModule = function () {
         return true;
       }
     }
-    function loopAndCheckVerticalSelection(verticalSize, appContext) {
-      var verticalSelectionRange = appContext.cellSelected + appContext.currentShipSize * verticalSize;
-      for (var i = appContext.cellSelected; i < verticalSelectionRange; i += verticalSize) {
-        if (isCellOutOfBounds(i) || isCellBeyondVerticalSize(i, verticalSize, appContext) || isCellOccupied(i, appContext)) {
+    function loopAndCheckVerticalSelection(appContext) {
+      var verticalSelectionRange = appContext.cellSelected + appContext.currentShipSize * appContext.verticalSize;
+      for (var i = appContext.cellSelected; i < verticalSelectionRange; i += appContext.verticalSize) {
+        if (isCellOutOfBounds(i) || isCellBeyondVerticalSize(i, appContext) || isCellOccupied(i, appContext)) {
           appContext.isPlacementValid = false;
         }
       }
     }
-    function loopAndCheckHorizontalSelection(horizontalSize, appContext) {
+    function loopAndCheckHorizontalSelection(appContext) {
       var horizontalSelectionRange = appContext.cellSelected + appContext.currentShipSize;
       for (var i = appContext.cellSelected; i < horizontalSelectionRange; i++) {
-        if (isCellOutOfBounds(i) || isCellBeyondHorizontalSize(i, horizontalSize, appContext) || isCellOccupied(i, appContext)) {
+        if (isCellOutOfBounds(i) || isCellBeyondHorizontalSize(i, appContext) || isCellOccupied(i, appContext)) {
           appContext.isPlacementValid = false;
         }
       }
     }
     function checkIsPlacementValid(appContext) {
-      var verticalSize = appContext.playerOne.gameboardState.verticalSize;
-      var horizontalSize = appContext.playerOne.gameboardState.horizontalSize;
       appContext.isPlacementValid = true;
       if (appContext.orientation.isVertical) {
-        loopAndCheckVerticalSelection(verticalSize, appContext);
+        loopAndCheckVerticalSelection(appContext);
       } else {
-        loopAndCheckHorizontalSelection(horizontalSize, appContext);
+        loopAndCheckHorizontalSelection(appContext);
       }
       console.log("Check if placement is valid: COMPLETE");
     }
@@ -455,89 +441,25 @@ var _require2 = __webpack_require__(/*! ./highlightShipPlacementModule */ "./src
   highlightShipPlacementModule = _require2.highlightShipPlacementModule;
 var _require3 = __webpack_require__(/*! ./orientationModule */ "./src/modules/orientationModule.js"),
   orientationModule = _require3.orientationModule;
-var _require4 = __webpack_require__(/*! ./registerShipModule */ "./src/modules/registerShipModule.js"),
-  registerShipModule = _require4.registerShipModule;
+var _require4 = __webpack_require__(/*! ./submitButtonEventListenerModule */ "./src/modules/submitButtonEventListenerModule.js"),
+  submitButtonEventListenerModule = _require4.submitButtonEventListenerModule;
 var messageBox = document.getElementById("message-box");
 var horizontalButton = document.getElementById("horizontal-button");
-var appContext = {
-  orientation: {
-    isVertical: false
-  },
-  highlightedArray: [],
-  isPlacementValid: null,
-  cellSelected: null,
-  highlightListeners: {},
-  submitButtonListener: null,
-  playerOne: null,
-  currentShipName: null,
-  currentShipSize: null,
-  shipList: []
-};
-var submitButtonEventListenerModule = function () {
-  function generateSubmitButtonEventListener(resolve) {
-    return /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee() {
-      var placementSuccessful;
-      return _regeneratorRuntime().wrap(function _callee$(_context) {
-        while (1) switch (_context.prev = _context.next) {
-          case 0:
-            _context.next = 2;
-            return registerShipModule.registerPlaceShipForPlayerOne(appContext);
-          case 2:
-            placementSuccessful = _context.sent;
-            if (placementSuccessful) {
-              toggleSubmitButtonOff();
-              resolve();
-            } else {
-              console.log('Placement was unsuccessful, trying again');
-              toggleSubmitButtonOff();
-            }
-          case 4:
-          case "end":
-            return _context.stop();
-        }
-      }, _callee);
-    }));
-  }
-  function removeOldSubmitButtonListener() {
-    if (appContext.submitButtonListener) {
-      submitButton.removeEventListener('click', appContext.submitButtonListener);
-    }
-  }
-  function processNewSubmitButtonListener(resolve) {
-    appContext.submitButtonListener = generateSubmitButtonEventListener(resolve);
-    submitButton.addEventListener('click', appContext.submitButtonListener);
-  }
-  function addSubmitButtonEventListener() {
-    return new Promise(function (resolve) {
-      removeOldSubmitButtonListener();
-      processNewSubmitButtonListener(resolve);
-      console.log("submitButton Event Listener attached to submit button");
-    });
-  }
-  return {
-    addSubmitButtonEventListener: addSubmitButtonEventListener
-  };
-}();
-function createShipList() {
-  appContext.shipList = CreateShips();
+function createShipList(appContext) {
+  appContext.shipList = CreateShips(appContext);
   console.log("Ship creation: COMPLETE");
   console.log("Ship List: ".concat(JSON.stringify(appContext.shipList)));
-}
-function toggleSubmitButtonOff() {
-  submitButton.classList.add("hidden");
 }
 function initializePlaceShipsDynamicHTML() {
   messageBox.classList.remove("hidden");
   horizontalButton.classList.remove("hidden");
-  toggleSubmitButtonOff();
+  submitButtonEventListenerModule.toggleSubmitButtonOff();
   console.log("Ship placement screen dynamic html updated");
 }
-function contextCreation(playerOne) {
+function contextCreation(appContext) {
   orientationModule.addOrientationClickEvent(appContext);
   initializePlaceShipsDynamicHTML();
-  createShipList();
-  appContext.playerOne = playerOne;
-  console.log(playerOne);
+  createShipList(appContext);
 }
 function updateMessageBox(message) {
   messageBox.innerHTML = message;
@@ -547,34 +469,34 @@ function initializePlaceShips(_x) {
   return _initializePlaceShips.apply(this, arguments);
 }
 function _initializePlaceShips() {
-  _initializePlaceShips = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee2(playerOne) {
+  _initializePlaceShips = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee(appContext) {
     var currentShipKey, _appContext$shipList$, currentShipName, currentShipSize;
-    return _regeneratorRuntime().wrap(function _callee2$(_context2) {
-      while (1) switch (_context2.prev = _context2.next) {
+    return _regeneratorRuntime().wrap(function _callee$(_context) {
+      while (1) switch (_context.prev = _context.next) {
         case 0:
-          contextCreation(playerOne);
-          _context2.t0 = _regeneratorRuntime().keys(appContext.shipList);
+          contextCreation(appContext);
+          _context.t0 = _regeneratorRuntime().keys(appContext.shipList);
         case 2:
-          if ((_context2.t1 = _context2.t0()).done) {
-            _context2.next = 13;
+          if ((_context.t1 = _context.t0()).done) {
+            _context.next = 13;
             break;
           }
-          currentShipKey = _context2.t1.value;
+          currentShipKey = _context.t1.value;
           _appContext$shipList$ = appContext.shipList[currentShipKey], currentShipName = _appContext$shipList$.name, currentShipSize = _appContext$shipList$.size;
           appContext.currentShipName = currentShipName;
           appContext.currentShipSize = currentShipSize;
           updateMessageBox("Please place your ".concat(appContext.currentShipName, " (").concat(appContext.currentShipSize, " slots)"));
           highlightShipPlacementModule.highlightEventListenerModule.addHighlightShipEventListener(appContext);
-          _context2.next = 11;
-          return submitButtonEventListenerModule.addSubmitButtonEventListener();
+          _context.next = 11;
+          return submitButtonEventListenerModule.addSubmitButtonEventListener(appContext);
         case 11:
-          _context2.next = 2;
+          _context.next = 2;
           break;
         case 13:
         case "end":
-          return _context2.stop();
+          return _context.stop();
       }
-    }, _callee2);
+    }, _callee);
   }));
   return _initializePlaceShips.apply(this, arguments);
 }
@@ -632,25 +554,22 @@ module.exports = {
   \**************************************************/
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
-var _require = __webpack_require__(/*! ./CreatePlayers */ "./src/modules/CreatePlayers.js"),
+var _require = __webpack_require__(/*! ./factories/CreatePlayers */ "./src/modules/factories/CreatePlayers.js"),
   CreatePlayersForOnePlayerMode = _require.CreatePlayersForOnePlayerMode;
 var _require2 = __webpack_require__(/*! ./initializePlaceShips.js */ "./src/modules/initializePlaceShips.js"),
   initializePlaceShips = _require2.initializePlaceShips;
 var modeSelectContainer = document.getElementById("mode-select-container");
 var mainContainer = document.getElementById("main-container");
-var playerOne;
-var playertwo;
-var computerPlayer;
 function hideModeSelectContainer() {
   modeSelectContainer.classList.add("hidden");
 }
-function createBattlegridForPlayerOne(horizontalSize, verticalSize) {
+function createBattlegridForPlayerOne(appContext) {
   var playerOneBattlegridContainer = document.createElement('div');
   playerOneBattlegridContainer.id = 'playerone-battlegrid-container';
   var playerOneBattlegrid = document.createElement('div');
   playerOneBattlegrid.id = 'playerone-battlegrid';
   playerOneBattlegrid.className = 'grid grid-rows-[repeat(10,_minmax(0,_1fr))] grid-cols-10';
-  for (var i = 0; i < horizontalSize * verticalSize; i++) {
+  for (var i = 0; i < appContext.horizontalSize * appContext.verticalSize; i++) {
     var playerOneCell = null;
     playerOneCell = document.createElement('button');
     playerOneCell.id = "playerone-cell-".concat(i);
@@ -663,13 +582,13 @@ function createBattlegridForPlayerOne(horizontalSize, verticalSize) {
   playerOneBattlegridContainer.appendChild(playerOneBattlegrid);
   mainContainer.appendChild(playerOneBattlegridContainer);
 }
-function createBattlegridForPlayerTwo(horizontalSize, verticalSize) {
+function createBattlegridForPlayerTwo(appContext) {
   var playerTwoBattlegridContainer = document.createElement('div');
   playerTwoBattlegridContainer.id = 'playerTwo-battlegrid-container';
   var playerTwoBattlegrid = document.createElement('div');
   playerTwoBattlegrid.id = 'playerTwo-battlegrid';
   playerTwoBattlegrid.className = 'grid grid-rows-[repeat(10,_minmax(0,_1fr))] grid-cols-10';
-  for (var i = 0; i < horizontalSize * verticalSize; i++) {
+  for (var i = 0; i < appContext.horizontalSize * appContext.verticalSize; i++) {
     var playerTwoCell = null;
     playerTwoCell = document.createElement('button');
     playerTwoCell.id = "playerTwo-cell-".concat(i);
@@ -681,38 +600,28 @@ function createBattlegridForPlayerTwo(horizontalSize, verticalSize) {
   playerTwoBattlegridContainer.appendChild(playerTwoBattlegrid);
   mainContainer.appendChild(playerTwoBattlegridContainer);
 }
-function initializeOnePlayerMode(horizontalSize, verticalSize) {
+function initializeOnePlayerMode(appContext) {
   hideModeSelectContainer();
-  createBattlegridForPlayerOne(horizontalSize, verticalSize);
-  players = CreatePlayersForOnePlayerMode(horizontalSize, verticalSize);
-  playerOne = players.playerOne;
-  playerComputer = players.playerComputer;
-  initializePlaceShips(playerOne);
+  createBattlegridForPlayerOne(appContext);
+  CreatePlayersForOnePlayerMode(appContext);
+  initializePlaceShips(appContext);
   console.log("Initialization of one player mode complete.");
-  return {
-    playerOne: playerOne,
-    playerComputer: playerComputer
-  };
 }
-function initializeTwoPlayerMode(horizontalSize, verticalSize) {
+function initializeTwoPlayerMode(appContext) {
   modeSelectContainer.classList.add("hidden");
-  createBattlegridForPlayerOne(horizontalSize, verticalSize);
-  createBattlegridForPlayerTwo(horizontalSize, verticalSize);
-  playerOne = PlayerFactory(horizontalSize, verticalSize);
-  playertwo = PlayerFactory(horizontalSize, verticalSize);
-  return {
-    playerOne: playerOne,
-    playertwo: playertwo
-  };
+  createBattlegridForPlayerOne(appContext);
+  createBattlegridForPlayerTwo(appContext);
+  appContext.playerOne = PlayerFactory(appContext);
+  appContext.playertwo = PlayerFactory(appContext);
 }
 function getPlayerOne() {
-  return playerOne;
+  return appContext.playerOne;
 }
 function getPlayerTwo() {
-  return playertwo;
+  return appContext.playertwo;
 }
 function getComputerPlayer() {
-  return computerPlayer;
+  return appContext.computerPlayer;
 }
 module.exports = {
   initializeOnePlayerMode: initializeOnePlayerMode,
@@ -734,7 +643,7 @@ var _require = __webpack_require__(/*! ./highlightShipPlacementModule */ "./src/
   highlightShipPlacementModule = _require.highlightShipPlacementModule;
 var registerShipModule = function () {
   function processRegistrationSuccess(appContext) {
-    appContext.playerOne.placeShip(appContext.cellSelected, appContext.orientation.isVertical, appContext.currentShipName, appContext.currentShipSize);
+    appContext.playerOne.placeShip(appContext.cellSelected, appContext.orientation.isVertical, appContext.currentShipName, appContext.currentShipSize, appContext);
     highlightShipPlacementModule.highlightModule.updateHighlightedFromSelectedToRegistered(appContext);
     console.log('Placement was successful');
   }
@@ -763,6 +672,74 @@ var registerShipModule = function () {
 }();
 module.exports = {
   registerShipModule: registerShipModule
+};
+
+/***/ }),
+
+/***/ "./src/modules/submitButtonEventListenerModule.js":
+/*!********************************************************!*\
+  !*** ./src/modules/submitButtonEventListenerModule.js ***!
+  \********************************************************/
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
+function _regeneratorRuntime() { "use strict"; /*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/facebook/regenerator/blob/main/LICENSE */ _regeneratorRuntime = function _regeneratorRuntime() { return exports; }; var exports = {}, Op = Object.prototype, hasOwn = Op.hasOwnProperty, defineProperty = Object.defineProperty || function (obj, key, desc) { obj[key] = desc.value; }, $Symbol = "function" == typeof Symbol ? Symbol : {}, iteratorSymbol = $Symbol.iterator || "@@iterator", asyncIteratorSymbol = $Symbol.asyncIterator || "@@asyncIterator", toStringTagSymbol = $Symbol.toStringTag || "@@toStringTag"; function define(obj, key, value) { return Object.defineProperty(obj, key, { value: value, enumerable: !0, configurable: !0, writable: !0 }), obj[key]; } try { define({}, ""); } catch (err) { define = function define(obj, key, value) { return obj[key] = value; }; } function wrap(innerFn, outerFn, self, tryLocsList) { var protoGenerator = outerFn && outerFn.prototype instanceof Generator ? outerFn : Generator, generator = Object.create(protoGenerator.prototype), context = new Context(tryLocsList || []); return defineProperty(generator, "_invoke", { value: makeInvokeMethod(innerFn, self, context) }), generator; } function tryCatch(fn, obj, arg) { try { return { type: "normal", arg: fn.call(obj, arg) }; } catch (err) { return { type: "throw", arg: err }; } } exports.wrap = wrap; var ContinueSentinel = {}; function Generator() {} function GeneratorFunction() {} function GeneratorFunctionPrototype() {} var IteratorPrototype = {}; define(IteratorPrototype, iteratorSymbol, function () { return this; }); var getProto = Object.getPrototypeOf, NativeIteratorPrototype = getProto && getProto(getProto(values([]))); NativeIteratorPrototype && NativeIteratorPrototype !== Op && hasOwn.call(NativeIteratorPrototype, iteratorSymbol) && (IteratorPrototype = NativeIteratorPrototype); var Gp = GeneratorFunctionPrototype.prototype = Generator.prototype = Object.create(IteratorPrototype); function defineIteratorMethods(prototype) { ["next", "throw", "return"].forEach(function (method) { define(prototype, method, function (arg) { return this._invoke(method, arg); }); }); } function AsyncIterator(generator, PromiseImpl) { function invoke(method, arg, resolve, reject) { var record = tryCatch(generator[method], generator, arg); if ("throw" !== record.type) { var result = record.arg, value = result.value; return value && "object" == _typeof(value) && hasOwn.call(value, "__await") ? PromiseImpl.resolve(value.__await).then(function (value) { invoke("next", value, resolve, reject); }, function (err) { invoke("throw", err, resolve, reject); }) : PromiseImpl.resolve(value).then(function (unwrapped) { result.value = unwrapped, resolve(result); }, function (error) { return invoke("throw", error, resolve, reject); }); } reject(record.arg); } var previousPromise; defineProperty(this, "_invoke", { value: function value(method, arg) { function callInvokeWithMethodAndArg() { return new PromiseImpl(function (resolve, reject) { invoke(method, arg, resolve, reject); }); } return previousPromise = previousPromise ? previousPromise.then(callInvokeWithMethodAndArg, callInvokeWithMethodAndArg) : callInvokeWithMethodAndArg(); } }); } function makeInvokeMethod(innerFn, self, context) { var state = "suspendedStart"; return function (method, arg) { if ("executing" === state) throw new Error("Generator is already running"); if ("completed" === state) { if ("throw" === method) throw arg; return doneResult(); } for (context.method = method, context.arg = arg;;) { var delegate = context.delegate; if (delegate) { var delegateResult = maybeInvokeDelegate(delegate, context); if (delegateResult) { if (delegateResult === ContinueSentinel) continue; return delegateResult; } } if ("next" === context.method) context.sent = context._sent = context.arg;else if ("throw" === context.method) { if ("suspendedStart" === state) throw state = "completed", context.arg; context.dispatchException(context.arg); } else "return" === context.method && context.abrupt("return", context.arg); state = "executing"; var record = tryCatch(innerFn, self, context); if ("normal" === record.type) { if (state = context.done ? "completed" : "suspendedYield", record.arg === ContinueSentinel) continue; return { value: record.arg, done: context.done }; } "throw" === record.type && (state = "completed", context.method = "throw", context.arg = record.arg); } }; } function maybeInvokeDelegate(delegate, context) { var methodName = context.method, method = delegate.iterator[methodName]; if (undefined === method) return context.delegate = null, "throw" === methodName && delegate.iterator["return"] && (context.method = "return", context.arg = undefined, maybeInvokeDelegate(delegate, context), "throw" === context.method) || "return" !== methodName && (context.method = "throw", context.arg = new TypeError("The iterator does not provide a '" + methodName + "' method")), ContinueSentinel; var record = tryCatch(method, delegate.iterator, context.arg); if ("throw" === record.type) return context.method = "throw", context.arg = record.arg, context.delegate = null, ContinueSentinel; var info = record.arg; return info ? info.done ? (context[delegate.resultName] = info.value, context.next = delegate.nextLoc, "return" !== context.method && (context.method = "next", context.arg = undefined), context.delegate = null, ContinueSentinel) : info : (context.method = "throw", context.arg = new TypeError("iterator result is not an object"), context.delegate = null, ContinueSentinel); } function pushTryEntry(locs) { var entry = { tryLoc: locs[0] }; 1 in locs && (entry.catchLoc = locs[1]), 2 in locs && (entry.finallyLoc = locs[2], entry.afterLoc = locs[3]), this.tryEntries.push(entry); } function resetTryEntry(entry) { var record = entry.completion || {}; record.type = "normal", delete record.arg, entry.completion = record; } function Context(tryLocsList) { this.tryEntries = [{ tryLoc: "root" }], tryLocsList.forEach(pushTryEntry, this), this.reset(!0); } function values(iterable) { if (iterable) { var iteratorMethod = iterable[iteratorSymbol]; if (iteratorMethod) return iteratorMethod.call(iterable); if ("function" == typeof iterable.next) return iterable; if (!isNaN(iterable.length)) { var i = -1, next = function next() { for (; ++i < iterable.length;) if (hasOwn.call(iterable, i)) return next.value = iterable[i], next.done = !1, next; return next.value = undefined, next.done = !0, next; }; return next.next = next; } } return { next: doneResult }; } function doneResult() { return { value: undefined, done: !0 }; } return GeneratorFunction.prototype = GeneratorFunctionPrototype, defineProperty(Gp, "constructor", { value: GeneratorFunctionPrototype, configurable: !0 }), defineProperty(GeneratorFunctionPrototype, "constructor", { value: GeneratorFunction, configurable: !0 }), GeneratorFunction.displayName = define(GeneratorFunctionPrototype, toStringTagSymbol, "GeneratorFunction"), exports.isGeneratorFunction = function (genFun) { var ctor = "function" == typeof genFun && genFun.constructor; return !!ctor && (ctor === GeneratorFunction || "GeneratorFunction" === (ctor.displayName || ctor.name)); }, exports.mark = function (genFun) { return Object.setPrototypeOf ? Object.setPrototypeOf(genFun, GeneratorFunctionPrototype) : (genFun.__proto__ = GeneratorFunctionPrototype, define(genFun, toStringTagSymbol, "GeneratorFunction")), genFun.prototype = Object.create(Gp), genFun; }, exports.awrap = function (arg) { return { __await: arg }; }, defineIteratorMethods(AsyncIterator.prototype), define(AsyncIterator.prototype, asyncIteratorSymbol, function () { return this; }), exports.AsyncIterator = AsyncIterator, exports.async = function (innerFn, outerFn, self, tryLocsList, PromiseImpl) { void 0 === PromiseImpl && (PromiseImpl = Promise); var iter = new AsyncIterator(wrap(innerFn, outerFn, self, tryLocsList), PromiseImpl); return exports.isGeneratorFunction(outerFn) ? iter : iter.next().then(function (result) { return result.done ? result.value : iter.next(); }); }, defineIteratorMethods(Gp), define(Gp, toStringTagSymbol, "Generator"), define(Gp, iteratorSymbol, function () { return this; }), define(Gp, "toString", function () { return "[object Generator]"; }), exports.keys = function (val) { var object = Object(val), keys = []; for (var key in object) keys.push(key); return keys.reverse(), function next() { for (; keys.length;) { var key = keys.pop(); if (key in object) return next.value = key, next.done = !1, next; } return next.done = !0, next; }; }, exports.values = values, Context.prototype = { constructor: Context, reset: function reset(skipTempReset) { if (this.prev = 0, this.next = 0, this.sent = this._sent = undefined, this.done = !1, this.delegate = null, this.method = "next", this.arg = undefined, this.tryEntries.forEach(resetTryEntry), !skipTempReset) for (var name in this) "t" === name.charAt(0) && hasOwn.call(this, name) && !isNaN(+name.slice(1)) && (this[name] = undefined); }, stop: function stop() { this.done = !0; var rootRecord = this.tryEntries[0].completion; if ("throw" === rootRecord.type) throw rootRecord.arg; return this.rval; }, dispatchException: function dispatchException(exception) { if (this.done) throw exception; var context = this; function handle(loc, caught) { return record.type = "throw", record.arg = exception, context.next = loc, caught && (context.method = "next", context.arg = undefined), !!caught; } for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i], record = entry.completion; if ("root" === entry.tryLoc) return handle("end"); if (entry.tryLoc <= this.prev) { var hasCatch = hasOwn.call(entry, "catchLoc"), hasFinally = hasOwn.call(entry, "finallyLoc"); if (hasCatch && hasFinally) { if (this.prev < entry.catchLoc) return handle(entry.catchLoc, !0); if (this.prev < entry.finallyLoc) return handle(entry.finallyLoc); } else if (hasCatch) { if (this.prev < entry.catchLoc) return handle(entry.catchLoc, !0); } else { if (!hasFinally) throw new Error("try statement without catch or finally"); if (this.prev < entry.finallyLoc) return handle(entry.finallyLoc); } } } }, abrupt: function abrupt(type, arg) { for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i]; if (entry.tryLoc <= this.prev && hasOwn.call(entry, "finallyLoc") && this.prev < entry.finallyLoc) { var finallyEntry = entry; break; } } finallyEntry && ("break" === type || "continue" === type) && finallyEntry.tryLoc <= arg && arg <= finallyEntry.finallyLoc && (finallyEntry = null); var record = finallyEntry ? finallyEntry.completion : {}; return record.type = type, record.arg = arg, finallyEntry ? (this.method = "next", this.next = finallyEntry.finallyLoc, ContinueSentinel) : this.complete(record); }, complete: function complete(record, afterLoc) { if ("throw" === record.type) throw record.arg; return "break" === record.type || "continue" === record.type ? this.next = record.arg : "return" === record.type ? (this.rval = this.arg = record.arg, this.method = "return", this.next = "end") : "normal" === record.type && afterLoc && (this.next = afterLoc), ContinueSentinel; }, finish: function finish(finallyLoc) { for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i]; if (entry.finallyLoc === finallyLoc) return this.complete(entry.completion, entry.afterLoc), resetTryEntry(entry), ContinueSentinel; } }, "catch": function _catch(tryLoc) { for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i]; if (entry.tryLoc === tryLoc) { var record = entry.completion; if ("throw" === record.type) { var thrown = record.arg; resetTryEntry(entry); } return thrown; } } throw new Error("illegal catch attempt"); }, delegateYield: function delegateYield(iterable, resultName, nextLoc) { return this.delegate = { iterator: values(iterable), resultName: resultName, nextLoc: nextLoc }, "next" === this.method && (this.arg = undefined), ContinueSentinel; } }, exports; }
+function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
+function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
+var _require = __webpack_require__(/*! ./registerShipModule */ "./src/modules/registerShipModule.js"),
+  registerShipModule = _require.registerShipModule;
+var submitButtonEventListenerModule = function () {
+  var submitButton = document.getElementById("submit-button");
+  function toggleSubmitButtonOff() {
+    submitButton.classList.add("hidden");
+  }
+  function generateSubmitButtonEventListener(resolve, appContext) {
+    return /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee() {
+      var placementSuccessful;
+      return _regeneratorRuntime().wrap(function _callee$(_context) {
+        while (1) switch (_context.prev = _context.next) {
+          case 0:
+            _context.next = 2;
+            return registerShipModule.registerPlaceShipForPlayerOne(appContext);
+          case 2:
+            placementSuccessful = _context.sent;
+            if (placementSuccessful) {
+              toggleSubmitButtonOff();
+              resolve();
+            } else {
+              console.log('Placement was unsuccessful, trying again');
+              toggleSubmitButtonOff();
+            }
+          case 4:
+          case "end":
+            return _context.stop();
+        }
+      }, _callee);
+    }));
+  }
+  function removeOldSubmitButtonListener(appContext) {
+    if (appContext.submitButtonListener) {
+      submitButton.removeEventListener('click', appContext.submitButtonListener);
+    }
+  }
+  function processNewSubmitButtonListener(resolve, appContext) {
+    appContext.submitButtonListener = generateSubmitButtonEventListener(resolve, appContext);
+    submitButton.addEventListener('click', appContext.submitButtonListener);
+  }
+  function addSubmitButtonEventListener(appContext) {
+    return new Promise(function (resolve) {
+      removeOldSubmitButtonListener(appContext);
+      processNewSubmitButtonListener(resolve, appContext);
+      console.log("submitButton Event Listener attached to submit button");
+    });
+  }
+  return {
+    addSubmitButtonEventListener: addSubmitButtonEventListener,
+    toggleSubmitButtonOff: toggleSubmitButtonOff
+  };
+}();
+module.exports = {
+  submitButtonEventListenerModule: submitButtonEventListenerModule
 };
 
 /***/ }),
@@ -3405,11 +3382,26 @@ var __webpack_exports__ = {};
 __webpack_require__(/*! ./styles.css */ "./src/styles.css");
 var _require = __webpack_require__(/*! ./modules/addGameModeClickEvents */ "./src/modules/addGameModeClickEvents.js"),
   addGameModeClickEvents = _require.addGameModeClickEvents;
-
-// Battlegrid size
-var horizontalSize = 10;
-var verticalSize = 10;
-addGameModeClickEvents(horizontalSize, verticalSize);
+var appContext = {
+  orientation: {
+    isVertical: false
+  },
+  highlightedArray: [],
+  isPlacementValid: null,
+  cellSelected: null,
+  highlightListeners: {},
+  submitButtonListener: null,
+  playerOne: null,
+  playerTwo: null,
+  playerComputer: null,
+  currentShipName: null,
+  currentShipSize: null,
+  shipList: [],
+  // Battlegrid Size
+  horizontalSize: 10,
+  verticalSize: 10
+};
+addGameModeClickEvents(appContext);
 })();
 
 /******/ })()
