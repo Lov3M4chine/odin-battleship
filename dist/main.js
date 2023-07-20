@@ -8,7 +8,8 @@
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
 var _require = __webpack_require__(/*! ./playerModeInitializations */ "./src/modules/playerModeInitializations.js"),
-  initializeOnePlayerMode = _require.initializeOnePlayerMode;
+  initializeOnePlayerMode = _require.initializeOnePlayerMode,
+  initializeTwoPlayerMode = _require.initializeTwoPlayerMode;
 function addGameModeClickEvents(appContext) {
   // Error Checking
   if (!Number.isInteger(appContext.horizontalSize) || !Number.isInteger(appContext.verticalSize)) {
@@ -17,13 +18,11 @@ function addGameModeClickEvents(appContext) {
   if (appContext.horizontalSize < 8 || appContext.verticalSize < 8) {
     throw new Error("Horizontal and Vertical Size must be at least 7");
   }
-  var onePlayerMode = document.getElementById("one-player-mode");
-  var twoPlayerMode = document.getElementById("two-player-mode");
-  onePlayerMode.addEventListener('click', function () {
+  appContext.appElements.onePlayerMode.addEventListener('click', function () {
     initializeOnePlayerMode(appContext);
   });
-  twoPlayerMode.addEventListener('click', function () {
-    return playerModeInitializations.initializeTwoPlayerMode(appContext);
+  appContext.appElements.twoPlayerMode.addEventListener('click', function () {
+    initializeTwoPlayerMode(appContext);
   });
   console.log("Game mode click events added.");
 }
@@ -266,16 +265,15 @@ var highlightShipPlacementModule = function () {
     };
   }();
   var highlightModule = function () {
-    var submitButton = document.getElementById("submit-button");
-    function toggleSubmitButtonOn() {
-      submitButton.classList.remove("hidden");
+    function toggleSubmitButtonOn(appContext) {
+      appContext.appElements.submitButton.classList.remove("hidden");
     }
     function highlightShipPlacement(targetedCell, appContext) {
       var cellNumber = Number(targetedCell.dataset.cellNumber);
       appContext.cellSelected = cellNumber;
       console.log("Beginning cell highlighting...");
       appContext.highlightedArray.length = 0;
-      toggleSubmitButtonOn();
+      toggleSubmitButtonOn(appContext);
       checkPlacementModule.checkIsPlacementValid(appContext);
       if (appContext.orientation.isVertical) {
         if (appContext.isPlacementValid) {
@@ -425,10 +423,10 @@ module.exports = {
 
 /***/ }),
 
-/***/ "./src/modules/initializePlaceShips.js":
-/*!*********************************************!*\
-  !*** ./src/modules/initializePlaceShips.js ***!
-  \*********************************************/
+/***/ "./src/modules/initializePlaceShipsModule.js":
+/*!***************************************************!*\
+  !*** ./src/modules/initializePlaceShipsModule.js ***!
+  \***************************************************/
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
 function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
@@ -443,65 +441,68 @@ var _require3 = __webpack_require__(/*! ./orientationModule */ "./src/modules/or
   orientationModule = _require3.orientationModule;
 var _require4 = __webpack_require__(/*! ./submitButtonEventListenerModule */ "./src/modules/submitButtonEventListenerModule.js"),
   submitButtonEventListenerModule = _require4.submitButtonEventListenerModule;
-var messageBox = document.getElementById("message-box");
-var horizontalButton = document.getElementById("horizontal-button");
-function createShipList(appContext) {
-  appContext.shipList = CreateShips(appContext);
-  console.log("Ship creation: COMPLETE");
-  console.log("Ship List: ".concat(JSON.stringify(appContext.shipList)));
-}
-function initializePlaceShipsDynamicHTML() {
-  messageBox.classList.remove("hidden");
-  horizontalButton.classList.remove("hidden");
-  submitButtonEventListenerModule.toggleSubmitButtonOff();
-  console.log("Ship placement screen dynamic html updated");
-}
-function contextCreation(appContext) {
-  orientationModule.addOrientationClickEvent(appContext);
-  initializePlaceShipsDynamicHTML();
-  createShipList(appContext);
-}
-function updateMessageBox(message) {
-  messageBox.innerHTML = message;
-  console.log("Message box updated.");
-}
-function initializePlaceShips(_x) {
-  return _initializePlaceShips.apply(this, arguments);
-}
-function _initializePlaceShips() {
-  _initializePlaceShips = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee(appContext) {
-    var currentShipKey, _appContext$shipList$, currentShipName, currentShipSize;
-    return _regeneratorRuntime().wrap(function _callee$(_context) {
-      while (1) switch (_context.prev = _context.next) {
-        case 0:
-          contextCreation(appContext);
-          _context.t0 = _regeneratorRuntime().keys(appContext.shipList);
-        case 2:
-          if ((_context.t1 = _context.t0()).done) {
-            _context.next = 13;
+var initializePlaceShipsModule = function () {
+  function initializePlaceShips(_x) {
+    return _initializePlaceShips.apply(this, arguments);
+  }
+  function _initializePlaceShips() {
+    _initializePlaceShips = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee(appContext) {
+      var currentShipKey, _appContext$shipList$, currentShipName, currentShipSize;
+      return _regeneratorRuntime().wrap(function _callee$(_context) {
+        while (1) switch (_context.prev = _context.next) {
+          case 0:
+            setupPlaceShips(appContext);
+            _context.t0 = _regeneratorRuntime().keys(appContext.shipList);
+          case 2:
+            if ((_context.t1 = _context.t0()).done) {
+              _context.next = 13;
+              break;
+            }
+            currentShipKey = _context.t1.value;
+            _appContext$shipList$ = appContext.shipList[currentShipKey], currentShipName = _appContext$shipList$.name, currentShipSize = _appContext$shipList$.size;
+            appContext.currentShipName = currentShipName;
+            appContext.currentShipSize = currentShipSize;
+            updateMessageBox(appContext, "Please place your ".concat(appContext.currentShipName, " (").concat(appContext.currentShipSize, " slots)"));
+            highlightShipPlacementModule.highlightEventListenerModule.addHighlightShipEventListener(appContext);
+            _context.next = 11;
+            return submitButtonEventListenerModule.addSubmitButtonEventListener(appContext);
+          case 11:
+            _context.next = 2;
             break;
-          }
-          currentShipKey = _context.t1.value;
-          _appContext$shipList$ = appContext.shipList[currentShipKey], currentShipName = _appContext$shipList$.name, currentShipSize = _appContext$shipList$.size;
-          appContext.currentShipName = currentShipName;
-          appContext.currentShipSize = currentShipSize;
-          updateMessageBox("Please place your ".concat(appContext.currentShipName, " (").concat(appContext.currentShipSize, " slots)"));
-          highlightShipPlacementModule.highlightEventListenerModule.addHighlightShipEventListener(appContext);
-          _context.next = 11;
-          return submitButtonEventListenerModule.addSubmitButtonEventListener(appContext);
-        case 11:
-          _context.next = 2;
-          break;
-        case 13:
-        case "end":
-          return _context.stop();
-      }
-    }, _callee);
-  }));
-  return _initializePlaceShips.apply(this, arguments);
-}
+          case 13:
+          case "end":
+            return _context.stop();
+        }
+      }, _callee);
+    }));
+    return _initializePlaceShips.apply(this, arguments);
+  }
+  function createShipList(appContext) {
+    appContext.shipList = CreateShips(appContext);
+    console.log("Ship creation: COMPLETE");
+    console.log("Ship List: ".concat(JSON.stringify(appContext.shipList)));
+  }
+  function initializePlaceShipsDynamicHTML(appContext) {
+    appContext.appElements.messageBox.classList.remove("hidden");
+    appContext.appElements.horizontalButton.classList.remove("hidden");
+    submitButtonEventListenerModule.toggleSubmitButtonOff(appContext);
+    console.log("Ship placement screen dynamic html updated");
+  }
+  function setupPlaceShips(appContext) {
+    orientationModule.addOrientationClickEvent(appContext);
+    initializePlaceShipsDynamicHTML(appContext);
+    createShipList(appContext);
+  }
+  function updateMessageBox(appContext, message) {
+    appContext.appElements.messageBox.innerHTML = message;
+    console.log("Message box updated.");
+  }
+  return {
+    initializePlaceShips: initializePlaceShips
+  };
+}();
 module.exports = {
-  initializePlaceShips: initializePlaceShips
+  initializePlaceShipsModule: initializePlaceShipsModule
 };
 
 /***/ }),
@@ -513,8 +514,6 @@ module.exports = {
 /***/ ((module) => {
 
 var orientationModule = function () {
-  var verticalButton = document.getElementById("vertical-button");
-  var horizontalButton = document.getElementById("horizontal-button");
   function addOrientationClickEvent(appContext) {
     var orientationButtons = document.querySelectorAll(".orientation-button");
     orientationButtons.forEach(function (button) {
@@ -530,12 +529,12 @@ var orientationModule = function () {
   function toggleOrientation(appContext) {
     if (appContext.orientation.isVertical === true) {
       appContext.orientation.isVertical = false;
-      verticalButton.classList.add("hidden");
-      horizontalButton.classList.remove("hidden");
+      appContext.appElements.verticalButton.classList.add("hidden");
+      appContext.appElements.horizontalButton.classList.remove("hidden");
     } else {
       appContext.orientation.isVertical = true;
-      verticalButton.classList.remove("hidden");
-      horizontalButton.classList.add("hidden");
+      appContext.appElements.verticalButton.classList.remove("hidden");
+      appContext.appElements.horizontalButton.classList.add("hidden");
     }
   }
   return {
@@ -556,12 +555,10 @@ module.exports = {
 
 var _require = __webpack_require__(/*! ./factories/CreatePlayers */ "./src/modules/factories/CreatePlayers.js"),
   CreatePlayersForOnePlayerMode = _require.CreatePlayersForOnePlayerMode;
-var _require2 = __webpack_require__(/*! ./initializePlaceShips.js */ "./src/modules/initializePlaceShips.js"),
-  initializePlaceShips = _require2.initializePlaceShips;
-var modeSelectContainer = document.getElementById("mode-select-container");
-var mainContainer = document.getElementById("main-container");
-function hideModeSelectContainer() {
-  modeSelectContainer.classList.add("hidden");
+var _require2 = __webpack_require__(/*! ./initializePlaceShipsModule.js */ "./src/modules/initializePlaceShipsModule.js"),
+  initializePlaceShipsModule = _require2.initializePlaceShipsModule;
+function hideModeSelectContainer(appContext) {
+  appContext.appElements.modeSelectContainer.classList.add("hidden");
 }
 function createBattlegridForPlayerOne(appContext) {
   var playerOneBattlegridContainer = document.createElement('div');
@@ -580,7 +577,7 @@ function createBattlegridForPlayerOne(appContext) {
     playerOneBattlegrid.appendChild(playerOneCell);
   }
   playerOneBattlegridContainer.appendChild(playerOneBattlegrid);
-  mainContainer.appendChild(playerOneBattlegridContainer);
+  appContext.appElements.mainContainer.appendChild(playerOneBattlegridContainer);
 }
 function createBattlegridForPlayerTwo(appContext) {
   var playerTwoBattlegridContainer = document.createElement('div');
@@ -598,17 +595,17 @@ function createBattlegridForPlayerTwo(appContext) {
     playerTwoBattlegrid.appendChild(playerTwoCell);
   }
   playerTwoBattlegridContainer.appendChild(playerTwoBattlegrid);
-  mainContainer.appendChild(playerTwoBattlegridContainer);
+  appContext.appElements.mainContainer.appendChild(playerTwoBattlegridContainer);
 }
 function initializeOnePlayerMode(appContext) {
-  hideModeSelectContainer();
+  hideModeSelectContainer(appContext);
   createBattlegridForPlayerOne(appContext);
   CreatePlayersForOnePlayerMode(appContext);
-  initializePlaceShips(appContext);
+  initializePlaceShipsModule.initializePlaceShips(appContext);
   console.log("Initialization of one player mode complete.");
 }
 function initializeTwoPlayerMode(appContext) {
-  modeSelectContainer.classList.add("hidden");
+  appContext.appElements.modeSelectContainer.classList.add("hidden");
   createBattlegridForPlayerOne(appContext);
   createBattlegridForPlayerTwo(appContext);
   appContext.playerOne = PlayerFactory(appContext);
@@ -689,9 +686,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 var _require = __webpack_require__(/*! ./registerShipModule */ "./src/modules/registerShipModule.js"),
   registerShipModule = _require.registerShipModule;
 var submitButtonEventListenerModule = function () {
-  var submitButton = document.getElementById("submit-button");
-  function toggleSubmitButtonOff() {
-    submitButton.classList.add("hidden");
+  function toggleSubmitButtonOff(appContext) {
+    appContext.appElements.submitButton.classList.add("hidden");
   }
   function generateSubmitButtonEventListener(resolve, appContext) {
     return /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee() {
@@ -704,11 +700,11 @@ var submitButtonEventListenerModule = function () {
           case 2:
             placementSuccessful = _context.sent;
             if (placementSuccessful) {
-              toggleSubmitButtonOff();
+              toggleSubmitButtonOff(appContext);
               resolve();
             } else {
               console.log('Placement was unsuccessful, trying again');
-              toggleSubmitButtonOff();
+              toggleSubmitButtonOff(appContext);
             }
           case 4:
           case "end":
@@ -719,12 +715,12 @@ var submitButtonEventListenerModule = function () {
   }
   function removeOldSubmitButtonListener(appContext) {
     if (appContext.submitButtonListener) {
-      submitButton.removeEventListener('click', appContext.submitButtonListener);
+      appContext.appElements.submitButton.removeEventListener('click', appContext.submitButtonListener);
     }
   }
   function processNewSubmitButtonListener(resolve, appContext) {
     appContext.submitButtonListener = generateSubmitButtonEventListener(resolve, appContext);
-    submitButton.addEventListener('click', appContext.submitButtonListener);
+    appContext.appElements.submitButton.addEventListener('click', appContext.submitButtonListener);
   }
   function addSubmitButtonEventListener(appContext) {
     return new Promise(function (resolve) {
@@ -3399,7 +3395,17 @@ var appContext = {
   shipList: [],
   // Battlegrid Size
   horizontalSize: 10,
-  verticalSize: 10
+  verticalSize: 10,
+  appElements: {
+    onePlayerMode: document.getElementById("one-player-mode"),
+    twoPlayerMode: document.getElementById("two-player-mode"),
+    modeSelectContainer: document.getElementById("mode-select-container"),
+    mainContainer: document.getElementById("main-container"),
+    messageBox: document.getElementById("message-box"),
+    verticalButton: document.getElementById("vertical-button"),
+    horizontalButton: document.getElementById("horizontal-button"),
+    submitButton: document.getElementById("submit-button")
+  }
 };
 addGameModeClickEvents(appContext);
 })();

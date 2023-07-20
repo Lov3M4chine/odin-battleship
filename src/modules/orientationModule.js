@@ -1,6 +1,5 @@
 const orientationModule = (function() {
-    const verticalButton = document.getElementById("vertical-button");
-    const horizontalButton = document.getElementById("horizontal-button");
+
 
     function addOrientationClickEvent(appContext) {
         const orientationButtons = document.querySelectorAll(".orientation-button");
@@ -14,12 +13,12 @@ const orientationModule = (function() {
     function toggleOrientation(appContext) {
         if (appContext.orientation.isVertical === true) {
             appContext.orientation.isVertical = false;
-            verticalButton.classList.add("hidden");
-            horizontalButton.classList.remove("hidden");
+            appContext.appElements.verticalButton.classList.add("hidden");
+            appContext.appElements.horizontalButton.classList.remove("hidden");
         } else {
             appContext.orientation.isVertical = true;
-            verticalButton.classList.remove("hidden");
-            horizontalButton.classList.add("hidden");
+            appContext.appElements.verticalButton.classList.remove("hidden");
+            appContext.appElements.horizontalButton.classList.add("hidden");
         }
     }
 

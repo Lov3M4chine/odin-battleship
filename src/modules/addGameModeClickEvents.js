@@ -1,4 +1,4 @@
-const { initializeOnePlayerMode } = require("./playerModeInitializations");
+const { initializeOnePlayerMode, initializeTwoPlayerMode } = require("./playerModeInitializations");
 
 function addGameModeClickEvents (appContext) {
     // Error Checking
@@ -9,13 +9,12 @@ function addGameModeClickEvents (appContext) {
         throw new Error("Horizontal and Vertical Size must be at least 7");
     }
 
-    const onePlayerMode = document.getElementById("one-player-mode");
-    const twoPlayerMode = document.getElementById("two-player-mode");
-
-    onePlayerMode.addEventListener('click', () => {
+    appContext.appElements.onePlayerMode.addEventListener('click', () => {
         initializeOnePlayerMode(appContext);
     });
-    twoPlayerMode.addEventListener('click', () => playerModeInitializations.initializeTwoPlayerMode(appContext));
+    appContext.appElements.twoPlayerMode.addEventListener('click', () => {
+        initializeTwoPlayerMode(appContext)
+    });
 
     console.log("Game mode click events added.");
 }

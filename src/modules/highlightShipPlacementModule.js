@@ -39,9 +39,9 @@ const highlightShipPlacementModule = (function() {
     })();
 
     const highlightModule =  (function() {
-        const submitButton = document.getElementById("submit-button");
-        function toggleSubmitButtonOn () {
-            submitButton.classList.remove("hidden");
+
+        function toggleSubmitButtonOn (appContext) {
+            appContext.appElements.submitButton.classList.remove("hidden");
         }
 
         function highlightShipPlacement (targetedCell, appContext) {
@@ -50,7 +50,7 @@ const highlightShipPlacementModule = (function() {
 
             console.log("Beginning cell highlighting...");
             appContext.highlightedArray.length = 0;
-            toggleSubmitButtonOn();
+            toggleSubmitButtonOn(appContext);
             checkPlacementModule.checkIsPlacementValid(appContext);
 
             if (appContext.orientation.isVertical) {

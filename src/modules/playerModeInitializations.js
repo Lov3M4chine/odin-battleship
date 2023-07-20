@@ -1,11 +1,8 @@
 const { CreatePlayersForOnePlayerMode } = require("./factories/CreatePlayers");
-const { initializePlaceShips } = require("./initializePlaceShips.js");
+const { initializePlaceShipsModule } = require("./initializePlaceShipsModule.js");
 
-const modeSelectContainer = document.getElementById("mode-select-container");
-const mainContainer = document.getElementById("main-container");
-
-function hideModeSelectContainer () {
-    modeSelectContainer.classList.add("hidden");
+function hideModeSelectContainer (appContext) {
+    appContext.appElements.modeSelectContainer.classList.add("hidden");
 }
 
 function createBattlegridForPlayerOne (appContext) {
@@ -30,7 +27,7 @@ function createBattlegridForPlayerOne (appContext) {
     }
 
     playerOneBattlegridContainer.appendChild(playerOneBattlegrid);
-    mainContainer.appendChild(playerOneBattlegridContainer);
+    appContext.appElements.mainContainer.appendChild(playerOneBattlegridContainer);
   
 }
 
@@ -55,21 +52,21 @@ function createBattlegridForPlayerTwo (appContext) {
     }
 
     playerTwoBattlegridContainer.appendChild(playerTwoBattlegrid);
-    mainContainer.appendChild(playerTwoBattlegridContainer);
+    appContext.appElements.mainContainer.appendChild(playerTwoBattlegridContainer);
 }
 
 function initializeOnePlayerMode (appContext) {
     
-    hideModeSelectContainer();
+    hideModeSelectContainer(appContext);
     createBattlegridForPlayerOne(appContext);
     CreatePlayersForOnePlayerMode(appContext);
 
-    initializePlaceShips(appContext);
+    initializePlaceShipsModule.initializePlaceShips(appContext);
     console.log(`Initialization of one player mode complete.`);
 }
 
 function initializeTwoPlayerMode (appContext) {
-    modeSelectContainer.classList.add("hidden");
+    appContext.appElements.modeSelectContainer.classList.add("hidden");
     createBattlegridForPlayerOne(appContext);
     createBattlegridForPlayerTwo(appContext);
 

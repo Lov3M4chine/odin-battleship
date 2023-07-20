@@ -2,34 +2,34 @@ const { registerShipModule } = require("./registerShipModule");
 
 const submitButtonEventListenerModule = (function () {
 
-    const submitButton = document.getElementById("submit-button");
+    
 
-    function toggleSubmitButtonOff () {
-        submitButton.classList.add("hidden");
+    function toggleSubmitButtonOff (appContext) {
+        appContext.appElements.submitButton.classList.add("hidden");
     }
     
     function generateSubmitButtonEventListener(resolve, appContext) {
         return async function() {
             let placementSuccessful = await registerShipModule.registerPlaceShipForPlayerOne(appContext);
             if (placementSuccessful) {
-                toggleSubmitButtonOff();
+                toggleSubmitButtonOff(appContext);
                 resolve();
             } else {
                 console.log('Placement was unsuccessful, trying again');
-                toggleSubmitButtonOff();            
+                toggleSubmitButtonOff(appContext);            
             }
         };
     }
     
     function removeOldSubmitButtonListener(appContext) {
         if (appContext.submitButtonListener) {
-            submitButton.removeEventListener('click', appContext.submitButtonListener);
+            appContext.appElements.submitButton.removeEventListener('click', appContext.submitButtonListener);
         }
     }
     
     function processNewSubmitButtonListener(resolve, appContext) {
         appContext.submitButtonListener = generateSubmitButtonEventListener(resolve, appContext);
-        submitButton.addEventListener('click', appContext.submitButtonListener);
+        appContext.appElements.submitButton.addEventListener('click', appContext.submitButtonListener);
     }
     
     function addSubmitButtonEventListener(appContext) {
