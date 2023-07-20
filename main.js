@@ -427,6 +427,7 @@ var orientation = {
   isVertical: false
 };
 var cellSelected;
+var listeners = {};
 function addOrientationClickEvent() {
   var orientationButtons = document.querySelectorAll(".orientation-button");
   orientationButtons.forEach(function (button) {
@@ -449,9 +450,8 @@ function toggleOrientation() {
     horizontalButton.classList.add("hidden");
   }
 }
-function addHighlightShipEventListener(playerOne, currentShipSize) {
-  var playerOneCells = document.querySelectorAll(".playerone-cell");
-  var highlightShipPlacementEventListener = function highlightShipPlacementEventListener(event) {
+function generateHighlightShipPlacementEventListener(playerOne, currentShipSize, orientation, highlightedArray) {
+  return function (event) {
     removeHighlightedSelections(highlightedArray);
     console.log("Previous highlighted selections removed.");
     var result = highlightShipPlacement(event.target, playerOne, orientation.isVertical, currentShipSize, highlightedArray);
@@ -459,9 +459,22 @@ function addHighlightShipEventListener(playerOne, currentShipSize) {
     highlightedArray = result.highlightedArray;
     cellSelected = result.cellSelected;
   };
+}
+function addHighlightShipEventListener(playerOne, currentShipSize) {
+  var playerOneCells = document.querySelectorAll(".playerone-cell");
   playerOneCells.forEach(function (cell) {
-    cell.removeEventListener('click', highlightShipPlacementEventListener);
-    cell.addEventListener('click', highlightShipPlacementEventListener);
+    var listener = generateHighlightShipPlacementEventListener(playerOne, currentShipSize, orientation, highlightedArray);
+
+    // Remove the old listener if it exists
+    if (listeners[cell.id]) {
+      cell.removeEventListener('click', listeners[cell.id]);
+    }
+
+    // Store the new listener in the object
+    listeners[cell.id] = listener;
+
+    // Add the new listener
+    cell.addEventListener('click', listener);
   });
   console.log("highlightShip Event Listener attached to all cells");
 }
