@@ -83,18 +83,28 @@ function highlightShipPlacement (cell, playerOne, isVertical, currentShipSize, h
     console.log("Beginning cell highlighting...")
     highlightedArray = [];
     if (isVertical) {
-        for (let i = cellNumber; i < (cellNumber + (currentShipSize * playerOne.gameboardState.horizontalSize)); i+=playerOne.gameboardState.horizontalSize) {
-            let cellToHighlight = document.querySelector(`[data-cell-number="${i}"]`);
-            highlightedArray.push(i);
-            cellToHighlight.classList.remove("bg-primary");
-            cellToHighlight.classList.add("bg-accent");
+        // If selected cells go beyond physical boundaries
+        if (playerOne.gameboardState.verticalSize - (cellNumber % playerOne.gameboardState.verticalSize) < currentShipSize) {
+            // Only highlight the cells within the boundary
+            for (let i = cellNumber; i <= ((currentShipSize - ((cellSelected - cellNumber) / playerOne.gameboardState.horizontalSize)) * horizontalSize); i+=playerOne.gameboardState.horizontalSize) {
+                pushAndHighlight(i, highlightedArray);
+            }
+        } else {
+            for (let i = cellNumber; i < (cellNumber + (currentShipSize * playerOne.gameboardState.horizontalSize)); i+=playerOne.gameboardState.horizontalSize) {
+                pushAndHighlight(i, highlightedArray);
+            }
         }
     } else {
-        for (let i = cellNumber; i < (cellNumber + currentShipSize); i+=1) {
-            let cellToHighlight = document.querySelector(`[data-cell-number="${i}"]`);
-            highlightedArray.push(i);
-            cellToHighlight.classList.remove("bg-primary");
-            cellToHighlight.classList.add("bg-accent");
+        // If selected cells go beyond physical boundaries
+        if (playerOne.gameboardState.horizontalSize - (cellNumber % playerOne.gameboardState.horizontalSize) < currentShipSize) {
+            // Only highlight the cells within the boundary
+            for (let i = cellNumber; i <= currentShipSize - (cellSelected - cellNumber); i++) {
+                pushAndHighlight(i, highlightedArray);
+            }
+        } else {
+            for (let i = cellNumber; i < (cellNumber + currentShipSize); i+=1) {
+                pushAndHighlight(i, highlightedArray);
+            }
         }
     }
     console.log(`Cell highlighting complete. Highlight Array = ${highlightedArray}`)
@@ -103,6 +113,13 @@ function highlightShipPlacement (cell, playerOne, isVertical, currentShipSize, h
         cellSelected,
         highlightedArray
     }
+}
+
+function pushAndHighlight(i, highlightedArray, ) {
+    let cellToHighlight = document.querySelector(`[data-cell-number="${i}"]`);
+    highlightedArray.push(i);
+    cellToHighlight.classList.remove("bg-primary");
+    cellToHighlight.classList.add("bg-accent");
 }
 
 function removeHighlightedSelections(highlightedArray) {

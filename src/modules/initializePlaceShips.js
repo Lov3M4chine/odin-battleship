@@ -49,31 +49,39 @@ function addHighlightShipEventListener (playerOne, currentShipSize) {
     console.log("highlightShip Event Listener attached to all cells");
 }
 
-function registerPlaceShipForPlayerOne (playerOne, currentShipName, currentShipSize) {
-    if (checkIsPlacementValid(cellSelected, playerOne, currentShipSize)) {
-        playerOne.placeShip(cellSelected, orientation.isVertical, currentShipName, currentShipSize);
-        updateHighlightedFromSelectedToRegistered(highlightedArray);
-        isPlacementSuccessful = true;
-        return isPlacementSuccessful;
-    } else {
-        console.log("Try again.")
-        addPlaceShipEventListener(playerOne, orientation.isVertical, currentShipName, currentShipSize);
-    }
+function registerPlaceShipForPlayerOne(playerOne, currentShipName, currentShipSize) {
+    return new Promise((resolve) => {
+        if (checkIsPlacementValid(cellSelected, playerOne, currentShipSize)) {
+            playerOne.placeShip(cellSelected, orientation.isVertical, currentShipName, currentShipSize);
+            updateHighlightedFromSelectedToRegistered(highlightedArray);
+            console.log('Placement was successful');
+            resolve(true);
+        } else {
+            console.log("Try again.")
+            console.log(highlightedArray)
+            addHighlightShipEventListener(playerOne, currentShipSize);
+            resolve(false);
+        }
+    });
 }
 
-function addSubmitButtonEventListener(playerOne, currentShipName, currentShipSize, ) {
-    return new Promise(resolve => {
-      const submitButton = document.getElementById("submit-button");
-  
-      const onClick = function(event) {
-        registerPlaceShipForPlayerOne(playerOne, currentShipName, currentShipSize);
-        submitButton.removeEventListener('click', onClick);
-        resolve();
-      };
-  
-      submitButton.addEventListener('click', onClick);
+function addSubmitButtonEventListener(playerOne, currentShipName, currentShipSize) {
+    return new Promise(async (resolve) => {
+        const submitButton = document.getElementById("submit-button");
+
+        const onClick = async function(event) {
+            let placementSuccessful = await registerPlaceShipForPlayerOne(playerOne, currentShipName, currentShipSize);
+            if (placementSuccessful) {
+                submitButton.removeEventListener('click', onClick);
+                resolve();
+            } else {
+                console.log('Placement was unsuccessful, trying again');
+            }
+        };
+
+        submitButton.addEventListener('click', onClick);
     });
-  }
+}
 
 function checkIsPlacementValid (cellNumber, playerOne, currentShipSize) {
     let isPlacementValid = true;
@@ -120,7 +128,14 @@ async function initializePlaceShips(playerOne) {
         updateMessageBox(`Please place your ${currentShipName}`);
         console.log("Message box updated.");
         addHighlightShipEventListener(playerOne, currentShipSize);
-        await addSubmitButtonEventListener(playerOne, currentShipName, currentShipSize);
+        while (true) {
+            try {
+                await addSubmitButtonEventListener(playerOne, currentShipName, currentShipSize);
+                break;
+            } catch (error) {
+                console.log('Re-attaching submit button event listener');
+            }
+        }
         console.log(playerOne);
         console.log(playerOne.ships);
     }
