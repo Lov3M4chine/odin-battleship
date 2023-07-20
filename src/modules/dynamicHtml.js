@@ -107,8 +107,6 @@ function highlightShipPlacement (cell, playerOne, isVertical, currentShipSize, h
     }
 }
 
-
-
 function pushAndHighlight(i, highlightedArray, ) {
     let cellToHighlight = document.querySelector(`[data-cell-number="${i}"]`);
     highlightedArray.push(i);

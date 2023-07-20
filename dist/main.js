@@ -421,14 +421,19 @@ var _require = __webpack_require__(/*! ./dynamicHtml */ "./src/modules/dynamicHt
   toggleSubmitButtonOff = _require.toggleSubmitButtonOff;
 var _require2 = __webpack_require__(/*! ./factories/CreateShips */ "./src/modules/factories/CreateShips.js"),
   CreateShips = _require2.CreateShips;
-var highlightedArray = [];
-var isPlacementValid = true;
-var orientation = {
-  isVertical: false
+var appContext = {
+  orientation: {
+    isVertical: false
+  },
+  highlightedArray: [],
+  isPlacementValid: true,
+  cellSelected: null,
+  highlightListeners: {},
+  submitButtonListener: null,
+  playerOne: null,
+  currentShipName: null,
+  currentShipSize: null
 };
-var cellSelected;
-var highlightListeners = {};
-var submitButtonListener;
 var orientationModule = function () {
   var horizontalButton = document.getElementById("horizontal-button");
   var verticalButton = document.getElementById("vertical-button");
@@ -436,21 +441,21 @@ var orientationModule = function () {
     var orientationButtons = document.querySelectorAll(".orientation-button");
     orientationButtons.forEach(function (button) {
       button.removeEventListener('click', function () {
-        return toggleOrientation(orientation);
+        return toggleOrientation(appContext.orientation);
       });
       button.addEventListener('click', function () {
-        return toggleOrientation(orientation);
+        return toggleOrientation(appContext.orientation);
       });
     });
     console.log("Orientation click event added");
   }
   function toggleOrientation() {
-    if (orientation.isVertical === true) {
-      orientation.isVertical = false;
+    if (appContext.orientation.isVertical === true) {
+      appContext.orientation.isVertical = false;
       verticalButton.classList.add("hidden");
       horizontalButton.classList.remove("hidden");
     } else {
-      orientation.isVertical = true;
+      appContext.orientation.isVertical = true;
       verticalButton.classList.remove("hidden");
       horizontalButton.classList.add("hidden");
     }
@@ -460,31 +465,31 @@ var orientationModule = function () {
   };
 }();
 var highlightShipPlacementModule = function () {
-  function generateHighlightShipPlacementEventListener(playerOne, currentShipSize, orientation, highlightedArray) {
+  function generateHighlightShipPlacementEventListener() {
     return function (event) {
-      removeHighlightedSelections(highlightedArray);
+      removeHighlightedSelections(appContext.highlightedArray);
       console.log("Previous highlighted selections removed.");
-      var result = highlightShipPlacement(event.target, playerOne, orientation.isVertical, currentShipSize, highlightedArray);
+      var result = highlightShipPlacement(event.target, appContext.playerOne, appContext.orientation.isVertical, appContext.currentShipSize, appContext.highlightedArray);
       console.log("...current selection highlighted");
-      highlightedArray = result.highlightedArray;
-      cellSelected = result.cellSelected;
+      appContext.highlightedArray = result.highlightedArray;
+      appContext.cellSelected = result.cellSelected;
     };
   }
   function removeOldHighlightListener(cell) {
-    if (highlightListeners[cell.id]) {
-      cell.removeEventListener('click', highlightListeners[cell.id]);
+    if (appContext.highlightListeners[cell.id]) {
+      cell.removeEventListener('click', appContext.highlightListeners[cell.id]);
     }
   }
-  function processNewHighlightListener(cell, playerOne, currentShipSize) {
-    var listener = generateHighlightShipPlacementEventListener(playerOne, currentShipSize, orientation, highlightedArray);
-    highlightListeners[cell.id] = listener;
+  function processNewHighlightListener(cell) {
+    var listener = generateHighlightShipPlacementEventListener(appContext.playerOne, appContext.currentShipSize, appContext.orientation, appContext.highlightedArray);
+    appContext.highlightListeners[cell.id] = listener;
     cell.addEventListener('click', listener);
   }
-  function addHighlightShipEventListener(playerOne, currentShipSize) {
+  function addHighlightShipEventListener() {
     var playerOneCells = document.querySelectorAll(".playerone-cell");
     playerOneCells.forEach(function (cell) {
       removeOldHighlightListener(cell);
-      processNewHighlightListener(cell, playerOne, currentShipSize);
+      processNewHighlightListener(cell, appContext.playerOne, appContext.currentShipSize);
     });
     console.log("highlightShip Event Listener attached to all cells");
   }
@@ -493,25 +498,25 @@ var highlightShipPlacementModule = function () {
   };
 }();
 var registerShipModule = function () {
-  function processRegistrationSuccess(currentShipName, currentShipSize) {
-    playerOne.placeShip(cellSelected, orientation.isVertical, currentShipName, currentShipSize);
-    updateHighlightedFromSelectedToRegistered(highlightedArray);
+  function processRegistrationSuccess() {
+    appContext.playerOne.placeShip(appContext.cellSelected, appContext.orientation.isVertical, appContext.currentShipName, appContext.currentShipSize);
+    updateHighlightedFromSelectedToRegistered(appContext.highlightedArray);
     console.log('Placement was successful');
   }
-  function processRegistrationFailure(playerOne, currentShipSize) {
+  function processRegistrationFailure() {
     console.log("Try again.");
-    removeHighlightedSelections(highlightedArray);
+    removeHighlightedSelections(appContext.highlightedArray);
     console.log("Previous highlighted selections removed.");
-    highlightedArray.length = 0;
-    highlightShipPlacementModule.addHighlightShipEventListener(playerOne, currentShipSize);
+    appContext.highlightedArray.length = 0;
+    highlightShipPlacementModule.addHighlightShipEventListener(appContext.playerOne, appContext.currentShipSize);
   }
-  function registerPlaceShipForPlayerOne(playerOne, currentShipName, currentShipSize) {
+  function registerPlaceShipForPlayerOne() {
     return new Promise(function (resolve) {
-      if (checkIsPlacementValid(cellSelected, playerOne, currentShipSize, orientation.isVertical)) {
-        processRegistrationSuccess(currentShipName, currentShipSize);
+      if (checkIsPlacementValid(appContext.cellSelected, appContext.playerOne, appContext.currentShipSize, appContext.orientation.isVertical)) {
+        processRegistrationSuccess(appContext.currentShipName, appContext.currentShipSize);
         resolve(true);
       } else {
-        processRegistrationFailure(playerOne, currentShipSize);
+        processRegistrationFailure(appContext.playerOne, appContext.currentShipSize);
         resolve(false);
       }
     });
@@ -522,14 +527,14 @@ var registerShipModule = function () {
 }();
 var submitButtonEventListenerModule = function () {
   var submitButton = document.getElementById("submit-button");
-  function generateSubmitButtonEventListener(playerOne, currentShipName, currentShipSize, resolve) {
+  function generateSubmitButtonEventListener(resolve) {
     return /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee() {
       var placementSuccessful;
       return _regeneratorRuntime().wrap(function _callee$(_context) {
         while (1) switch (_context.prev = _context.next) {
           case 0:
             _context.next = 2;
-            return registerShipModule.registerPlaceShipForPlayerOne(playerOne, currentShipName, currentShipSize);
+            return registerShipModule.registerPlaceShipForPlayerOne(appContext.playerOne, appContext.currentShipName, appContext.currentShipSize);
           case 2:
             placementSuccessful = _context.sent;
             if (placementSuccessful) {
@@ -547,18 +552,18 @@ var submitButtonEventListenerModule = function () {
     }));
   }
   function removeOldSubmitButtonListener() {
-    if (submitButtonListener) {
-      submitButton.removeEventListener('click', submitButtonListener);
+    if (appContext.submitButtonListener) {
+      submitButton.removeEventListener('click', appContext.submitButtonListener);
     }
   }
-  function processNewSubmitButtonListener(playerOne, currentShipName, currentShipSize, resolve) {
-    submitButtonListener = generateSubmitButtonEventListener(playerOne, currentShipName, currentShipSize, resolve);
-    submitButton.addEventListener('click', submitButtonListener);
+  function processNewSubmitButtonListener(resolve) {
+    appContext.submitButtonListener = generateSubmitButtonEventListener(resolve);
+    submitButton.addEventListener('click', appContext.submitButtonListener);
   }
-  function addSubmitButtonEventListener(playerOne, currentShipName, currentShipSize) {
+  function addSubmitButtonEventListener() {
     return new Promise(function (resolve) {
       removeOldSubmitButtonListener();
-      processNewSubmitButtonListener(playerOne, currentShipName, currentShipSize, resolve);
+      processNewSubmitButtonListener(resolve);
       console.log("submitButton Event Listener attached to submit button");
     });
   }
@@ -566,28 +571,28 @@ var submitButtonEventListenerModule = function () {
     addSubmitButtonEventListener: addSubmitButtonEventListener
   };
 }();
-function checkIsPlacementValid(cellSelected, playerOne, currentShipSize, isVertical) {
-  var verticalSize = playerOne.gameboardState.verticalSize;
-  var horizontalSize = playerOne.gameboardState.horizontalSize;
-  if (isVertical) {
-    for (var i = cellSelected; i < cellSelected + currentShipSize * verticalSize; i += horizontalSize) {
-      if (i >= 100 || i % verticalSize >= cellSelected % verticalSize + currentShipSize || playerOne.gameboardState.gameboard[i].name) {
+function checkIsPlacementValid() {
+  var verticalSize = appContext.playerOne.gameboardState.verticalSize;
+  var horizontalSize = appContext.playerOne.gameboardState.horizontalSize;
+  if (appContext.orientation.isVertical) {
+    for (var i = appContext.cellSelected; i < appContext.cellSelected + appContext.currentShipSize * verticalSize; i += horizontalSize) {
+      if (i >= 100 || i % verticalSize >= appContext.cellSelected % verticalSize + appContext.currentShipSize || appContext.playerOne.gameboardState.gameboard[i].name) {
         console.log("triggered vertical error");
-        isPlacementValid = false;
+        appContext.isPlacementValid = false;
         break;
       }
     }
   } else {
-    for (var _i = cellSelected; _i < cellSelected + currentShipSize; _i++) {
-      if (_i >= 100 || _i % horizontalSize >= cellSelected % horizontalSize + currentShipSize || playerOne.gameboardState.gameboard[_i].name) {
+    for (var _i = appContext.cellSelected; _i < appContext.cellSelected + appContext.currentShipSize; _i++) {
+      if (_i >= 100 || _i % horizontalSize >= appContext.cellSelected % horizontalSize + appContext.currentShipSize || appContext.playerOne.gameboardState.gameboard[_i].name) {
         console.log("triggered vertical error");
-        isPlacementValid = false;
+        appContext.isPlacementValid = false;
         break;
       }
     }
   }
   console.log("check placement complete");
-  return isPlacementValid;
+  return appContext.isPlacementValid;
 }
 function createShipList() {
   var shipList = CreateShips();
@@ -607,22 +612,26 @@ function _initializePlaceShips() {
           orientationModule.addOrientationClickEvent();
           initializePlaceShipsDynamicHTML();
           shipList = createShipList();
+          appContext.playerOne = playerOne;
+          console.log("PlayerOne: ".concat(JSON.stringify(appContext.playerOne)));
           _context2.t0 = _regeneratorRuntime().keys(shipList);
-        case 4:
+        case 6:
           if ((_context2.t1 = _context2.t0()).done) {
-            _context2.next = 13;
+            _context2.next = 17;
             break;
           }
           currentShipKey = _context2.t1.value;
           _shipList$currentShip = shipList[currentShipKey], currentShipName = _shipList$currentShip.name, currentShipSize = _shipList$currentShip.size;
-          updateMessageBox("Please place your ".concat(currentShipName, " (").concat(currentShipSize, " slots)"));
-          highlightShipPlacementModule.addHighlightShipEventListener(playerOne, currentShipSize);
-          _context2.next = 11;
-          return submitButtonEventListenerModule.addSubmitButtonEventListener(playerOne, currentShipName, currentShipSize);
-        case 11:
-          _context2.next = 4;
+          appContext.currentShipName = currentShipName;
+          appContext.currentShipSize = currentShipSize;
+          updateMessageBox("Please place your ".concat(appContext.currentShipName, " (").concat(appContext.currentShipSize, " slots)"));
+          highlightShipPlacementModule.addHighlightShipEventListener(appContext.currentShipSize);
+          _context2.next = 15;
+          return submitButtonEventListenerModule.addSubmitButtonEventListener(appContext.currentShipName, appContext.currentShipSize);
+        case 15:
+          _context2.next = 6;
           break;
-        case 13:
+        case 17:
         case "end":
           return _context2.stop();
       }
