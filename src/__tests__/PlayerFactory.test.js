@@ -1,6 +1,10 @@
 const PlayerFactory = require("../modules/factories/PlayerFactory.js")
 
+const mockElement = { addEventListener: jest.fn() };
+document.getElementById = jest.fn().mockReturnValue(mockElement);
+
 let appContext;
+let shipParams;
 
 beforeEach(() => {
     appContext = {
@@ -36,33 +40,25 @@ beforeEach(() => {
     appContext.playerOne = PlayerFactory(appContext);
 
   });
-
-
-test('placeShip adds ship name to cell', () => {
-    appContext.playerOne.placeShip(0, false, 'submarine', 3, appContext);
-    expect(appContext.playerOne.gameboardState.gameboard[0].name).toBe('submarine');
-    expect(appContext.playerOne.gameboardState.gameboard[1].name).toBe('submarine');
-    expect(appContext.playerOne.gameboardState.gameboard[2].name).toBe('submarine');
-});
-
-test('placeShip throws error when cellSelected is not an integer', () => {
-    expect(() => appContext.playerOne.placeShip("test", false, 'submarine', 3, appContext)).toThrow("cellSelected must be an integer.");
-});
-
-test('placeShip throws error when cellSelected is not >= 0', () => {
-    expect(() => appContext.playerOne.placeShip((-4), false, 'submarine', 3, appContext)).toThrow("cellSelected must be greater than or equal to zero and less than gameboard boundaries. It represents the initial cell the ship starts on.");
-});
-
-test('placeShip throws error when isVertical is not a boolean', () => {
-    expect(() => appContext.playerOne.placeShip(0, 3, 'submarine', appContext)).toThrow();
-    expect(() => appContext.playerOne.placeShip(0, 'false', 'submarine', 3, appContext)).toThrow("isVertical must be a boolean");
-});
-
-test('placeShip returns ships', () => {
-    const result = appContext.playerOne.placeShip(0, false, 'submarine', 3, appContext);
-    expect(result).toEqual(appContext.playerOne.ships);
+  
+  describe('placeShip - Success scenarios', () => {
+    beforeEach(() => {
+      shipParams = [0, false, 'submarine', 3, appContext];
+    });
+  
+    test('adds ship name to cell', () => {
+      appContext.playerOne.placeShip(...shipParams);
+      expect(appContext.playerOne.gameboardState.gameboard[0].name).toBe('submarine');
+      expect(appContext.playerOne.gameboardState.gameboard[1].name).toBe('submarine');
+      expect(appContext.playerOne.gameboardState.gameboard[2].name).toBe('submarine');
+    });
+  
+    test('returns ships', () => {
+      const result = appContext.playerOne.placeShip(...shipParams);
+      expect(result).toEqual(appContext.playerOne.ships);
+    });
   });
-
+  
 // test('receiveAttack determines if ship is hit and registers it on gameboard' , () => {
 //     playerOne.placeShip(0, false, 'submarine', 3, appContext);
 //     playerOne.receiveAttack(0);

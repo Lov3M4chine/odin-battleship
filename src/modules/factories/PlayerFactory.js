@@ -1,4 +1,4 @@
-const { validateInput } = require("../errorHandlingModule.js");
+const { validatePlaceShipInputs } = require("../errorHandlingModule.js");
 const { GameboardFactory } = require ("./GameboardFactory.js");
 const { ShipFactory } = require ("./ShipFactory.js");
 
@@ -15,12 +15,7 @@ const PlayerFactory = (appContext) => {
         this.ships[name].size = size;
 
         // Error Handling
-        validateInput(cellSelected, "number", "cellSelected must be an integer.");
-        validateInput(isVertical, "boolean", "isVertical must be a boolean.");
-      
-        if (cellSelected < 0 || cellSelected >= appContext.horizontalSize * appContext.verticalSize) {
-          throw new Error("cellSelected must be greater than or equal to zero and less than gameboard boundaries. It represents the initial cell the ship starts on.");
-        }
+        validatePlaceShipInputs(cellSelected, isVertical, appContext);
         
 
         // Ship Placement
