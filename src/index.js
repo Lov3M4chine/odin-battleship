@@ -1,5 +1,6 @@
 require ('./styles.css');
 const { addGameModeClickEvents } = require('./modules/addGameModeClickEvents');
+const { validateInput } = require('./modules/errorHandlingModule');
 
 
 let appContext = {
@@ -32,5 +33,13 @@ let appContext = {
     }
 }
 
+// Error Handling
+validateInput (appContext, "object", "appContext must be an object");
+validateInput (appContext.horizontalSize, "number", "horizontalSize must be an integer");
+validateInput (appContext.verticalSize, "number", "verticalSize must be an integer");
+
+if (appContext.horizontalSize < 7 || appContext.verticalSize < 7) {
+    throw new Error ("horizontal and vertical sizes should be at least 7")
+}
 
 addGameModeClickEvents(appContext);

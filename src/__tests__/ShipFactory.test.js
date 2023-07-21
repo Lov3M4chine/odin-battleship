@@ -1,4 +1,4 @@
-const ShipFactory = require ("../modules/factories/ShipFactory.js");
+const { ShipFactory } = require ("../modules/factories/ShipFactory.js");
 
 test('newly created ship has zero hits and is not sunk', () => {
   const ship = ShipFactory('submarine', 3);

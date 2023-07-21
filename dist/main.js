@@ -32,6 +32,24 @@ module.exports = {
 
 /***/ }),
 
+/***/ "./src/modules/errorHandlingModule.js":
+/*!********************************************!*\
+  !*** ./src/modules/errorHandlingModule.js ***!
+  \********************************************/
+/***/ ((module) => {
+
+function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
+function validateInput(value, type, errorMessage) {
+  if (_typeof(value) !== type) {
+    throw new Error(errorMessage);
+  }
+}
+module.exports = {
+  validateInput: validateInput
+};
+
+/***/ }),
+
 /***/ "./src/modules/factories/CreatePlayers.js":
 /*!************************************************!*\
   !*** ./src/modules/factories/CreatePlayers.js ***!
@@ -123,10 +141,12 @@ module.exports = {
   \************************************************/
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
-var _require = __webpack_require__(/*! ./GameboardFactory.js */ "./src/modules/factories/GameboardFactory.js"),
-  GameboardFactory = _require.GameboardFactory;
-var _require2 = __webpack_require__(/*! ./ShipFactory.js */ "./src/modules/factories/ShipFactory.js"),
-  ShipFactory = _require2.ShipFactory;
+var _require = __webpack_require__(/*! ../errorHandlingModule.js */ "./src/modules/errorHandlingModule.js"),
+  validateInput = _require.validateInput;
+var _require2 = __webpack_require__(/*! ./GameboardFactory.js */ "./src/modules/factories/GameboardFactory.js"),
+  GameboardFactory = _require2.GameboardFactory;
+var _require3 = __webpack_require__(/*! ./ShipFactory.js */ "./src/modules/factories/ShipFactory.js"),
+  ShipFactory = _require3.ShipFactory;
 var PlayerFactory = function PlayerFactory(appContext) {
   var gameboardFactory = GameboardFactory(appContext);
   var gameboardState = gameboardFactory.createGameboard(appContext);
@@ -135,6 +155,13 @@ var PlayerFactory = function PlayerFactory(appContext) {
     var newShip = ShipFactory(name, size);
     this.ships[name] = newShip;
     this.ships[name].size = size;
+
+    // Error Handling
+    validateInput(cellSelected, "number", "cellSelected must be an integer.");
+    validateInput(isVertical, "boolean", "isVertical must be a boolean.");
+    if (cellSelected < 0 || cellSelected >= appContext.horizontalSize * appContext.verticalSize) {
+      throw new Error("cellSelected must be greater than or equal to zero and less than gameboard boundaries. It represents the initial cell the ship starts on.");
+    }
 
     // Ship Placement
     if (isVertical) {
@@ -150,7 +177,7 @@ var PlayerFactory = function PlayerFactory(appContext) {
       }
       this.ships[name].coordinates = newShip.coordinates;
     }
-    return ships;
+    return this.ships;
   }
   function receiveAttack(coordinate) {
     var name = this.gameboardState.gameboard[coordinate].name;
@@ -2796,6 +2823,10 @@ html {
   --tw-bg-opacity: 1;
   background-color: hsl(var(--a) / var(--tw-bg-opacity));
 }
+.bg-error {
+  --tw-bg-opacity: 1;
+  background-color: hsl(var(--er) / var(--tw-bg-opacity));
+}
 .bg-primary {
   --tw-bg-opacity: 1;
   background-color: hsl(var(--p) / var(--tw-bg-opacity));
@@ -2803,10 +2834,6 @@ html {
 .bg-secondary {
   --tw-bg-opacity: 1;
   background-color: hsl(var(--s) / var(--tw-bg-opacity));
-}
-.bg-error {
-  --tw-bg-opacity: 1;
-  background-color: hsl(var(--er) / var(--tw-bg-opacity));
 }
 .text-2xl {
   font-size: 1.5rem;
@@ -3378,6 +3405,8 @@ var __webpack_exports__ = {};
 __webpack_require__(/*! ./styles.css */ "./src/styles.css");
 var _require = __webpack_require__(/*! ./modules/addGameModeClickEvents */ "./src/modules/addGameModeClickEvents.js"),
   addGameModeClickEvents = _require.addGameModeClickEvents;
+var _require2 = __webpack_require__(/*! ./modules/errorHandlingModule */ "./src/modules/errorHandlingModule.js"),
+  validateInput = _require2.validateInput;
 var appContext = {
   orientation: {
     isVertical: false
@@ -3407,6 +3436,14 @@ var appContext = {
     submitButton: document.getElementById("submit-button")
   }
 };
+
+// Error Handling
+validateInput(appContext, "object", "appContext must be an object");
+validateInput(appContext.horizontalSize, "number", "horizontalSize must be an integer");
+validateInput(appContext.verticalSize, "number", "verticalSize must be an integer");
+if (appContext.horizontalSize < 7 || appContext.verticalSize < 7) {
+  throw new Error("horizontal and vertical sizes should be at least 7");
+}
 addGameModeClickEvents(appContext);
 })();
 
