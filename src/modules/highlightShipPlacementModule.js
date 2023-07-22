@@ -56,10 +56,10 @@ const highlightShipPlacementModule = (function() {
             if (appContext.orientation.isVertical) {
                 if (appContext.isPlacementValid) {
                     for (let i = cellNumber; i < (cellNumber + appContext.currentShipSize * appContext.verticalSize); i += appContext.verticalSize) {
-                        if (i < 100 && (i % appContext.verticalSize) < (cellNumber % appContext.verticalSize + appContext.currentShipSize)) {
+                        if (i < (appContext.horizontalSize * appContext.verticalSize) && (i % appContext.verticalSize) < (cellNumber % appContext.verticalSize + appContext.currentShipSize)) {
                             pushAndHighlight(i, appContext);
                         } else {
-                            if (i >= 0 && i < 100) {
+                            if (i >= 0 && i < (appContext.horizontalSize * appContext.verticalSize)) {
                                 break;
                                 
                             }
@@ -67,7 +67,7 @@ const highlightShipPlacementModule = (function() {
                     }
                 } else {
                     for (let i = cellNumber; i < (cellNumber + appContext.currentShipSize * appContext.verticalSize); i += appContext.verticalSize) {
-                        if (i < 100 && (i % appContext.verticalSize) < (cellNumber % appContext.verticalSize + appContext.currentShipSize)) {
+                        if (i < (appContext.horizontalSize * appContext.verticalSize) && (i % appContext.verticalSize) < (cellNumber % appContext.verticalSize + appContext.currentShipSize)) {
                             pushAndHighlightSelectionAsInvalid(i, appContext);
                         }
                     }
@@ -75,17 +75,17 @@ const highlightShipPlacementModule = (function() {
             } else {
                 if (appContext.isPlacementValid) {
                     for (let i = cellNumber; i < (cellNumber + appContext.currentShipSize); i++) {
-                        if (i < 100 && (i % appContext.horizontalSize) >= (cellNumber % appContext.horizontalSize)) {
+                        if (i < (appContext.horizontalSize * appContext.verticalSize) && (i % appContext.horizontalSize) >= (cellNumber % appContext.horizontalSize)) {
                             pushAndHighlight(i,appContext);
                         } else {
-                            if (i >= 0 && i < 100) {
+                            if (i >= 0 && i < (appContext.horizontalSize * appContext.verticalSize)) {
                                 break;
                             }
                         }
                     }
                 } else {
                     for (let i = cellNumber; i < (cellNumber + appContext.currentShipSize); i++) {
-                        if (i < 100 && (i % appContext.horizontalSize) >= (cellNumber % appContext.horizontalSize)) {
+                        if (i < (appContext.horizontalSize * appContext.verticalSize) && (i % appContext.horizontalSize) >= (cellNumber % appContext.horizontalSize)) {
                             pushAndHighlightSelectionAsInvalid(i, appContext);
                         }
                     }
@@ -153,8 +153,8 @@ const highlightShipPlacementModule = (function() {
     })();
 
     const checkPlacementModule = (function() {
-        function isCellOutOfBounds(cell) {
-            if (cell >= 100) {
+        function isCellOutOfBounds(cell, appContext) {
+            if (cell >= (appContext.horizontalSize * appContext.verticalSize)) {
                 return true;
             }
         }
@@ -180,7 +180,7 @@ const highlightShipPlacementModule = (function() {
         function loopAndCheckVerticalSelection(appContext) {
             let verticalSelectionRange = appContext.cellSelected + appContext.currentShipSize * appContext.verticalSize;
             for (let i = appContext.cellSelected; i < verticalSelectionRange; i+=appContext.verticalSize) {
-                if (isCellOutOfBounds(i) || isCellBeyondVerticalSize(i, appContext) || isCellOccupied(i, appContext)) {
+                if (isCellOutOfBounds(i, appContext) || isCellBeyondVerticalSize(i, appContext) || isCellOccupied(i, appContext)) {
                     appContext.isPlacementValid = false;
                 }
             }
@@ -189,7 +189,7 @@ const highlightShipPlacementModule = (function() {
         function loopAndCheckHorizontalSelection(appContext) {
             let horizontalSelectionRange = appContext.cellSelected + appContext.currentShipSize;
             for (let i = appContext.cellSelected; i < horizontalSelectionRange; i++) {
-                if (isCellOutOfBounds(i) || isCellBeyondHorizontalSize(i, appContext) || isCellOccupied(i,appContext)) {
+                if (isCellOutOfBounds(i, appContext) || isCellBeyondHorizontalSize(i, appContext) || isCellOccupied(i,appContext)) {
                     appContext.isPlacementValid = false;
                 }
             }
