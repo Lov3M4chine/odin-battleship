@@ -62,9 +62,11 @@ describe('initializePlaceShipsModule', () => {
       });
     });
 
-    await initializePlaceShipsModule.initializePlaceShips(appContext);
+    let player = appContext.playerOne
 
-    expect(orientationModule.addOrientationClickEvent).toHaveBeenCalledWith(appContext);
+    await initializePlaceShipsModule.initializePlaceShips(appContext, player);
+
+    expect(orientationModule.addOrientationClickEvent).toHaveBeenCalledWith(appContext, player);
     expect(CreateShips).toHaveBeenCalledWith(appContext);
     expect(highlightShipPlacementModule.highlightEventListenerModule.addHighlightShipEventListener).toHaveBeenCalledTimes(Object.keys(shipList).length);
     expect(submitButtonEventListenerModule.addSubmitButtonEventListener).toHaveBeenCalledTimes(Object.keys(shipList).length);

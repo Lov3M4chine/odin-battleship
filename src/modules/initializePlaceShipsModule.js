@@ -17,10 +17,7 @@ const initializePlaceShipsModule = (function ()  {
             highlightShipPlacementModule.highlightEventListenerModule.addHighlightShipEventListener(appContext, player);
             await submitButtonEventListenerModule.addSubmitButtonEventListener(appContext, player);
         }
-        console.log(appContext.playerOne);
         assignRandomShipPlacementForPlayerComputer(appContext);
-        console.log(appContext.playerComputer);
-
     }
     
 

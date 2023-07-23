@@ -39,7 +39,7 @@ describe('registerShipModule', () => {
   it('should process registration successfully when placement is valid', async () => {
     mockAppContext.isPlacementValid = true;
 
-    const result = await registerShipModule.registerPlaceShipForPlayerOne(mockAppContext);
+    const result = await registerShipModule.processRegistrationSuccessForHumanPlayers(mockAppContext);
 
     expect(result).toBe(true);
     expect(mockAppContext.playerOne.placeShip).toHaveBeenCalledWith(mockAppContext.cellSelected, mockAppContext.orientation.isVertical, mockAppContext.currentShipName, mockAppContext.currentShipSize, mockAppContext);
@@ -47,7 +47,7 @@ describe('registerShipModule', () => {
   });
   
   it('should process registration failure when placement is invalid', async () => {
-    const result = await registerShipModule.registerPlaceShipForPlayerOne(mockAppContext);
+    const result = await registerShipModule.registerPlaceShipForHumanPlayers(mockAppContext);
 
     expect(result).toBe(false);
     expect(highlightShipPlacementModule.highlightModule.removeHighlightedSelections).toHaveBeenCalledWith(mockAppContext);
