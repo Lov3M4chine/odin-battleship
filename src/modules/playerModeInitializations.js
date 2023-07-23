@@ -61,7 +61,7 @@ function initializeOnePlayerMode (appContext) {
     createBattlegridForPlayerOne(appContext);
     CreatePlayersForOnePlayerMode(appContext);
 
-    initializePlaceShipsModule.initializePlaceShips(appContext);
+    initializePlaceShipsModule.initializePlaceShips(appContext, appContext.playerOne);
     console.log(`Initialization of one player mode complete.`);
 }
 

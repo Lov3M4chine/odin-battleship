@@ -8,9 +8,9 @@ const submitButtonEventListenerModule = (function () {
         appContext.appElements.submitButton.classList.add("hidden");
     }
     
-    function generateSubmitButtonEventListener(resolve, appContext) {
+    function generateSubmitButtonEventListener(resolve, appContext, player) {
         return async function() {
-            let placementSuccessful = await registerShipModule.registerPlaceShipForPlayerOne(appContext);
+            let placementSuccessful = await registerShipModule.registerPlaceShipForHumanPlayers(appContext, player);
             if (placementSuccessful) {
                 toggleSubmitButtonOff(appContext);
                 resolve();
@@ -27,15 +27,15 @@ const submitButtonEventListenerModule = (function () {
         }
     }
     
-    function processNewSubmitButtonListener(resolve, appContext) {
-        appContext.submitButtonListener = generateSubmitButtonEventListener(resolve, appContext);
+    function processNewSubmitButtonListener(resolve, appContext, player) {
+        appContext.submitButtonListener = generateSubmitButtonEventListener(resolve, appContext, player);
         appContext.appElements.submitButton.addEventListener('click', appContext.submitButtonListener);
     }
     
-    function addSubmitButtonEventListener(appContext) {
+    function addSubmitButtonEventListener(appContext, player) {
         return new Promise((resolve) => {
             removeOldSubmitButtonListener(appContext);
-            processNewSubmitButtonListener(resolve, appContext);
+            processNewSubmitButtonListener(resolve, appContext, player);
             console.log("submitButton Event Listener attached to submit button");
         });
     }

@@ -2,11 +2,11 @@ const highlightShipPlacementModule = (function() {
 
     const highlightEventListenerModule = (function () {
 
-        function generateHighlightShipPlacementEventListener(appContext) {  
+        function generateHighlightShipPlacementEventListener(appContext, player) {  
             return function(event) {
                 highlightModule.removeHighlightedSelections(appContext);
                 console.log("Previous highlighted selections removed.")
-                highlightModule.highlightShipPlacement(event.target, appContext);
+                highlightModule.highlightShipPlacement(event.target, appContext, player);
                 console.log("...current selection highlighted");
         
             };
@@ -18,17 +18,17 @@ const highlightShipPlacementModule = (function() {
             }
         }
     
-        function processNewHighlightListener(cell, appContext) {
-            const listener = generateHighlightShipPlacementEventListener(appContext);
+        function processNewHighlightListener(cell, appContext, player) {
+            const listener = generateHighlightShipPlacementEventListener(appContext, player);
             appContext.highlightListeners[cell.id] = listener;
             cell.addEventListener('click', listener);
         }
         
-        function addHighlightShipEventListener(appContext) {
+        function addHighlightShipEventListener(appContext, player) {
             const playerOneCells = document.querySelectorAll(".playerone-cell");
             playerOneCells.forEach((cell) => {
                 removeOldHighlightListener(cell, appContext);
-                processNewHighlightListener(cell, appContext);
+                processNewHighlightListener(cell, appContext, player);
             });
         
             console.log("highlightShip Event Listener attached to all cells");
@@ -44,14 +44,14 @@ const highlightShipPlacementModule = (function() {
             appContext.appElements.submitButton.classList.remove("hidden");
         }
 
-        function highlightShipPlacement (targetedCell, appContext) {
+        function highlightShipPlacement (targetedCell, appContext, player) {
             let cellNumber = Number(targetedCell.dataset.cellNumber);
             appContext.cellSelected = cellNumber;
 
             console.log("Beginning cell highlighting...");
             appContext.highlightedArray.length = 0;
             toggleSubmitButtonOn(appContext);
-            checkPlacementModule.checkIsPlacementValid(appContext);
+            checkPlacementModule.checkIsPlacementValid(appContext, player);
 
             if (appContext.orientation.isVertical) {
                 if (appContext.isPlacementValid) {
@@ -171,37 +171,37 @@ const highlightShipPlacementModule = (function() {
             }
         }
     
-        function isCellOccupied(cell, appContext) {
-            if (appContext.playerOne.gameboardState.gameboard[cell].name) {
+        function isCellOccupied(cell, player) {
+            if (player.gameboardState.gameboard[cell].name) {
                 return true;
             }
         }
     
-        function loopAndCheckVerticalSelection(appContext) {
+        function loopAndCheckVerticalSelection(appContext, player) {
             let verticalSelectionRange = appContext.cellSelected + appContext.currentShipSize * appContext.verticalSize;
             for (let i = appContext.cellSelected; i < verticalSelectionRange; i+=appContext.verticalSize) {
-                if (isCellOutOfBounds(i, appContext) || isCellBeyondVerticalSize(i, appContext) || isCellOccupied(i, appContext)) {
+                if (isCellOutOfBounds(i, appContext) || isCellBeyondVerticalSize(i, appContext) || isCellOccupied(i, player)) {
                     appContext.isPlacementValid = false;
                 }
             }
         }
         
-        function loopAndCheckHorizontalSelection(appContext) {
+        function loopAndCheckHorizontalSelection(appContext, player) {
             let horizontalSelectionRange = appContext.cellSelected + appContext.currentShipSize;
             for (let i = appContext.cellSelected; i < horizontalSelectionRange; i++) {
-                if (isCellOutOfBounds(i, appContext) || isCellBeyondHorizontalSize(i, appContext) || isCellOccupied(i,appContext)) {
+                if (isCellOutOfBounds(i, appContext) || isCellBeyondHorizontalSize(i, appContext) || isCellOccupied(i, player)) {
                     appContext.isPlacementValid = false;
                 }
             }
         }
     
-        function checkIsPlacementValid (appContext) {
+        function checkIsPlacementValid (appContext, player) {
             appContext.isPlacementValid = true;
 
             if (appContext.orientation.isVertical) {
-                loopAndCheckVerticalSelection(appContext);
+                loopAndCheckVerticalSelection(appContext, player);
             } else {
-                loopAndCheckHorizontalSelection(appContext);
+                loopAndCheckHorizontalSelection(appContext, player);
             }
             console.log("Check if placement is valid: COMPLETE")
         }

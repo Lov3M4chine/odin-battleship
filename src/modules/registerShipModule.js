@@ -32,36 +32,41 @@ const registerShipModule = (function () {
         document.body.appendChild(alertDiv);
       }
 
-    function processRegistrationSuccess(appContext) {
+    function processRegistrationSuccessForHumanPlayers(appContext) {
         appContext.playerOne.placeShip(appContext.cellSelected, appContext.orientation.isVertical, appContext.currentShipName, appContext.currentShipSize, appContext);
         highlightShipPlacementModule.highlightModule.updateHighlightedFromSelectedToRegistered(appContext);
         console.log('Placement was successful');
     }
     
-    function processRegistrationFailure(appContext) {
+    function processRegistrationFailureForHumanPlayers(appContext, player) {
         console.log(`registerShipModule appContext: ${appContext}`)
         console.log("Process registration failed. Please try different placement.");
         highlightShipPlacementModule.highlightModule.removeHighlightedSelections(appContext);
         console.log("Previous highlighted selections removed.");
         appContext.highlightedArray.length = 0;
-        highlightShipPlacementModule.highlightEventListenerModule.addHighlightShipEventListener(appContext);
+        highlightShipPlacementModule.highlightEventListenerModule.addHighlightShipEventListener(appContext, player);
         showPlaceShipFailureAlert('That placement is invalid. Please try again!');
     }
     
-    function registerPlaceShipForPlayerOne(appContext) {
+    function registerPlaceShipForHumanPlayers(appContext, player) {
         return new Promise((resolve) => {
             if (appContext.isPlacementValid) {
-                processRegistrationSuccess(appContext);
+                processRegistrationSuccessForHumanPlayers(appContext);
                 resolve(true);
             } else {
-                processRegistrationFailure(appContext);
+                processRegistrationFailureForHumanPlayers(appContext, player);
                 resolve(false);
             }
         });
     }
 
+    function registerPlaceShipForPlayerComputer(appContext) {
+        appContext.playerComputer.placeShip(appContext.cellSelected, appContext.orientation.isVertical, appContext.currentShipName, appContext.currentShipSize, appContext);
+    }
+
     return {
-        registerPlaceShipForPlayerOne
+        registerPlaceShipForHumanPlayers,
+        registerPlaceShipForPlayerComputer
     }
 })();
 

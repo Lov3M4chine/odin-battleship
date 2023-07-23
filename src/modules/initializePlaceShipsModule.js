@@ -1,3 +1,4 @@
+const { assignRandomShipPlacementForPlayerComputer } = require("./computerPlayerInitialization");
 const { CreateShips } = require("./factories/CreateShips");
 const { highlightShipPlacementModule } = require("./highlightShipPlacementModule");
 const { orientationModule } = require("./orientationModule");
@@ -5,7 +6,7 @@ const { submitButtonEventListenerModule } = require("./submitButtonEventListener
 
 const initializePlaceShipsModule = (function ()  {
 
-    async function initializePlaceShips(appContext) {
+    async function initializePlaceShips(appContext, player) {
         setupPlaceShips(appContext);
     
         for (let currentShipKey in appContext.shipList) {
@@ -13,10 +14,16 @@ const initializePlaceShipsModule = (function ()  {
             appContext.currentShipName = currentShipName;
             appContext.currentShipSize = currentShipSize;
             updateMessageBox(appContext, `Please place your ${appContext.currentShipName} (${appContext.currentShipSize} slots)`);
-            highlightShipPlacementModule.highlightEventListenerModule.addHighlightShipEventListener(appContext);
-            await submitButtonEventListenerModule.addSubmitButtonEventListener(appContext);
+            highlightShipPlacementModule.highlightEventListenerModule.addHighlightShipEventListener(appContext, player);
+            await submitButtonEventListenerModule.addSubmitButtonEventListener(appContext, player);
         }
+        console.log(appContext.playerOne);
+        assignRandomShipPlacementForPlayerComputer(appContext);
+        console.log(appContext.playerComputer);
+
     }
+    
+
 
     function createShipList(appContext) {
         appContext.shipList = CreateShips(appContext);
