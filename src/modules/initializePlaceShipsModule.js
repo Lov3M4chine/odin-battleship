@@ -7,14 +7,7 @@ const { submitButtonEventListenerModule } = require("./submitButtonEventListener
 
 const initializePlaceShipsModule = (function ()  {
 
-    function wipeEventListeners (appContext) {
-        const playerOneCells = document.querySelectorAll(".playerone-cell");
-        playerOneCells.forEach((cell) => {
-            highlightShipPlacementModule.highlightEventListenerModule.removeOldHighlightListener(cell,appContext);
-        });
-    }
-
-    function consoleLogInitialePlaceShipsCompletion(appContext) {
+    function consoleLogInitializePlaceShipsCompletion(appContext) {
         console.log(`All ships placed sucessfully.`);
         console.log(`Player One: ${JSON.stringify(appContext.playerOne)}`);
         console.log(`Player Computer: ${JSON.stringify(appContext.playerComputer)}`);
@@ -31,9 +24,9 @@ const initializePlaceShipsModule = (function ()  {
             highlightShipPlacementModule.highlightEventListenerModule.addHighlightShipEventListener(appContext, player);
             await submitButtonEventListenerModule.addSubmitButtonEventListener(appContext, player);
         }
-        wipeEventListeners(appContext);
+        highlightShipPlacementModule.highlightEventListenerModule.wipeEventListeners(appContext);
         assignRandomShipPlacementForPlayerComputer(appContext);
-        consoleLogInitialePlaceShipsCompletion(appContext);
+        consoleLogInitializePlaceShipsCompletion(appContext);
     }
     
     function createShipList(appContext) {
@@ -58,7 +51,7 @@ const initializePlaceShipsModule = (function ()  {
     }
     
     return {
-        initializePlaceShips
+        initializePlaceShips,
     }
 
 })()

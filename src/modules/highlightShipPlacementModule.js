@@ -9,6 +9,13 @@ const highlightShipPlacementModule = (function() {
         
             };
         }
+
+        function wipeEventListeners (appContext) {
+            const playerOneCells = document.querySelectorAll(".playerone-cell");
+            playerOneCells.forEach((cell) => {
+                highlightShipPlacementModule.highlightEventListenerModule.removeOldHighlightListener(cell,appContext);
+            });
+        }
     
         function removeOldHighlightListener(cell, appContext) {
             if (appContext.highlightListeners[cell.id]) {
@@ -31,7 +38,8 @@ const highlightShipPlacementModule = (function() {
         }
         return {
             addHighlightShipEventListener,
-            removeOldHighlightListener
+            removeOldHighlightListener,
+            wipeEventListeners
         }
     })();
 
@@ -141,7 +149,7 @@ const highlightShipPlacementModule = (function() {
             highlightShipPlacement,
             removeHighlightedSelections,
             updateHighlightedFromSelectedToRegistered,
-            highlightSelected
+            highlightRegistered
         }
     })();
 

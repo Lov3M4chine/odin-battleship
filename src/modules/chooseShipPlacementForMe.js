@@ -1,9 +1,14 @@
-const { randomizeVariablesForPlaceShips } = require("./computerPlayerInitialization");
+const { randomizeVariablesForPlaceShips, assignRandomShipPlacementForPlayerComputer } = require("./computerPlayerInitialization");
+const { CreateBattlegrid } = require("./factories/CreateBattlegrid");
 const { highlightShipPlacementModule } = require("./highlightShipPlacementModule");
 const { initializeBattleMode } = require("./initializeBattleMode");
 
-function addRandomShipPlacementButton (appContext) {
+function showRandomShipPlacementButton (appContext) {
     appContext.appElements.chooseForMeButton.classList.remove("hidden");
+}
+
+function hideRandomShipPlacementButton (appContext) {
+    appContext.appElements.chooseForMeButton.classList.add("hidden");
 }
 
 function attachEventListenerToRandomShipPlacementButton (appContext) {
@@ -36,22 +41,27 @@ function assignRandomShipPlacementForPlayerOne (appContext) {
     }
     console.log(`...player one automated ship placement complete.`);
     console.log(`PlayerOne: ${JSON.stringify(appContext.playerOne)}`);
-    // initializeBattleMode(appContext);
+    highlightShipPlacementModule.highlightEventListenerModule.wipeEventListeners(appContext);
+    assignRandomShipPlacementForPlayerComputer(appContext);
+    CreateBattlegrid.createBattlegridForPlayerComputer(appContext);
+    console.log(`Initialization of one player mode complete.`);
+    console.log(appContext);
+    hideRandomShipPlacementButton(appContext);
+    initializeBattleMode(appContext);
 }
 
 function highlightAutomatedShipPlacementForPlayerOne(appContext) {
-    console.log(`Player One = ${JSON.stringify(appContext.playerOne)}`)
     const playerOneCells = document.querySelectorAll(".playerone-cell");
     playerOneCells.forEach((cell) => {
         let cellNumber = Number(cell.dataset.cellNumber)
         if (appContext.playerOne.gameboardState.gameboard[cellNumber].name !== null) {
-            highlightShipPlacementModule.highlightModule.highlightSelected(cell);
+            highlightShipPlacementModule.highlightModule.highlightRegistered(cell);
         }
     });
 }
 
 function initializeRandomShipPlacementButton (appContext) {
-    addRandomShipPlacementButton (appContext);
+    showRandomShipPlacementButton (appContext);
     attachEventListenerToRandomShipPlacementButton (appContext);
 }
 
