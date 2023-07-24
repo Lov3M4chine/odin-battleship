@@ -1,3 +1,4 @@
+const { attachEventListenerToRandomShipPlacementButton } = require("./chooseShipPlacementForMe");
 const { CreateBattlegrid } = require("./factories/CreateBattlegrid");
 const { CreatePlayersForOnePlayerMode } = require("./factories/CreatePlayers");
 const { initializeBattleMode } = require("./initializeBattleMode");
@@ -11,23 +12,16 @@ async function initializeOnePlayerMode (appContext) {
     hideModeSelectContainer(appContext);
     CreateBattlegrid.createBattlegridForPlayerOne(appContext);
     CreatePlayersForOnePlayerMode(appContext);
-    await initializePlaceShipsModule.initializePlaceShips(appContext, appContext.playerOne);
+    await Promise.race([
+        initializePlaceShipsModule.initializePlaceShips(appContext, appContext.playerOne),
+        attachEventListenerToRandomShipPlacementButton(appContext)
+    ]);
     CreateBattlegrid.createBattlegridForPlayerComputer(appContext);
     console.log(`Initialization of one player mode complete.`);
-    console.log(appContext)
+    console.log(appContext);
     initializeBattleMode(appContext);
-}
-
-function getPlayerOne() {
-    return appContext.playerOne;
-}
-
-function getComputerPlayer() {
-    return appContext.computerPlayer;
 }
 
 module.exports = {
     initializeOnePlayerMode,
-    getPlayerOne,
-    getComputerPlayer,
 }

@@ -1,4 +1,4 @@
-const { initializeRandomShipPlacementButton } = require("./chooseShipPlacementForMe");
+const { showRandomShipPlacementButton } = require("./chooseShipPlacementForMe");
 const { assignRandomShipPlacementForPlayerComputer } = require("./computerPlayerInitialization");
 const { CreateShips } = require("./factories/CreateShips");
 const { highlightShipPlacementModule } = require("./highlightShipPlacementModule");
@@ -43,7 +43,7 @@ const initializePlaceShipsModule = (function ()  {
         orientationModule.addOrientationClickEvent(appContext);
         initializePlaceShipsDynamicHTML(appContext);
         createShipList(appContext);
-        initializeRandomShipPlacementButton(appContext);
+        showRandomShipPlacementButton(appContext);
     }
     
     function updateMessageBox (appContext, message) {
@@ -52,6 +52,7 @@ const initializePlaceShipsModule = (function ()  {
     
     return {
         initializePlaceShips,
+        updateMessageBox
     }
 
 })()

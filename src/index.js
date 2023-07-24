@@ -33,6 +33,8 @@ let appContext = {
         chooseForMeButton: document.getElementById("choose-for-me"),
         submitButton: document.getElementById("submit-button"),
         playerComputerBattlegrid: document.getElementById("player-computer-battlegrid"),
+        playerOneBattlegridLabel: document.createElement('playerone-battlegrid-label'),
+        playerComputerBattlegridLabel: document.getElementById('player-computer-battlegrid-label')
     }
 }
 

@@ -3,6 +3,11 @@ const CreateBattlegrid = (() => {
     function createBattlegridForPlayerOne (appContext) {
         const playerOneBattlegridContainer = document.createElement('div');
         playerOneBattlegridContainer.id = 'playerone-battlegrid-container';
+
+        const playerOneBattlegridLabel = document.createElement('button');
+        playerOneBattlegridLabel.innerText = 'Your Fleet'
+        playerOneBattlegridLabel.id = 'playerone-battlegrid-label';
+        playerOneBattlegridLabel.className = 'btn bg-secondary text-secondary-content text-2xl w-full hidden'
       
         const playerOneBattlegrid = document.createElement('div');
         playerOneBattlegrid.id = 'playerone-battlegrid';
@@ -21,8 +26,10 @@ const CreateBattlegrid = (() => {
             playerOneBattlegrid.appendChild(playerOneCell);
         }
     
+        playerOneBattlegridContainer.appendChild(playerOneBattlegridLabel);
         playerOneBattlegridContainer.appendChild(playerOneBattlegrid);
         appContext.appElements.battlegridsContainer.appendChild(playerOneBattlegridContainer);
+        appContext.appElements.playerOneBattlegridLabel = playerOneBattlegridLabel;
       
     }
     
@@ -30,6 +37,11 @@ const CreateBattlegrid = (() => {
         console.log("Creating battlegrid for player computer....");
         const playerComputerBattlegridContainer = document.createElement('div');
         playerComputerBattlegridContainer.id = 'player-computer-battlegrid-container';
+
+        const playerComputerBattlegridLabel = document.createElement('button');
+        playerComputerBattlegridLabel.innerText = "Opponent's Fleet"
+        playerComputerBattlegridLabel.id = 'player-computer-battlegrid-label';
+        playerComputerBattlegridLabel.className = 'btn bg-secondary text-secondary-content text-2xl w-full hidden'
       
         const playerComputerBattlegrid = document.createElement('div');
         playerComputerBattlegrid.id = 'player-computer-battlegrid';
@@ -48,9 +60,10 @@ const CreateBattlegrid = (() => {
             playerComputerBattlegrid.appendChild(playerComputerCell);
         }
     
+        playerComputerBattlegridContainer.appendChild(playerComputerBattlegridLabel);
         playerComputerBattlegridContainer.appendChild(playerComputerBattlegrid);
         appContext.appElements.battlegridsContainer.appendChild(playerComputerBattlegridContainer);
-        console.log("...battlegrid completed");
+        appContext.appElements.playerComputerBattlegridLabel = playerComputerBattlegridLabel;
     }
 
     return {
