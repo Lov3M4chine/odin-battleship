@@ -8,16 +8,11 @@
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
 var _require = __webpack_require__(/*! ./playerModeInitializations */ "./src/modules/playerModeInitializations.js"),
-  initializeOnePlayerMode = _require.initializeOnePlayerMode,
-  initializeTwoPlayerMode = _require.initializeTwoPlayerMode;
+  initializeOnePlayerMode = _require.initializeOnePlayerMode;
 function addGameModeClickEvents(appContext) {
   appContext.appElements.onePlayerMode.addEventListener('click', function () {
     initializeOnePlayerMode(appContext);
   });
-  appContext.appElements.twoPlayerMode.addEventListener('click', function () {
-    initializeTwoPlayerMode(appContext);
-  });
-  console.log("Game mode click events added.");
 }
 module.exports = {
   addGameModeClickEvents: addGameModeClickEvents
@@ -36,9 +31,11 @@ var _require = __webpack_require__(/*! ./highlightShipPlacementModule */ "./src/
 var _require2 = __webpack_require__(/*! ./registerShipModule */ "./src/modules/registerShipModule.js"),
   registerShipModule = _require2.registerShipModule;
 function assignRandomShipPlacementForPlayerComputer(appContext) {
+  console.log("Initializing player computer ship placement...");
   for (var currentShipKey in appContext.shipList) {
     processRandomShipPlacementForPlayerComputer(appContext, currentShipKey);
   }
+  console.log("...player computer ship placement complete.");
 }
 function processRandomShipPlacementForPlayerComputer(appContext, currentShipKey) {
   var _appContext$shipList$ = appContext.shipList[currentShipKey],
@@ -309,9 +306,7 @@ var highlightShipPlacementModule = function () {
     function generateHighlightShipPlacementEventListener(appContext, player) {
       return function (event) {
         highlightModule.removeHighlightedSelections(appContext);
-        console.log("Previous highlighted selections removed.");
         highlightModule.highlightShipPlacement(event.target, appContext, player);
-        console.log("...current selection highlighted");
       };
     }
     function removeOldHighlightListener(cell, appContext) {
@@ -330,7 +325,6 @@ var highlightShipPlacementModule = function () {
         removeOldHighlightListener(cell, appContext);
         processNewHighlightListener(cell, appContext, player);
       });
-      console.log("highlightShip Event Listener attached to all cells");
     }
     return {
       addHighlightShipEventListener: addHighlightShipEventListener
@@ -384,18 +378,15 @@ var highlightShipPlacementModule = function () {
           }
         }
       }
-      console.log("Cell highlighting complete. Highlight Array = ".concat(appContext.highlightedArray));
     }
     function pushAndHighlight(i, appContext) {
       var cellToHighlight = document.querySelector("[data-cell-number=\"".concat(i, "\"]"));
       appContext.highlightedArray.push(i);
-      console.log("".concat(i, " pushed to the array"));
       highlightSelected(cellToHighlight);
     }
     function pushAndHighlightSelectionAsInvalid(i, appContext) {
       var cellToHighlightInvalid = document.querySelector("[data-cell-number=\"".concat(i, "\"]"));
       appContext.highlightedArray.push(i);
-      console.log("".concat(i, " pushed to the array"));
       highlightInvalid(cellToHighlightInvalid);
     }
     function removeHighlightedSelections(appContext) {
@@ -477,7 +468,6 @@ var highlightShipPlacementModule = function () {
       } else {
         loopAndCheckHorizontalSelection(appContext, player);
       }
-      console.log("Check if placement is valid: COMPLETE");
     }
     return {
       checkIsPlacementValid: checkIsPlacementValid
@@ -544,10 +534,11 @@ var initializePlaceShipsModule = function () {
             _context.next = 2;
             break;
           case 13:
-            console.log(appContext.playerOne);
             assignRandomShipPlacementForPlayerComputer(appContext);
-            console.log(appContext.playerComputer);
-          case 16:
+            console.log("All ships placed sucessfully.");
+            console.log("Player One: ".concat(JSON.stringify(appContext.playerOne)));
+            console.log("Player Computer: ".concat(JSON.stringify(appContext.playerComputer)));
+          case 17:
           case "end":
             return _context.stop();
         }
@@ -557,14 +548,11 @@ var initializePlaceShipsModule = function () {
   }
   function createShipList(appContext) {
     appContext.shipList = CreateShips(appContext);
-    console.log("Ship creation: COMPLETE");
-    console.log("Ship List: ".concat(JSON.stringify(appContext.shipList)));
   }
   function initializePlaceShipsDynamicHTML(appContext) {
     appContext.appElements.messageBox.classList.remove("hidden");
     appContext.appElements.horizontalButton.classList.remove("hidden");
     submitButtonEventListenerModule.toggleSubmitButtonOff(appContext);
-    console.log("Ship placement screen dynamic html updated");
   }
   function setupPlaceShips(appContext) {
     orientationModule.addOrientationClickEvent(appContext);
@@ -573,7 +561,6 @@ var initializePlaceShipsModule = function () {
   }
   function updateMessageBox(appContext, message) {
     appContext.appElements.messageBox.innerHTML = message;
-    console.log("Message box updated.");
   }
   return {
     initializePlaceShips: initializePlaceShips
@@ -602,7 +589,6 @@ var orientationModule = function () {
         return toggleOrientation(appContext);
       });
     });
-    console.log("Orientation click event added");
   }
   function toggleOrientation(appContext) {
     if (appContext.orientation.isVertical === true) {
@@ -636,7 +622,7 @@ var _require = __webpack_require__(/*! ./factories/CreatePlayers */ "./src/modul
 var _require2 = __webpack_require__(/*! ./initializePlaceShipsModule.js */ "./src/modules/initializePlaceShipsModule.js"),
   initializePlaceShipsModule = _require2.initializePlaceShipsModule;
 function hideModeSelectContainer(appContext) {
-  appContext.appElements.modeSelectContainer.classList.add("hidden");
+  appContext.appElements.startGameContainer.classList.add("hidden");
 }
 function createBattlegridForPlayerOne(appContext) {
   var playerOneBattlegridContainer = document.createElement('div');
@@ -682,27 +668,15 @@ function initializeOnePlayerMode(appContext) {
   initializePlaceShipsModule.initializePlaceShips(appContext, appContext.playerOne);
   console.log("Initialization of one player mode complete.");
 }
-function initializeTwoPlayerMode(appContext) {
-  appContext.appElements.modeSelectContainer.classList.add("hidden");
-  createBattlegridForPlayerOne(appContext);
-  createBattlegridForPlayerTwo(appContext);
-  appContext.playerOne = PlayerFactory(appContext);
-  appContext.playertwo = PlayerFactory(appContext);
-}
 function getPlayerOne() {
   return appContext.playerOne;
-}
-function getPlayerTwo() {
-  return appContext.playertwo;
 }
 function getComputerPlayer() {
   return appContext.computerPlayer;
 }
 module.exports = {
   initializeOnePlayerMode: initializeOnePlayerMode,
-  initializeTwoPlayerMode: initializeTwoPlayerMode,
   getPlayerOne: getPlayerOne,
-  getPlayerTwo: getPlayerTwo,
   getComputerPlayer: getComputerPlayer
 };
 
@@ -833,7 +807,6 @@ var submitButtonEventListenerModule = function () {
     return new Promise(function (resolve) {
       removeOldSubmitButtonListener(appContext);
       processNewSubmitButtonListener(resolve, appContext, player);
-      console.log("submitButton Event Listener attached to submit button");
     });
   }
   return {
@@ -3624,7 +3597,7 @@ var appContext = {
   appElements: {
     onePlayerMode: document.getElementById("one-player-mode"),
     twoPlayerMode: document.getElementById("two-player-mode"),
-    modeSelectContainer: document.getElementById("mode-select-container"),
+    startGameContainer: document.getElementById("start-game-container"),
     mainContainer: document.getElementById("main-container"),
     messageBox: document.getElementById("message-box"),
     verticalButton: document.getElementById("vertical-button"),
