@@ -24,7 +24,7 @@ let appContext = {
     appElements: {
         onePlayerMode: document.getElementById("one-player-mode"),
         twoPlayerMode: document.getElementById("two-player-mode"),
-        modeSelectContainer: document.getElementById("mode-select-container"),
+        startGameContainer: document.getElementById("start-game-container"),
         mainContainer: document.getElementById("main-container"),
         messageBox: document.getElementById("message-box"),
         verticalButton: document.getElementById("vertical-button"),

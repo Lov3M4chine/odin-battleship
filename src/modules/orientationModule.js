@@ -7,7 +7,6 @@ const orientationModule = (function() {
             button.removeEventListener('click', () => toggleOrientation(appContext));
             button.addEventListener('click', () => toggleOrientation(appContext));
         });
-        console.log("Orientation click event added");
     }
 
     function toggleOrientation(appContext) {

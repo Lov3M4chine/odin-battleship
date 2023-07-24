@@ -36,7 +36,6 @@ const submitButtonEventListenerModule = (function () {
         return new Promise((resolve) => {
             removeOldSubmitButtonListener(appContext);
             processNewSubmitButtonListener(resolve, appContext, player);
-            console.log("submitButton Event Listener attached to submit button");
         });
     }
 

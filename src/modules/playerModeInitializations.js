@@ -2,7 +2,7 @@ const { CreatePlayersForOnePlayerMode } = require("./factories/CreatePlayers");
 const { initializePlaceShipsModule } = require("./initializePlaceShipsModule.js");
 
 function hideModeSelectContainer (appContext) {
-    appContext.appElements.modeSelectContainer.classList.add("hidden");
+    appContext.appElements.startGameContainer.classList.add("hidden");
 }
 
 function createBattlegridForPlayerOne (appContext) {
@@ -65,21 +65,8 @@ function initializeOnePlayerMode (appContext) {
     console.log(`Initialization of one player mode complete.`);
 }
 
-function initializeTwoPlayerMode (appContext) {
-    appContext.appElements.modeSelectContainer.classList.add("hidden");
-    createBattlegridForPlayerOne(appContext);
-    createBattlegridForPlayerTwo(appContext);
-
-    appContext.playerOne = PlayerFactory(appContext);
-    appContext.playertwo = PlayerFactory(appContext);
-}
-
 function getPlayerOne() {
     return appContext.playerOne;
-}
-
-function getPlayerTwo() {
-    return appContext.playertwo;
 }
 
 function getComputerPlayer() {
@@ -88,8 +75,6 @@ function getComputerPlayer() {
 
 module.exports = {
     initializeOnePlayerMode,
-    initializeTwoPlayerMode,
     getPlayerOne,
-    getPlayerTwo,
     getComputerPlayer,
 }

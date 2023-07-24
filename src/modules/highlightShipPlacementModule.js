@@ -5,9 +5,7 @@ const highlightShipPlacementModule = (function() {
         function generateHighlightShipPlacementEventListener(appContext, player) {  
             return function(event) {
                 highlightModule.removeHighlightedSelections(appContext);
-                console.log("Previous highlighted selections removed.")
                 highlightModule.highlightShipPlacement(event.target, appContext, player);
-                console.log("...current selection highlighted");
         
             };
         }
@@ -30,8 +28,6 @@ const highlightShipPlacementModule = (function() {
                 removeOldHighlightListener(cell, appContext);
                 processNewHighlightListener(cell, appContext, player);
             });
-        
-            console.log("highlightShip Event Listener attached to all cells");
         }
         return {
             addHighlightShipEventListener
@@ -91,22 +87,17 @@ const highlightShipPlacementModule = (function() {
                     }
                 }
             }
-
-            console.log(`Cell highlighting complete. Highlight Array = ${appContext.highlightedArray}`);
-
         }
         
         function pushAndHighlight(i, appContext) {
             let cellToHighlight = document.querySelector(`[data-cell-number="${i}"]`);
             appContext.highlightedArray.push(i);
-            console.log(`${i} pushed to the array`)
             highlightSelected(cellToHighlight);
         }
 
         function pushAndHighlightSelectionAsInvalid (i, appContext) {
             let cellToHighlightInvalid = document.querySelector(`[data-cell-number="${i}"]`);
             appContext.highlightedArray.push(i);
-            console.log(`${i} pushed to the array`)
             highlightInvalid(cellToHighlightInvalid);
         }
         
@@ -203,7 +194,6 @@ const highlightShipPlacementModule = (function() {
             } else {
                 loopAndCheckHorizontalSelection(appContext, player);
             }
-            console.log("Check if placement is valid: COMPLETE")
         }
 
         return {

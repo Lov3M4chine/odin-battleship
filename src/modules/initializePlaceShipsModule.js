@@ -18,21 +18,21 @@ const initializePlaceShipsModule = (function ()  {
             await submitButtonEventListenerModule.addSubmitButtonEventListener(appContext, player);
         }
         assignRandomShipPlacementForPlayerComputer(appContext);
+        console.log(`All ships placed sucessfully.`);
+        console.log(`Player One: ${JSON.stringify(appContext.playerOne)}`);
+        console.log(`Player Computer: ${JSON.stringify(appContext.playerComputer)}`);
     }
     
 
 
     function createShipList(appContext) {
         appContext.shipList = CreateShips(appContext);
-        console.log("Ship creation: COMPLETE");
-        console.log(`Ship List: ${JSON.stringify(appContext.shipList)}`);
     }
     
     function initializePlaceShipsDynamicHTML (appContext) {
         appContext.appElements.messageBox.classList.remove("hidden");
         appContext.appElements.horizontalButton.classList.remove("hidden");
         submitButtonEventListenerModule.toggleSubmitButtonOff(appContext);
-        console.log("Ship placement screen dynamic html updated");
     }
     
     function setupPlaceShips(appContext) {
@@ -43,7 +43,6 @@ const initializePlaceShipsModule = (function ()  {
     
     function updateMessageBox (appContext, message) {
         appContext.appElements. messageBox.innerHTML = message;
-        console.log("Message box updated.");
     }
     
     return {

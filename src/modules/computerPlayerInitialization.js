@@ -3,9 +3,11 @@ const { registerShipModule } = require("./registerShipModule");
 
 
 function assignRandomShipPlacementForPlayerComputer (appContext) {
+    console.log(`Initializing player computer ship placement...`);
     for (let currentShipKey in appContext.shipList) {
         processRandomShipPlacementForPlayerComputer(appContext, currentShipKey);
     }
+    console.log(`...player computer ship placement complete.`);
 }
 
 function processRandomShipPlacementForPlayerComputer(appContext, currentShipKey) {
