@@ -15,7 +15,6 @@ function attachEventListenerToRandomShipPlacementButton (appContext) {
 }
 
 function processRandomShipPlacementForPlayerOne(appContext, currentShipKey) {
-    console.log(currentShipKey)
     let { name: currentShipName, size: currentShipSize } = appContext.shipList[currentShipKey];
     randomizeVariablesForPlaceShips(appContext);
     appContext.currentShipName = currentShipName;
@@ -35,7 +34,6 @@ function assignRandomShipPlacementForPlayerOne (appContext) {
     }
     highlightAutomatedShipPlacementForPlayerOne(appContext);
     console.log(`...player one automated ship placement complete.`);
-    console.log(`PlayerOne: ${JSON.stringify(appContext.playerOne)}`);
     highlightShipPlacementModule.highlightEventListenerModule.wipeEventListeners(appContext);
     assignRandomShipPlacementForPlayerComputer(appContext);
 }

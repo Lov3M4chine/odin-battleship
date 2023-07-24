@@ -9,6 +9,7 @@ function hideModeSelectContainer (appContext) {
 }
 
 async function initializeOnePlayerMode (appContext) {
+    console.log("Initializing one player mode...")
     hideModeSelectContainer(appContext);
     CreateBattlegrid.createBattlegridForPlayerOne(appContext);
     CreatePlayersForOnePlayerMode(appContext);
@@ -18,7 +19,6 @@ async function initializeOnePlayerMode (appContext) {
     ]);
     CreateBattlegrid.createBattlegridForPlayerComputer(appContext);
     console.log(`Initialization of one player mode complete.`);
-    console.log(appContext);
     initializeBattleMode(appContext);
 }
 

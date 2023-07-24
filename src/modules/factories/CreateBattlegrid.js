@@ -1,6 +1,7 @@
 const CreateBattlegrid = (() => {
 
     function createBattlegridForPlayerOne (appContext) {
+        console.log("Creating battlegrid for player one....");
         const playerOneBattlegridContainer = document.createElement('div');
         playerOneBattlegridContainer.id = 'playerone-battlegrid-container';
 
@@ -30,6 +31,7 @@ const CreateBattlegrid = (() => {
         playerOneBattlegridContainer.appendChild(playerOneBattlegrid);
         appContext.appElements.battlegridsContainer.appendChild(playerOneBattlegridContainer);
         appContext.appElements.playerOneBattlegridLabel = playerOneBattlegridLabel;
+        console.log("...battlegrid for player one created.");
       
     }
     
@@ -64,6 +66,7 @@ const CreateBattlegrid = (() => {
         playerComputerBattlegridContainer.appendChild(playerComputerBattlegrid);
         appContext.appElements.battlegridsContainer.appendChild(playerComputerBattlegridContainer);
         appContext.appElements.playerComputerBattlegridLabel = playerComputerBattlegridLabel;
+        console.log("...battlegrid for player computer created.");
     }
 
     return {

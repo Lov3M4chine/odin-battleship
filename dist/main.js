@@ -45,7 +45,6 @@ function attachEventListenerToRandomShipPlacementButton(appContext) {
   });
 }
 function processRandomShipPlacementForPlayerOne(appContext, currentShipKey) {
-  console.log(currentShipKey);
   var _appContext$shipList$ = appContext.shipList[currentShipKey],
     currentShipName = _appContext$shipList$.name,
     currentShipSize = _appContext$shipList$.size;
@@ -66,7 +65,6 @@ function assignRandomShipPlacementForPlayerOne(appContext) {
   }
   highlightAutomatedShipPlacementForPlayerOne(appContext);
   console.log("...player one automated ship placement complete.");
-  console.log("PlayerOne: ".concat(JSON.stringify(appContext.playerOne)));
   highlightShipPlacementModule.highlightEventListenerModule.wipeEventListeners(appContext);
   assignRandomShipPlacementForPlayerComputer(appContext);
 }
@@ -171,6 +169,7 @@ module.exports = {
 
 var CreateBattlegrid = function () {
   function createBattlegridForPlayerOne(appContext) {
+    console.log("Creating battlegrid for player one....");
     var playerOneBattlegridContainer = document.createElement('div');
     playerOneBattlegridContainer.id = 'playerone-battlegrid-container';
     var playerOneBattlegridLabel = document.createElement('button');
@@ -194,6 +193,7 @@ var CreateBattlegrid = function () {
     playerOneBattlegridContainer.appendChild(playerOneBattlegrid);
     appContext.appElements.battlegridsContainer.appendChild(playerOneBattlegridContainer);
     appContext.appElements.playerOneBattlegridLabel = playerOneBattlegridLabel;
+    console.log("...battlegrid for player one created.");
   }
   function createBattlegridForPlayerComputer(appContext) {
     console.log("Creating battlegrid for player computer....");
@@ -220,6 +220,7 @@ var CreateBattlegrid = function () {
     playerComputerBattlegridContainer.appendChild(playerComputerBattlegrid);
     appContext.appElements.battlegridsContainer.appendChild(playerComputerBattlegridContainer);
     appContext.appElements.playerComputerBattlegridLabel = playerComputerBattlegridLabel;
+    console.log("...battlegrid for player computer created.");
   }
   return {
     createBattlegridForPlayerOne: createBattlegridForPlayerOne,
@@ -647,7 +648,6 @@ function initializeBattleMode(appContext) {
   initializePlaceShipsModule.updateMessageBox(appContext, "Begin your attack!");
 }
 function showBattlegridLabels(appContext) {
-  console.log(appContext);
   appContext.appElements.playerOneBattlegridLabel.classList.remove("hidden");
   appContext.appElements.playerComputerBattlegridLabel.classList.remove("hidden");
 }
@@ -832,15 +832,15 @@ function _initializeOnePlayerMode() {
     return _regeneratorRuntime().wrap(function _callee$(_context) {
       while (1) switch (_context.prev = _context.next) {
         case 0:
+          console.log("Initializing one player mode...");
           hideModeSelectContainer(appContext);
           CreateBattlegrid.createBattlegridForPlayerOne(appContext);
           CreatePlayersForOnePlayerMode(appContext);
-          _context.next = 5;
+          _context.next = 6;
           return Promise.race([initializePlaceShipsModule.initializePlaceShips(appContext, appContext.playerOne), attachEventListenerToRandomShipPlacementButton(appContext)]);
-        case 5:
+        case 6:
           CreateBattlegrid.createBattlegridForPlayerComputer(appContext);
           console.log("Initialization of one player mode complete.");
-          console.log(appContext);
           initializeBattleMode(appContext);
         case 9:
         case "end":

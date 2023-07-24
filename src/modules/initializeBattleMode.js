@@ -11,7 +11,6 @@ function initializeBattleMode (appContext) {
 }
 
 function showBattlegridLabels(appContext) {
-    console.log(appContext)
     appContext.appElements.playerOneBattlegridLabel.classList.remove("hidden");
     appContext.appElements.playerComputerBattlegridLabel.classList.remove("hidden");
 }
