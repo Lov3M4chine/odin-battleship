@@ -12,7 +12,7 @@ function assignRandomShipPlacementForPlayerComputer (appContext) {
 
 function processRandomShipPlacementForPlayerComputer(appContext, currentShipKey) {
     let { name: currentShipName, size: currentShipSize } = appContext.shipList[currentShipKey];
-    randomizeVariablesForPlaceShipsForPlayerComputer(appContext);
+    randomizeVariablesForPlaceShips(appContext);
     appContext.currentShipName = currentShipName;
     appContext.currentShipSize = currentShipSize;
     highlightShipPlacementModule.checkPlacementModule.checkIsPlacementValid(appContext, appContext.playerComputer);
@@ -23,11 +23,12 @@ function processRandomShipPlacementForPlayerComputer(appContext, currentShipKey)
     }
 }
 
-function randomizeVariablesForPlaceShipsForPlayerComputer(appContext) {
+function randomizeVariablesForPlaceShips(appContext) {
     appContext.cellSelected = Math.floor(Math.random() * ((appContext.horizontalSize * appContext.verticalSize)));
     appContext.orientation.isVertical = Math.random() < 0.5;
 }
 
 module.exports = {
-    assignRandomShipPlacementForPlayerComputer
+    assignRandomShipPlacementForPlayerComputer,
+    randomizeVariablesForPlaceShips
 }

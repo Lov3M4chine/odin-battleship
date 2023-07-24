@@ -1,4 +1,5 @@
 const { CreatePlayersForOnePlayerMode } = require("./factories/CreatePlayers");
+const { initializeBattleMode } = require("./initializeBattleMode");
 const { initializePlaceShipsModule } = require("./initializePlaceShipsModule.js");
 
 function hideModeSelectContainer (appContext) {
@@ -27,42 +28,45 @@ function createBattlegridForPlayerOne (appContext) {
     }
 
     playerOneBattlegridContainer.appendChild(playerOneBattlegrid);
-    appContext.appElements.mainContainer.appendChild(playerOneBattlegridContainer);
+    appContext.appElements.battlegridsContainer.appendChild(playerOneBattlegridContainer);
   
 }
 
-function createBattlegridForPlayerTwo (appContext) {
-    const playerTwoBattlegridContainer = document.createElement('div');
-    playerTwoBattlegridContainer.id = 'playerTwo-battlegrid-container';
+function createBattlegridForPlayerComputer (appContext) {
+    console.log("Creating battlegrid for player computer....");
+    const playerComputerBattlegridContainer = document.createElement('div');
+    playerComputerBattlegridContainer.id = 'player-computer-battlegrid-container';
   
-    const playerTwoBattlegrid = document.createElement('div');
-    playerTwoBattlegrid.id = 'playerTwo-battlegrid';
-    playerTwoBattlegrid.className = 'grid grid-rows-[repeat(10,_minmax(0,_1fr))] grid-cols-10';
+    const playerComputerBattlegrid = document.createElement('div');
+    playerComputerBattlegrid.id = 'player-computer-battlegrid';
+    playerComputerBattlegrid.className = 'grid grid-rows-[repeat(10,_minmax(0,_1fr))] grid-cols-10 hidden';
+    appContext.appElements.playerComputerBattlegrid = playerComputerBattlegrid;
 
     for (let i = 0; i < (appContext.horizontalSize * appContext.verticalSize); i++) {
-        let playerTwoCell = null;
+        let playerComputerCell = null;
 
-        playerTwoCell = document.createElement('button');
-        playerTwoCell.id = `playerTwo-cell-${i}`;
-        playerTwoCell.className = 'btn bg-primary playertwo-cell hidden';
-        playerTwoCell.title = `cell ${i}`;
-        playerTwoCell.setAttribute('data-cellNumber', i);
+        playerComputerCell = document.createElement('button');
+        playerComputerCell.id = `player-computer-cell-${i}`;
+        playerComputerCell.className = 'btn bg-primary player-computer-cell';
+        playerComputerCell.title = `cell ${i}`;
+        playerComputerCell.setAttribute('data-cellNumber', i);
 
-        playerTwoBattlegrid.appendChild(playerTwoCell);
+        playerComputerBattlegrid.appendChild(playerComputerCell);
     }
 
-    playerTwoBattlegridContainer.appendChild(playerTwoBattlegrid);
-    appContext.appElements.mainContainer.appendChild(playerTwoBattlegridContainer);
+    playerComputerBattlegridContainer.appendChild(playerComputerBattlegrid);
+    appContext.appElements.battlegridsContainer.appendChild(playerComputerBattlegridContainer);
+    console.log("...battlegrid completed");
 }
 
-function initializeOnePlayerMode (appContext) {
-    
+async function initializeOnePlayerMode (appContext) {
     hideModeSelectContainer(appContext);
     createBattlegridForPlayerOne(appContext);
     CreatePlayersForOnePlayerMode(appContext);
-
-    initializePlaceShipsModule.initializePlaceShips(appContext, appContext.playerOne);
+    await initializePlaceShipsModule.initializePlaceShips(appContext, appContext.playerOne);
+    createBattlegridForPlayerComputer(appContext);
     console.log(`Initialization of one player mode complete.`);
+    initializeBattleMode(appContext);
 }
 
 function getPlayerOne() {

@@ -26,10 +26,13 @@ let appContext = {
         twoPlayerMode: document.getElementById("two-player-mode"),
         startGameContainer: document.getElementById("start-game-container"),
         mainContainer: document.getElementById("main-container"),
+        battlegridsContainer: document.getElementById("battlegrids-container"),
         messageBox: document.getElementById("message-box"),
         verticalButton: document.getElementById("vertical-button"),
         horizontalButton: document.getElementById("horizontal-button"),
+        chooseForMeButton: document.getElementById("choose-for-me"),
         submitButton: document.getElementById("submit-button"),
+        playerComputerBattlegrid: document.getElementById("player-computer-battlegrid"),
     }
 }
 

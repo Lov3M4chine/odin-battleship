@@ -21,8 +21,17 @@ const orientationModule = (function() {
         }
     }
 
+    function hideOrientationButton(appContext) {
+        if (appContext.orientation.isVertical === true) {
+            appContext.appElements.verticalButton.classList.add("hidden");
+        } else {
+            appContext.appElements.horizontalButton.classList.add("hidden");
+        }
+    }
+
     return {
         addOrientationClickEvent,
+        hideOrientationButton
     }
 })();
 

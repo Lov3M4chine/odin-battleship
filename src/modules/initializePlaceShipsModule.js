@@ -1,3 +1,4 @@
+const { initializeRandomShipPlacementButton } = require("./chooseShipPlacementForMe");
 const { assignRandomShipPlacementForPlayerComputer } = require("./computerPlayerInitialization");
 const { CreateShips } = require("./factories/CreateShips");
 const { highlightShipPlacementModule } = require("./highlightShipPlacementModule");
@@ -5,6 +6,19 @@ const { orientationModule } = require("./orientationModule");
 const { submitButtonEventListenerModule } = require("./submitButtonEventListenerModule");
 
 const initializePlaceShipsModule = (function ()  {
+
+    function wipeEventListeners (appContext) {
+        const playerOneCells = document.querySelectorAll(".playerone-cell");
+        playerOneCells.forEach((cell) => {
+            highlightShipPlacementModule.highlightEventListenerModule.removeOldHighlightListener(cell,appContext);
+        });
+    }
+
+    function consoleLogInitialePlaceShipsCompletion(appContext) {
+        console.log(`All ships placed sucessfully.`);
+        console.log(`Player One: ${JSON.stringify(appContext.playerOne)}`);
+        console.log(`Player Computer: ${JSON.stringify(appContext.playerComputer)}`);
+    }
 
     async function initializePlaceShips(appContext, player) {
         setupPlaceShips(appContext);
@@ -17,14 +31,11 @@ const initializePlaceShipsModule = (function ()  {
             highlightShipPlacementModule.highlightEventListenerModule.addHighlightShipEventListener(appContext, player);
             await submitButtonEventListenerModule.addSubmitButtonEventListener(appContext, player);
         }
+        wipeEventListeners(appContext);
         assignRandomShipPlacementForPlayerComputer(appContext);
-        console.log(`All ships placed sucessfully.`);
-        console.log(`Player One: ${JSON.stringify(appContext.playerOne)}`);
-        console.log(`Player Computer: ${JSON.stringify(appContext.playerComputer)}`);
+        consoleLogInitialePlaceShipsCompletion(appContext);
     }
     
-
-
     function createShipList(appContext) {
         appContext.shipList = CreateShips(appContext);
     }
@@ -39,6 +50,7 @@ const initializePlaceShipsModule = (function ()  {
         orientationModule.addOrientationClickEvent(appContext);
         initializePlaceShipsDynamicHTML(appContext);
         createShipList(appContext);
+        initializeRandomShipPlacementButton(appContext);
     }
     
     function updateMessageBox (appContext, message) {

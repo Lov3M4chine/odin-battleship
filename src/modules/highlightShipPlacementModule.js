@@ -30,7 +30,8 @@ const highlightShipPlacementModule = (function() {
             });
         }
         return {
-            addHighlightShipEventListener
+            addHighlightShipEventListener,
+            removeOldHighlightListener
         }
     })();
 
@@ -139,7 +140,8 @@ const highlightShipPlacementModule = (function() {
         return {
             highlightShipPlacement,
             removeHighlightedSelections,
-            updateHighlightedFromSelectedToRegistered
+            updateHighlightedFromSelectedToRegistered,
+            highlightSelected
         }
     })();
 

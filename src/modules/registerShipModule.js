@@ -36,6 +36,7 @@ const registerShipModule = (function () {
         appContext.playerOne.placeShip(appContext.cellSelected, appContext.orientation.isVertical, appContext.currentShipName, appContext.currentShipSize, appContext);
         highlightShipPlacementModule.highlightModule.updateHighlightedFromSelectedToRegistered(appContext);
         console.log('Placement was successful');
+        appContext.appElements.chooseForMeButton.classList.add("hidden");
     }
     
     function processRegistrationFailureForHumanPlayers(appContext, player) {
