@@ -41,12 +41,21 @@ function addAttackEventListeners (appContext) {
 
 let attackEventListener = function (appContext) {
     return function (event) {
+        let cellNumber = event.target.getAttribute('data-cellNumber');
+        console.log(`Cell Number: ${cellNumber}`);
+        let cell = (appContext.playerComputer.gameboardState.gameboard[cellNumber]);
+        console.log(`Cell: ${cell}`);
+        let cellShipName = cell.name;
+        console.log(`cellShipName: ${cellShipName}`);
         appContext.playerComputer.receiveAttack(event.target, appContext.playerComputer);
         console.log(`Attack registered on playerComputer @ ${event.target.getAttribute('data-cellNumber')}`);
         console.log(appContext.playerComputer);
         removeAttackEventListeners(event.target);
-        if (appContext.playerComputer.gameboardState.gameboard[event.target.getAttribute('data-cellNumber')].isHit) {
+        if (cell.isHit) {
             highlightBattleModeModule.highlightHit(event.target);
+            if (appContext.playerComputer.ships[cellShipName].isSunk()) {
+                highlightBattleModeModule.highlightSunk(appContext.playerComputer.ships[cellShipName].coordinates);
+            }
         }
     }
 };
