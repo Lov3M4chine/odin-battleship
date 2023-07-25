@@ -444,9 +444,16 @@ var highlightBattleModeModule = function () {
     cell.classList.remove("bg-primary");
     cell.classList.add("bg-accent");
   }
-  function highlightSunk(shipCoordinates) {}
+  function highlightSunk(shipCoordinates) {
+    shipCoordinates.forEach(function (coordinate) {
+      var cellToRegister = document.querySelector("[data-cell-number=\"".concat(coordinate, "\"]"));
+      cellToRegister.classList.remove("bg-accent");
+      cellToRegister.classList.add("bg-secondary");
+    });
+  }
   return {
-    highlightHit: highlightHit
+    highlightHit: highlightHit,
+    highlightSunk: highlightSunk
   };
 }();
 module.exports = {
@@ -697,12 +704,21 @@ function addAttackEventListeners(appContext) {
 }
 var attackEventListener = function attackEventListener(appContext) {
   return function (event) {
+    var cellNumber = event.target.getAttribute('data-cellNumber');
+    console.log("Cell Number: ".concat(cellNumber));
+    var cell = appContext.playerComputer.gameboardState.gameboard[cellNumber];
+    console.log("Cell: ".concat(cell));
+    var cellShipName = cell.name;
+    console.log("cellShipName: ".concat(cellShipName));
     appContext.playerComputer.receiveAttack(event.target, appContext.playerComputer);
     console.log("Attack registered on playerComputer @ ".concat(event.target.getAttribute('data-cellNumber')));
     console.log(appContext.playerComputer);
     removeAttackEventListeners(event.target);
-    if (appContext.playerComputer.gameboardState.gameboard[event.target.getAttribute('data-cellNumber')].isHit) {
+    if (cell.isHit) {
       highlightBattleModeModule.highlightHit(event.target);
+      if (appContext.playerComputer.ships[cellShipName].isSunk()) {
+        highlightBattleModeModule.highlightSunk(appContext.playerComputer.ships[cellShipName].coordinates);
+      }
     }
   };
 };
