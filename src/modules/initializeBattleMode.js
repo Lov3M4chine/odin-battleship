@@ -1,3 +1,4 @@
+const { highlightBattleModeModule } = require("./highlightBattleMode");
 const { initializePlaceShipsModule } = require("./initializePlaceShipsModule");
 
 
@@ -44,6 +45,9 @@ let attackEventListener = function (appContext) {
         console.log(`Attack registered on playerComputer @ ${event.target.getAttribute('data-cellNumber')}`);
         console.log(appContext.playerComputer);
         removeAttackEventListeners(event.target);
+        if (appContext.playerComputer.gameboardState.gameboard[event.target.getAttribute('data-cellNumber')].isHit) {
+            highlightBattleModeModule.highlightHit(event.target);
+        }
     }
 };
 

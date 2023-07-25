@@ -433,6 +433,28 @@ module.exports = {
 
 /***/ }),
 
+/***/ "./src/modules/highlightBattleMode.js":
+/*!********************************************!*\
+  !*** ./src/modules/highlightBattleMode.js ***!
+  \********************************************/
+/***/ ((module) => {
+
+var highlightBattleModeModule = function () {
+  function highlightHit(cell) {
+    cell.classList.remove("bg-primary");
+    cell.classList.add("bg-accent");
+  }
+  function highlightSunk(shipCoordinates) {}
+  return {
+    highlightHit: highlightHit
+  };
+}();
+module.exports = {
+  highlightBattleModeModule: highlightBattleModeModule
+};
+
+/***/ }),
+
 /***/ "./src/modules/highlightShipPlacementModule.js":
 /*!*****************************************************!*\
   !*** ./src/modules/highlightShipPlacementModule.js ***!
@@ -638,8 +660,10 @@ module.exports = {
   \*********************************************/
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
-var _require = __webpack_require__(/*! ./initializePlaceShipsModule */ "./src/modules/initializePlaceShipsModule.js"),
-  initializePlaceShipsModule = _require.initializePlaceShipsModule;
+var _require = __webpack_require__(/*! ./highlightBattleMode */ "./src/modules/highlightBattleMode.js"),
+  highlightBattleModeModule = _require.highlightBattleModeModule;
+var _require2 = __webpack_require__(/*! ./initializePlaceShipsModule */ "./src/modules/initializePlaceShipsModule.js"),
+  initializePlaceShipsModule = _require2.initializePlaceShipsModule;
 function initializeBattleMode(appContext) {
   console.log("Initializing BattleMode...");
   hideRandomShipPlacementButton(appContext);
@@ -677,6 +701,9 @@ var attackEventListener = function attackEventListener(appContext) {
     console.log("Attack registered on playerComputer @ ".concat(event.target.getAttribute('data-cellNumber')));
     console.log(appContext.playerComputer);
     removeAttackEventListeners(event.target);
+    if (appContext.playerComputer.gameboardState.gameboard[event.target.getAttribute('data-cellNumber')].isHit) {
+      highlightBattleModeModule.highlightHit(event.target);
+    }
   };
 };
 function removeAttackEventListeners(cell) {
