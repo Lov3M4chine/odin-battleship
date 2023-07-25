@@ -446,7 +446,9 @@ var highlightBattleModeModule = function () {
   }
   function highlightSunk(shipCoordinates) {
     shipCoordinates.forEach(function (coordinate) {
-      var cellToRegister = document.querySelector("[data-cell-number=\"".concat(coordinate, "\"]"));
+      console.log(coordinate);
+      var cellToRegister = document.getElementById("player-computer-cell-".concat(coordinate));
+      console.log(cellToRegister);
       cellToRegister.classList.remove("bg-accent");
       cellToRegister.classList.add("bg-secondary");
     });
