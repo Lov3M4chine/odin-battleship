@@ -6,11 +6,14 @@ const highlightBattleModeModule = (function() {
     
     function highlightSunk(shipCoordinates) {
         shipCoordinates.forEach((coordinate) => {
-            let cellToRegister = document.querySelector(`[data-cell-number="${coordinate}"]`);
+            console.log(coordinate);
+            let cellToRegister = document.getElementById(`player-computer-cell-${coordinate}`);
+            console.log(cellToRegister);
             cellToRegister.classList.remove("bg-accent");
             cellToRegister.classList.add("bg-secondary");
-        }) 
+        });
     }
+    
 
     return {
         highlightHit,
