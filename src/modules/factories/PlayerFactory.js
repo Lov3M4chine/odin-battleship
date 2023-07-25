@@ -50,7 +50,7 @@ const PlayerFactory = (appContext) => {
     }
     
 
-    function checkIfAllShipsSunk() {
+    function checkIfPlayerShipsSunk() {
         let allShipsSunk = true;
         for (let shipKey in ships) {
         const ship = ships[shipKey];
@@ -65,7 +65,7 @@ const PlayerFactory = (appContext) => {
     return {
         placeShip,
         receiveAttack,
-        checkIfAllShipsSunk,
+        checkIfPlayerShipsSunk,
         gameboardState,
         ships,
     };

@@ -24,11 +24,16 @@ function processRandomShipPlacementForPlayerComputer(appContext, currentShipKey)
 }
 
 function randomizeVariablesForPlaceShips(appContext) {
-    appContext.cellSelected = Math.floor(Math.random() * ((appContext.horizontalSize * appContext.verticalSize)));
+    appContext.cellSelected = randomizeCellSelected(appContext);
     appContext.orientation.isVertical = Math.random() < 0.5;
+}
+
+function randomizeCellSelected (appContext) {
+    return Math.floor(Math.random() * ((appContext.horizontalSize * appContext.verticalSize)))
 }
 
 module.exports = {
     assignRandomShipPlacementForPlayerComputer,
-    randomizeVariablesForPlaceShips
+    randomizeVariablesForPlaceShips,
+    randomizeCellSelected
 }
