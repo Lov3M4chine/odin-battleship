@@ -36,18 +36,19 @@ const PlayerFactory = (appContext) => {
         return this.ships;
     }
 
-    function receiveAttack(coordinate) {
-
-        const name = this.gameboardState.gameboard[coordinate].name;
-        const ship = this.ships[name];
-
+    function receiveAttack(cell, player) {
+        const cellNumber = Number(cell.getAttribute('data-cellNumber'));
+        const name = player.gameboardState.gameboard[cellNumber].name;
+        const ship = player.ships[name];
+    
         if (name !== null) {
-        gameboardState.gameboard[coordinate].isHit = true;
-        ship.hit();
+            player.gameboardState.gameboard[cellNumber].isHit = true;
+            ship.hit();
         } else {
-        gameboardState.gameboard[coordinate].isMiss = true;
+            player.gameboardState.gameboard[cellNumber].isMiss = true;
         }
     }
+    
 
     function checkIfAllShipsSunk() {
         let allShipsSunk = true;

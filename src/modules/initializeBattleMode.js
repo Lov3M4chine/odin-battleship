@@ -8,6 +8,7 @@ function initializeBattleMode (appContext) {
     showPlayerComputerBattlegrid(appContext);
     showBattlegridLabels(appContext);
     initializePlaceShipsModule.updateMessageBox(appContext, `Begin your attack!`);
+    addAttackEventListeners(appContext);
 }
 
 function showBattlegridLabels(appContext) {
@@ -27,6 +28,33 @@ function showPlayerComputerBattlegrid (appContext) {
 function hideRandomShipPlacementButton (appContext) {
     appContext.appElements.chooseForMeButton.classList.add("hidden");
 }
+
+function addAttackEventListeners (appContext) {
+    const playerComputerCells = document.querySelectorAll(".player-computer-cell");
+    playerComputerCells.forEach((cell) => {
+        cell.attackEventListener = attackEventListener(appContext, cell);
+        cell.addEventListener('click', cell.attackEventListener);
+    });
+    console.log("Event listeners added");
+}
+
+let attackEventListener = function (appContext) {
+    return function (event) {
+        appContext.playerComputer.receiveAttack(event.target, appContext.playerComputer);
+        console.log(`Attack registered on playerComputer @ ${event.target.getAttribute('data-cellNumber')}`);
+        console.log(appContext.playerComputer);
+        removeAttackEventListeners(event.target);
+    }
+};
+
+function removeAttackEventListeners(cell) {
+    cell.removeEventListener('click', cell.attackEventListener);
+    console.log("Event listener removed");
+}
+
+
+
+
 
 module.exports = {
     initializeBattleMode
