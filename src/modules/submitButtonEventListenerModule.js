@@ -13,7 +13,6 @@ const submitButtonEventListenerModule = (function () {
                 toggleSubmitButtonOff(appContext);
                 resolve();
             } else {
-                console.log('Placement was unsuccessful, trying again');
                 toggleSubmitButtonOff(appContext);            
             }
         };

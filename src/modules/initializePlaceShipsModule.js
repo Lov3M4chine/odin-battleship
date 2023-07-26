@@ -7,12 +7,6 @@ const { submitButtonEventListenerModule } = require("./submitButtonEventListener
 
 const initializePlaceShipsModule = (function ()  {
 
-    function consoleLogInitializePlaceShipsCompletion(appContext) {
-        console.log(`All ships placed sucessfully.`);
-        console.log(`Player One: ${JSON.stringify(appContext.playerOne)}`);
-        console.log(`Player Computer: ${JSON.stringify(appContext.playerComputer)}`);
-    }
-
     async function initializePlaceShips(appContext, player) {
         setupPlaceShips(appContext);
     
@@ -26,7 +20,6 @@ const initializePlaceShipsModule = (function ()  {
         }
         highlightShipPlacementModule.highlightEventListenerModule.wipeEventListeners(appContext);
         assignRandomShipPlacementForPlayerComputer(appContext);
-        consoleLogInitializePlaceShipsCompletion(appContext);
     }
     
     function createShipList(appContext) {

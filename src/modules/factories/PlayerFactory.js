@@ -37,21 +37,14 @@ const PlayerFactory = (appContext) => {
     }
 
     function receiveAttack(cellNumber, player) {
-        console.log(`player.gameboardState.gameboard[cellNumber]: ${JSON.stringify(player.gameboardState.gameboard[cellNumber])}`)
         const name = player.gameboardState.gameboard[cellNumber].name;
-        console.log(`name: ${name}`)
         const ship = player.ships[name];
-        console.log(`ship: ${ship}`)
-        
     
         if (name !== null) {
             player.gameboardState.gameboard[cellNumber].isHit = true;
             ship.hit();
-            console.log("receive attack hit registered");
-            console.log(`Ship Hits: ${player.ships[name].getHits()}`)
         } else {
             player.gameboardState.gameboard[cellNumber].isMiss = true;
-            console.log("Receive attack miss registered")
         }
     }
     

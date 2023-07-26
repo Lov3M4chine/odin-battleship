@@ -63,12 +63,10 @@ function processRandomShipPlacementForPlayerOne(appContext, currentShipKey) {
   }
 }
 function assignRandomShipPlacementForPlayerOne(appContext) {
-  console.log("Initializing automated ship placement for player one...");
   for (var currentShipKey in appContext.shipList) {
     processRandomShipPlacementForPlayerOne(appContext, currentShipKey);
   }
   highlightAutomatedShipPlacementForPlayerOne(appContext);
-  console.log("...player one automated ship placement complete.");
   highlightShipPlacementModule.highlightEventListenerModule.wipeEventListeners(appContext);
   assignRandomShipPlacementForPlayerComputer(appContext);
 }
@@ -88,10 +86,10 @@ module.exports = {
 
 /***/ }),
 
-/***/ "./src/modules/computerPlayerAttackTurnInitialization.js":
-/*!***************************************************************!*\
-  !*** ./src/modules/computerPlayerAttackTurnInitialization.js ***!
-  \***************************************************************/
+/***/ "./src/modules/computerAIModule.js":
+/*!*****************************************!*\
+  !*** ./src/modules/computerAIModule.js ***!
+  \*****************************************/
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
@@ -100,192 +98,103 @@ function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o =
 function _iterableToArray(iter) { if (typeof Symbol !== "undefined" && iter[Symbol.iterator] != null || iter["@@iterator"] != null) return Array.from(iter); }
 function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) return _arrayLikeToArray(arr); }
 function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i]; return arr2; }
-var _require = __webpack_require__(/*! ./computerPlayerInitialization */ "./src/modules/computerPlayerInitialization.js"),
-  randomizeCellSelected = _require.randomizeCellSelected;
-var _require2 = __webpack_require__(/*! ./highlightBattleMode */ "./src/modules/highlightBattleMode.js"),
-  highlightBattleModeModule = _require2.highlightBattleModeModule;
-var _require3 = __webpack_require__(/*! ./initializePlaceShipsModule */ "./src/modules/initializePlaceShipsModule.js"),
-  initializePlaceShipsModule = _require3.initializePlaceShipsModule;
-var _require4 = __webpack_require__(/*! ./highlightShipPlacementModule */ "./src/modules/highlightShipPlacementModule.js"),
-  highlightShipPlacementModule = _require4.highlightShipPlacementModule;
-var _require5 = __webpack_require__(/*! ./registerShipModule */ "./src/modules/registerShipModule.js"),
-  registerShipModule = _require5.registerShipModule;
+var _require = __webpack_require__(/*! ./highlightBattleMode */ "./src/modules/highlightBattleMode.js"),
+  highlightBattleModeModule = _require.highlightBattleModeModule;
+var _require2 = __webpack_require__(/*! ./initializePlaceShipsModule */ "./src/modules/initializePlaceShipsModule.js"),
+  initializePlaceShipsModule = _require2.initializePlaceShipsModule;
+var _require3 = __webpack_require__(/*! ./highlightShipPlacementModule */ "./src/modules/highlightShipPlacementModule.js"),
+  highlightShipPlacementModule = _require3.highlightShipPlacementModule;
+var _require4 = __webpack_require__(/*! ./registerAttackCellsModule */ "./src/modules/registerAttackCellsModule.js"),
+  registerAttackCellsModule = _require4.registerAttackCellsModule;
+var _require5 = __webpack_require__(/*! ./computerPlayerInitialization */ "./src/modules/computerPlayerInitialization.js"),
+  randomizeCellSelected = _require5.randomizeCellSelected;
+var _require6 = __webpack_require__(/*! ./winStateModule */ "./src/modules/winStateModule.js"),
+  winStateModule = _require6.winStateModule;
 var computerAIModule = function () {
-  function processWithTargetedShip(appContext) {
-    console.log("Processing as Targeted ship");
-    if (appContext.attackCellData.wasPreviousAttackSunk) {
-      processWithPreviousSunk(appContext);
-    } else {
-      processWithoutPreviousSunk(appContext);
+  var processingModule = function () {
+    function processWithTargetedShip(appContext) {
+      if (appContext.attackCellData.wasPreviousAttackSunk) {
+        processWithPreviousSunk(appContext);
+      } else {
+        processWithoutPreviousSunk(appContext);
+      }
     }
-  }
-  function processWithPreviousSunk(appContext) {
-    console.log("The previous attack sunk a ship");
-    processPreviousSunkData(appContext);
-    appContext.attackCellData.randomCellNumber = randomizeCellSelected(appContext);
-    appContext.attackCellData.cellShipName = appContext.playerOne.gameboardState.gameboard[appContext.attackCellData.randomCellNumber].name;
-    appContext.attackCellData.cellHTML = document.getElementById("playerone-cell-".concat(appContext.attackCellData.randomCellNumber));
-    validateAttackCellModule.validateRandomCell(appContext);
-    processAttack(appContext);
-  }
-  function processPreviousSunkData(appContext) {
-    console.log("Previous Attack Sunk: ".concat(appContext.attackCellData.wasPreviousAttackSunk));
-    appContext.attackCellData.wasPreviousAttackSunk = false;
-    appContext.attackCellData.isShipTargeted = false;
-    appContext.attackCellData.previousHitCoordinates = [];
-    appContext.attackCellData.calculatedCellNumberToAttack = null;
-    appContext.orientation.isVertical = null;
-    console.log("isVertical reset to null");
-    appContext.attackCellData.lastCellHit = null;
-    console.log("Previous sunk, hit, and coordinate reset");
-    initializePlaceShipsModule.updateMessageBox(appContext, "It's your turn.");
-  }
-  function processWithoutPreviousSunk(appContext) {
-    console.log("The previous attack did NOT sink a ship.");
-    if (appContext.attackCellData.previousHitCoordinates.length === 2) {
-      processWithTwoCoordinates(appContext);
-    } else {
-      processWithoutTwoCoordinates(appContext);
+    function processWithPreviousSunk(appContext) {
+      processPreviousSunkData(appContext);
+      appContext.attackCellData.randomCellNumber = randomizeCellSelected(appContext);
+      appContext.attackCellData.cellShipName = appContext.playerOne.gameboardState.gameboard[appContext.attackCellData.randomCellNumber].name;
+      appContext.attackCellData.cellHTML = document.getElementById("playerone-cell-".concat(appContext.attackCellData.randomCellNumber));
+      validateCellsModule.validateRandomCell(appContext);
+      processAttack(appContext);
     }
-  }
-  function processWithTwoCoordinates(appContext) {
-    console.log("Processing with Two Coordinates");
-    console.log("Calculating if ship is vertical.");
-    updateIsVertical(appContext);
-    randomizeAttackCell(appContext);
-    console.log("Calculated Attack Cell Number: ".concat(appContext.attackCellData.calculatedCellNumberToAttack));
-    processAttack(appContext);
-  }
-  function processWithoutTwoCoordinates(appContext) {
-    console.log("Processing without two coordinates");
-    console.log("Need to calculate attack based on previous hit");
-    randomizeAttackCell(appContext);
-    console.log("Calculated Attack Cell Number: ".concat(appContext.attackCellData.calculatedCellNumberToAttack));
-    processAttack(appContext);
-  }
-  function processAttack(appContext) {
-    console.log("Processing attack....");
-    if (appContext.attackCellData.cellShipName) {
-      processWithName(appContext);
-    } else {
-      processWithNoName(appContext);
+    function processPreviousSunkData(appContext) {
+      appContext.attackCellData.wasPreviousAttackSunk = false;
+      appContext.attackCellData.isShipTargeted = false;
+      appContext.attackCellData.previousHitCoordinates = [];
+      appContext.attackCellData.calculatedCellNumberToAttack = null;
+      appContext.orientation.isVertical = null;
+      appContext.attackCellData.lastCellHit = null;
+      initializePlaceShipsModule.updateMessageBox(appContext, "It's your turn.");
     }
-    console.log("....attack processed");
-  }
-  function processWithName(appContext) {
-    console.log("Cell has a ship name.");
-    console.log("Ship Name: ".concat(appContext.attackCellData.cellShipName));
-    if (wasCellPreviouslySelected(appContext)) {
-      console.log("Cell was already selected, trying again.");
-      computerPlayerAttack(appContext);
-    } else {
-      registerCellHit(appContext);
+    function processWithoutPreviousSunk(appContext) {
+      if (appContext.attackCellData.previousHitCoordinates.length === 2) {
+        processWithTwoCoordinates(appContext);
+      } else {
+        processWithoutTwoCoordinates(appContext);
+      }
     }
-  }
-  function processWithNoName(appContext) {
-    console.log("Cell does not have a ship name.");
-    console.log("Ship Name: ".concat(appContext.attackCellData.cellShipName));
-    if (wasCellPreviouslySelected(appContext)) {
-      console.log("Cell was already selected, trying again.");
-      computerPlayerAttack(appContext);
-    } else {
-      processMiss(appContext);
+    function processWithTwoCoordinates(appContext) {
+      updateIsVertical(appContext);
+      randomizeAttackCell(appContext);
+      processAttack(appContext);
     }
-  }
-  function processMiss(appContext) {
-    if (appContext.attackCellData.calculatedCellNumberToAttack) {
-      console.log("Cell has not been selected previously and is a miss.");
-      appContext.playerOne.gameboardState.gameboard[appContext.attackCellData.calculatedCellNumberToAttack].isMiss = true;
-      highlightBattleModeModule.highlightMiss(appContext.attackCellData.cellHTML);
-    } else {
-      console.log("Cell has not been selected previously and is a miss.");
-      appContext.playerOne.gameboardState.gameboard[appContext.attackCellData.randomCellNumber].isMiss = true;
-      highlightBattleModeModule.highlightMiss(appContext.attackCellData.cellHTML);
+    function processWithoutTwoCoordinates(appContext) {
+      randomizeAttackCell(appContext);
+      processAttack(appContext);
     }
-  }
-  function wasCellPreviouslySelected(appContext) {
-    console.log("Is Cell Hit: ".concat(appContext.attackCellData.isCellHit));
-    console.log("Is Cell Miss: ".concat(appContext.attackCellData.isCellMiss));
-    if (appContext.attackCellData.isCellHit || appContext.attackCellData.isCellMiss) {
-      return true;
+    function processAttack(appContext) {
+      if (appContext.attackCellData.cellShipName) {
+        processWithName(appContext);
+      } else {
+        processWithNoName(appContext);
+      }
     }
-  }
-  function arePlayerOneShipsSunk(appContext) {
-    if (appContext.playerOne.checkIfPlayerShipsSunk()) {
-      return true;
-    } else {
-      return false;
+    function processWithName(appContext) {
+      if (validateCellsModule.wasCellPreviouslySelected(appContext)) {
+        computerAttackTurnInitializationModule.computerPlayerAttack(appContext);
+      } else {
+        registerAttackCellsModule.registerCellHit(appContext);
+      }
     }
-  }
-  function arePlayerComputerShipsSunk(appContext) {
-    if (appContext.playerComputer.checkIfPlayerShipsSunk()) {
-      return true;
-    } else {
-      return false;
+    function processWithNoName(appContext) {
+      if (validateCellsModule.wasCellPreviouslySelected(appContext)) {
+        computerAttackTurnInitializationModule.computerPlayerAttack(appContext);
+      } else {
+        processMiss(appContext);
+      }
     }
-  }
-  function checkBothPlayersIfAllShipsSunk(appContext) {
-    if (arePlayerComputerShipsSunk(appContext)) {
-      registerShipModule.showAlert('Congratulations!!! You have bested the computer and defeated all their ships.');
+    function processMiss(appContext) {
+      if (appContext.attackCellData.calculatedCellNumberToAttack) {
+        appContext.playerOne.gameboardState.gameboard[appContext.attackCellData.calculatedCellNumberToAttack].isMiss = true;
+        highlightBattleModeModule.highlightMiss(appContext.attackCellData.cellHTML);
+      } else {
+        appContext.playerOne.gameboardState.gameboard[appContext.attackCellData.randomCellNumber].isMiss = true;
+        highlightBattleModeModule.highlightMiss(appContext.attackCellData.cellHTML);
+      }
     }
-    if (arePlayerOneShipsSunk(appContext)) {
-      registerShipModule.showAlert('Tough day! You were defeated this time.');
+    function updateIsVertical(appContext) {
+      if (Math.abs(appContext.attackCellData.previousHitCoordinates[0] - appContext.attackCellData.previousHitCoordinates[1]) === appContext.verticalSize) {
+        appContext.orientation.isVertical = true;
+      } else {
+        appContext.orientation.isVertical = false;
+      }
     }
-  }
-  function registerCellHit(appContext) {
-    console.log("Registering cell hit...");
-    appContext.attackCellData.isCellHit = true;
-    console.log("IsCellHit marked to true");
-    appContext.attackCellData.wasPreviousAttackHit = true;
-    console.log("PreviousAttackHit marked to true");
-    console.log("HTML: ".concat(appContext.attackCellData.cellHTML));
-    var currentCellNumber = appContext.attackCellData.cellHTML.dataset.cellNumber;
-    console.log(currentCellNumber);
-    appContext.playerOne.receiveAttack(currentCellNumber, appContext.playerOne);
-    console.log(appContext.attackCellData.cellHTML);
-    highlightBattleModeModule.highlightHit(appContext.attackCellData.cellHTML);
-    initializePlaceShipsModule.updateMessageBox(appContext, "The enemy is attacking your ".concat(appContext.attackCellData.cellShipName));
-    if (appContext.attackCellData.calculatedCellNumberToAttack) {
-      registerCalculatedAttack(appContext);
-    } else {
-      registerRandomAttack(appContext);
-    }
-    appContext.attackCellData.isShipTargeted = true;
-    updateIsSunk(appContext);
-    console.log("...registration complete");
-  }
-  function registerCalculatedAttack(appContext) {
-    appContext.attackCellData.lastCellHit = appContext.attackCellData.calculatedCellNumberToAttack;
-    appContext.attackCellData.previousHitCoordinates.push(appContext.attackCellData.calculatedCellNumberToAttack);
-    console.log("Coordinate pushed to array");
-    console.log("Computer successfully hit player @ ".concat(appContext.attackCellData.calculatedCellNumberToAttack));
-    appContext.attackCellData.calculatedCellNumberToAttack = null;
-  }
-  function registerRandomAttack(appContext) {
-    appContext.attackCellData.lastCellHit = appContext.attackCellData.randomCellNumber;
-    appContext.attackCellData.previousHitCoordinates.push(appContext.attackCellData.randomCellNumber);
-    console.log("Coordinate pushed to array");
-    console.log("Computer successfully hit player @ ".concat(appContext.attackCellData.randomCellNumber));
-  }
-  function updateIsVertical(appContext) {
-    if (Math.abs(appContext.attackCellData.previousHitCoordinates[0] - appContext.attackCellData.previousHitCoordinates[1]) === appContext.verticalSize) {
-      appContext.orientation.isVertical = true;
-      console.log("Is Vertical set to true");
-    } else {
-      appContext.orientation.isVertical = false;
-      console.log("Is Vertical set to false");
-    }
-  }
-  function updateIsSunk(appContext) {
-    var sunk = appContext.playerOne.ships[appContext.attackCellData.cellShipName].isSunk();
-    console.log("SUNK: ".concat(sunk));
-    if (appContext.playerOne.ships[appContext.attackCellData.cellShipName].isSunk()) {
-      appContext.attackCellData.wasPreviousAttackSunk = true;
-      console.log("IsSunk marked to True");
-      initializePlaceShipsModule.updateMessageBox(appContext, "The enemy has sunk your ".concat(appContext.attackCellData.cellShipName, "!!!"));
-    }
-  }
-  var validateAttackCellModule = function () {
+    return {
+      processWithTargetedShip: processWithTargetedShip,
+      processAttack: processAttack
+    };
+  }();
+  var validateCellsModule = function () {
     function isCellBeyondHoriztonalSize(appContext) {
       if (appContext.attackCellData.lastCellHit % appContext.verticalSize === 1) {
         if (appContext.attackCellData.calculatedCellNumberToAttack % appContext.verticalSize === 0) {
@@ -297,188 +206,160 @@ var computerAIModule = function () {
         }
       }
     }
+    function wasCellPreviouslySelected(appContext) {
+      if (appContext.attackCellData.isCellHit || appContext.attackCellData.isCellMiss) {
+        return true;
+      }
+    }
     function validateAttackCell(appContext) {
       appContext.playerOne.currenShipSize = 0;
       appContext.cellSelected = appContext.attackCellData.calculatedCellNumberToAttack;
-      console.log("Validating attackcell...");
       if (highlightShipPlacementModule.checkPlacementModule.isCellOutOfBounds(appContext.attackCellData.calculatedCellNumberToAttack, appContext) || isCellBeyondHoriztonalSize(appContext) || wasCellPreviouslySelected(appContext)) {
-        console.log("Cell is not valid, trying again.");
         appContext.attackCellData.validateAttackCellCollection.push(appContext.attackCellData.calculatedCellNumberToAttack);
         randomizeAttackCell(appContext);
-      } else {
-        console.log("....attackCell validated");
-      }
+      } else {}
     }
     function validateRandomCell(appContext) {
-      console.log("Validating randomCellNumber....");
       if (highlightShipPlacementModule.checkPlacementModule.isCellOutOfBounds(appContext.attackCellData.randomCellNumber, appContext)) {
-        console.log("Cell is out of bounds, trying again.");
-        computerPlayerAttack(appContext);
+        computerAttackTurnInitializationModule.computerPlayerAttack(appContext);
       } else if (wasCellPreviouslySelected(appContext)) {
-        console.log("Cell was previously selected, trying again.");
-        computerPlayerAttack(appContext);
-      } else {
-        console.log("....randomCellNumber validated");
-      }
+        computerAttackTurnInitializationModule.computerPlayerAttack(appContext);
+      } else {}
     }
     return {
       validateAttackCell: validateAttackCell,
-      validateRandomCell: validateRandomCell
+      validateRandomCell: validateRandomCell,
+      wasCellPreviouslySelected: wasCellPreviouslySelected
     };
   }();
-  function calculateRandomPossibleCells(appContext) {
-    var smallestCoordinate = Math.min.apply(Math, _toConsumableArray(appContext.attackCellData.previousHitCoordinates));
-    var largestCoordinate = Math.max.apply(Math, _toConsumableArray(appContext.attackCellData.previousHitCoordinates));
-    var randomPossibleCellNumberSmall;
-    var randomPossibleCellNumberLarge;
-    var randomizeTheFourNumbers = false;
-    if (appContext.orientation.isVertical === true) {
-      randomPossibleCellNumberSmall = smallestCoordinate - appContext.verticalSize;
-      randomPossibleCellNumberLarge = largestCoordinate + appContext.verticalSize;
-      console.log("randomPossibleCellNumberSmall = ".concat(randomPossibleCellNumberSmall));
-      console.log("randomPossibleCellNumberLarge = ".concat(randomPossibleCellNumberLarge));
-    } else if (appContext.orientation.isVertical === false) {
-      randomPossibleCellNumberSmall = smallestCoordinate - 1;
-      randomPossibleCellNumberLarge = largestCoordinate + 1;
-      console.log("randomPossibleCellNumberSmall = ".concat(randomPossibleCellNumberSmall));
-      console.log("randomPossibleCellNumberLarge = ".concat(randomPossibleCellNumberLarge));
-    } else if (appContext.orientation.isVertical === null) {
-      randomizeTheFourNumbers = true;
-      console.log("Four Numbers randomized set to true");
-    }
-    return {
-      randomPossibleCellNumberSmall: randomPossibleCellNumberSmall,
-      randomPossibleCellNumberLarge: randomPossibleCellNumberLarge,
-      randomizeTheFourNumbers: randomizeTheFourNumbers
-    };
-  }
-  function compareValidationCollection(appContext, numbersArr) {
-    var collectionArray = appContext.attackCellData.validateAttackCellCollection;
-    if (collectionArray.length !== numbersArr.length) return false;
-    collectionArray.sort();
-    numbersArr.sort();
-    for (var i = 0; i < collectionArray.length; i++) {
-      if (collectionArray[i] !== numbersArr[i]) return false;
-    }
-    return true;
-  }
-  function randomizeAttackCell(appContext) {
-    var calculatedCells = calculateRandomPossibleCells(appContext);
-    var randomValue = Math.random();
-    var numbers = [];
-    if (calculatedCells.randomizeTheFourNumbers) {
-      console.log("Last cell hit: ".concat(appContext.attackCellData.lastCellHit));
-      console.log("isVertical: ".concat(appContext.orientation.isVertical));
-      if (appContext.orientation.isVertical) {
-        numbers = [appContext.attackCellData.lastCellHit + appContext.verticalSize, appContext.attackCellData.lastCellHit - appContext.verticalSize];
-        if (compareValidationCollection(appContext, numbers)) {
-          appContext.orientation.isVertical = false;
-        }
-      } else if (appContext.orientation.isVertical === false) {
-        numbers = [appContext.attackCellData.lastCellHit + 1, appContext.attackCellData.lastCellHit - 1];
-        if (compareValidationCollection(appContext, numbers)) {
-          appContext.orientation.isVertical = true;
-        }
-      } else {
-        numbers = [appContext.attackCellData.lastCellHit + 1, appContext.attackCellData.lastCellHit - 1, appContext.attackCellData.lastCellHit + appContext.verticalSize, appContext.attackCellData.lastCellHit - appContext.verticalSize];
-      }
-      console.log("Four Numbers: ".concat(numbers));
-      var randomIndex = getRandomInteger(0, numbers.length - 1);
-      var randomNumber = numbers[randomIndex];
-      console.log("Random Number: ".concat(randomNumber));
-      appContext.attackCellData.calculatedCellNumberToAttack = randomNumber;
-      var calculatedCellNumber = appContext.attackCellData.calculatedCellNumberToAttack;
-      if (calculatedCellNumber >= 0 && calculatedCellNumber < appContext.horizontalSize * appContext.verticalSize && !compareValidationCollection(appContext, numbers)) {
-        console.log("calculatedCellNumber:  ".concat(calculatedCellNumber));
-        console.log("gameboard:  ".concat(JSON.stringify(appContext.playerOne.gameboardState.gameboard)));
-        console.log("gameboard @ calculatedCellNumber:  ".concat(JSON.stringify(appContext.playerOne.gameboardState.gameboard[calculatedCellNumber])));
-        console.log("calculatedCellNumber IS HIT:  ".concat(JSON.stringify(appContext.playerOne.gameboardState.gameboard[calculatedCellNumber].isHit)));
-        appContext.attackCellData.isCellHit = appContext.playerOne.gameboardState.gameboard[calculatedCellNumber].isHit;
-        appContext.attackCellData.isCellMiss = appContext.playerOne.gameboardState.gameboard[calculatedCellNumber].isMiss;
-        appContext.attackCellData.cellShipName = appContext.playerOne.gameboardState.gameboard[calculatedCellNumber].name;
-        appContext.attackCellData.cellHTML = document.getElementById("playerone-cell-".concat(calculatedCellNumber));
-        console.log("cellData refreshed with calculated cell");
-        validateAttackCellModule.validateAttackCell(appContext);
-      } else {
-        console.log("Cell is out of bounds");
-        appContext.attackCellData.validateAttackCellCollection.push(appContext.attackCellData.calculatedCellNumberToAttack);
-        randomizeAttackCell(appContext);
-      }
-    } else {
-      if (randomValue < 0.5) {
-        appContext.attackCellData.calculatedCellNumberToAttack = calculatedCells.randomPossibleCellNumberSmall;
-        var _calculatedCellNumber = appContext.attackCellData.calculatedCellNumberToAttack;
-        if (_calculatedCellNumber >= 0 && _calculatedCellNumber < appContext.horizontalSize * appContext.verticalSize && !compareValidationCollection(appContext, numbers)) {
-          appContext.attackCellData.isCellHit = appContext.playerOne.gameboardState.gameboard[appContext.attackCellData.calculatedCellNumberToAttack].isHit;
-          appContext.attackCellData.isCellMiss = appContext.playerOne.gameboardState.gameboard[appContext.attackCellData.calculatedCellNumberToAttack].isMiss;
-          appContext.attackCellData.cellShipName = appContext.playerOne.gameboardState.gameboard[appContext.attackCellData.calculatedCellNumberToAttack].name;
-          appContext.attackCellData.cellHTML = document.getElementById("playerone-cell-".concat(appContext.attackCellData.calculatedCellNumberToAttack));
-          console.log("cellData refreshed with calculated cell");
-          console.log("Calculated Attack Cell Number: ".concat(appContext.attackCellData.calculatedCellNumberToAttack));
-          validateAttackCellModule.validateAttackCell(appContext);
-        } else {
-          console.log("Cell is out of bounds");
-          appContext.attackCellData.validateAttackCellCollection.push(appContext.attackCellData.calculatedCellNumberToAttack);
-          randomizeAttackCell(appContext);
-        }
-      } else {
-        appContext.attackCellData.calculatedCellNumberToAttack = calculatedCells.randomPossibleCellNumberLarge;
-        var _calculatedCellNumber2 = appContext.attackCellData.calculatedCellNumberToAttack;
-        if (_calculatedCellNumber2 >= 0 && _calculatedCellNumber2 < appContext.horizontalSize * appContext.verticalSize && !compareValidationCollection(appContext, numbers)) {
-          appContext.attackCellData.isCellHit = appContext.playerOne.gameboardState.gameboard[appContext.attackCellData.calculatedCellNumberToAttack].isHit;
-          appContext.attackCellData.isCellMiss = appContext.playerOne.gameboardState.gameboard[appContext.attackCellData.calculatedCellNumberToAttack].isMiss;
-          appContext.attackCellData.cellShipName = appContext.playerOne.gameboardState.gameboard[appContext.attackCellData.calculatedCellNumberToAttack].name;
-          appContext.attackCellData.cellHTML = document.getElementById("playerone-cell-".concat(appContext.attackCellData.calculatedCellNumberToAttack));
-          console.log("cellData refreshed with calculated cell");
-          console.log("Calculated Attack Cell Number: ".concat(appContext.attackCellData.calculatedCellNumberToAttack));
-          validateAttackCellModule.validateAttackCell(appContext);
-        } else {
-          console.log("Cell is out of bounds");
-          appContext.attackCellData.validateAttackCellCollection.push(appContext.attackCellData.calculatedCellNumberToAttack);
-          randomizeAttackCell(appContext);
-        }
-      }
-    }
-  }
-  function getRandomInteger(min, max) {
-    return Math.floor(Math.random() * (max - min + 1)) + min;
-  }
+  return {
+    processingModule: processingModule,
+    validateCellsModule: validateCellsModule
+  };
+}();
+var computerAttackTurnInitializationModule = function () {
   function computerPlayerAttack(appContext) {
     if (appContext.attackCellData.isShipTargeted) {
-      processWithTargetedShip(appContext);
+      computerAIModule.processingModule.processWithTargetedShip(appContext);
     } else {
-      console.log("Processing as NON Targeted ship");
       appContext.orientation.isVertical = null;
-      console.log("isVertical reset to null");
       appContext.attackCellData.randomCellNumber = randomizeCellSelected(appContext);
-      console.log("Randomized cell number generated: ".concat(appContext.attackCellData.randomCellNumber));
       appContext.attackCellData.cellShipName = appContext.playerOne.gameboardState.gameboard[appContext.attackCellData.randomCellNumber].name;
       appContext.attackCellData.cellHTML = document.getElementById("playerone-cell-".concat(appContext.attackCellData.randomCellNumber));
       appContext.attackCellData.isCellHit = appContext.playerOne.gameboardState.gameboard[appContext.attackCellData.randomCellNumber].isHit;
       appContext.attackCellData.isCellMiss = appContext.playerOne.gameboardState.gameboard[appContext.attackCellData.randomCellNumber].isMiss;
-      validateAttackCellModule.validateRandomCell(appContext);
-      processAttack(appContext);
+      computerAIModule.validateCellsModule.validateRandomCell(appContext);
+      computerAIModule.processingModule.processAttack(appContext);
     }
+  }
+  function computerPlayerAttackTurnInitialization(appContext) {
+    appContext.attackCellData.calculatedCellNumberToAttack = null;
+    computerPlayerAttack(appContext);
+    winStateModule.checkBothPlayersIfAllShipsSunk(appContext);
   }
   return {
     computerPlayerAttack: computerPlayerAttack,
-    checkBothPlayersIfAllShipsSunk: checkBothPlayersIfAllShipsSunk
-  };
-}();
-var computerAttackTurnInitializationModule = function () {
-  function computerPlayerAttackTurnInitialization(appContext) {
-    computerAIModule.checkBothPlayersIfAllShipsSunk(appContext);
-    appContext.attackCellData.calculatedCellNumberToAttack = null;
-    console.log("Computer player turn is starting....");
-    computerAIModule.computerPlayerAttack(appContext);
-    console.log("Computer player turn has ended....");
-    computerAIModule.checkBothPlayersIfAllShipsSunk(appContext);
-  }
-  return {
     computerPlayerAttackTurnInitialization: computerPlayerAttackTurnInitialization
   };
 }();
+function calculateRandomPossibleCells(appContext) {
+  var smallestCoordinate = Math.min.apply(Math, _toConsumableArray(appContext.attackCellData.previousHitCoordinates));
+  var largestCoordinate = Math.max.apply(Math, _toConsumableArray(appContext.attackCellData.previousHitCoordinates));
+  var randomPossibleCellNumberSmall;
+  var randomPossibleCellNumberLarge;
+  var randomizeTheFourNumbers = false;
+  if (appContext.orientation.isVertical === true) {
+    randomPossibleCellNumberSmall = smallestCoordinate - appContext.verticalSize;
+    randomPossibleCellNumberLarge = largestCoordinate + appContext.verticalSize;
+  } else if (appContext.orientation.isVertical === false) {
+    randomPossibleCellNumberSmall = smallestCoordinate - 1;
+    randomPossibleCellNumberLarge = largestCoordinate + 1;
+  } else if (appContext.orientation.isVertical === null) {
+    randomizeTheFourNumbers = true;
+  }
+  return {
+    randomPossibleCellNumberSmall: randomPossibleCellNumberSmall,
+    randomPossibleCellNumberLarge: randomPossibleCellNumberLarge,
+    randomizeTheFourNumbers: randomizeTheFourNumbers
+  };
+}
+function randomizeAttackCell(appContext) {
+  var calculatedCells = calculateRandomPossibleCells(appContext);
+  var randomValue = Math.random();
+  var numbers = [];
+  if (calculatedCells.randomizeTheFourNumbers) {
+    if (appContext.orientation.isVertical) {
+      numbers = [appContext.attackCellData.lastCellHit + appContext.verticalSize, appContext.attackCellData.lastCellHit - appContext.verticalSize];
+      if (compareValidationCollection(appContext, numbers)) {
+        appContext.orientation.isVertical = false;
+      }
+    } else if (appContext.orientation.isVertical === false) {
+      numbers = [appContext.attackCellData.lastCellHit + 1, appContext.attackCellData.lastCellHit - 1];
+      if (compareValidationCollection(appContext, numbers)) {
+        appContext.orientation.isVertical = true;
+      }
+    } else {
+      numbers = [appContext.attackCellData.lastCellHit + 1, appContext.attackCellData.lastCellHit - 1, appContext.attackCellData.lastCellHit + appContext.verticalSize, appContext.attackCellData.lastCellHit - appContext.verticalSize];
+    }
+    var randomIndex = getRandomInteger(0, numbers.length - 1);
+    var randomNumber = numbers[randomIndex];
+    appContext.attackCellData.calculatedCellNumberToAttack = randomNumber;
+    var calculatedCellNumber = appContext.attackCellData.calculatedCellNumberToAttack;
+    if (calculatedCellNumber >= 0 && calculatedCellNumber < appContext.horizontalSize * appContext.verticalSize && !compareValidationCollection(appContext, numbers)) {
+      appContext.attackCellData.isCellHit = appContext.playerOne.gameboardState.gameboard[calculatedCellNumber].isHit;
+      appContext.attackCellData.isCellMiss = appContext.playerOne.gameboardState.gameboard[calculatedCellNumber].isMiss;
+      appContext.attackCellData.cellShipName = appContext.playerOne.gameboardState.gameboard[calculatedCellNumber].name;
+      appContext.attackCellData.cellHTML = document.getElementById("playerone-cell-".concat(calculatedCellNumber));
+      computerAIModule.validateCellsModule.validateAttackCell(appContext);
+    } else {
+      appContext.attackCellData.validateAttackCellCollection.push(appContext.attackCellData.calculatedCellNumberToAttack);
+      randomizeAttackCell(appContext);
+    }
+  } else {
+    if (randomValue < 0.5) {
+      appContext.attackCellData.calculatedCellNumberToAttack = calculatedCells.randomPossibleCellNumberSmall;
+      var _calculatedCellNumber = appContext.attackCellData.calculatedCellNumberToAttack;
+      if (_calculatedCellNumber >= 0 && _calculatedCellNumber < appContext.horizontalSize * appContext.verticalSize && !compareValidationCollection(appContext, numbers)) {
+        appContext.attackCellData.isCellHit = appContext.playerOne.gameboardState.gameboard[appContext.attackCellData.calculatedCellNumberToAttack].isHit;
+        appContext.attackCellData.isCellMiss = appContext.playerOne.gameboardState.gameboard[appContext.attackCellData.calculatedCellNumberToAttack].isMiss;
+        appContext.attackCellData.cellShipName = appContext.playerOne.gameboardState.gameboard[appContext.attackCellData.calculatedCellNumberToAttack].name;
+        appContext.attackCellData.cellHTML = document.getElementById("playerone-cell-".concat(appContext.attackCellData.calculatedCellNumberToAttack));
+        computerAIModule.validateCellsModule.validateAttackCell(appContext);
+      } else {
+        appContext.attackCellData.validateAttackCellCollection.push(appContext.attackCellData.calculatedCellNumberToAttack);
+        randomizeAttackCell(appContext);
+      }
+    } else {
+      appContext.attackCellData.calculatedCellNumberToAttack = calculatedCells.randomPossibleCellNumberLarge;
+      var _calculatedCellNumber2 = appContext.attackCellData.calculatedCellNumberToAttack;
+      if (_calculatedCellNumber2 >= 0 && _calculatedCellNumber2 < appContext.horizontalSize * appContext.verticalSize && !compareValidationCollection(appContext, numbers)) {
+        appContext.attackCellData.isCellHit = appContext.playerOne.gameboardState.gameboard[appContext.attackCellData.calculatedCellNumberToAttack].isHit;
+        appContext.attackCellData.isCellMiss = appContext.playerOne.gameboardState.gameboard[appContext.attackCellData.calculatedCellNumberToAttack].isMiss;
+        appContext.attackCellData.cellShipName = appContext.playerOne.gameboardState.gameboard[appContext.attackCellData.calculatedCellNumberToAttack].name;
+        appContext.attackCellData.cellHTML = document.getElementById("playerone-cell-".concat(appContext.attackCellData.calculatedCellNumberToAttack));
+        computerAIModule.validateCellsModule.validateAttackCell(appContext);
+      } else {
+        appContext.attackCellData.validateAttackCellCollection.push(appContext.attackCellData.calculatedCellNumberToAttack);
+        randomizeAttackCell(appContext);
+      }
+    }
+  }
+}
+function getRandomInteger(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+function compareValidationCollection(appContext, numbersArr) {
+  var collectionArray = appContext.attackCellData.validateAttackCellCollection;
+  if (collectionArray.length !== numbersArr.length) return false;
+  collectionArray.sort();
+  numbersArr.sort();
+  for (var i = 0; i < collectionArray.length; i++) {
+    if (collectionArray[i] !== numbersArr[i]) return false;
+  }
+  return true;
+}
 module.exports = {
+  computerAIModule: computerAIModule,
   computerAttackTurnInitializationModule: computerAttackTurnInitializationModule
 };
 
@@ -495,12 +376,9 @@ var _require = __webpack_require__(/*! ./highlightShipPlacementModule */ "./src/
 var _require2 = __webpack_require__(/*! ./registerShipModule */ "./src/modules/registerShipModule.js"),
   registerShipModule = _require2.registerShipModule;
 function assignRandomShipPlacementForPlayerComputer(appContext) {
-  console.log("Initializing player computer ship placement...");
   for (var currentShipKey in appContext.shipList) {
     processRandomShipPlacementForPlayerComputer(appContext, currentShipKey);
   }
-  console.log("...player computer ship placement complete.");
-  console.log("Computer Player: ".concat(JSON.stringify(appContext.playerComputer)));
 }
 function processRandomShipPlacementForPlayerComputer(appContext, currentShipKey) {
   var _appContext$shipList$ = appContext.shipList[currentShipKey],
@@ -574,7 +452,6 @@ module.exports = {
 
 var CreateBattlegrid = function () {
   function createBattlegridForPlayerOne(appContext) {
-    console.log("Creating battlegrid for player one....");
     var playerOneBattlegridContainer = document.createElement('div');
     playerOneBattlegridContainer.id = 'playerone-battlegrid-container';
     var playerOneBattlegridLabel = document.createElement('button');
@@ -598,10 +475,8 @@ var CreateBattlegrid = function () {
     playerOneBattlegridContainer.appendChild(playerOneBattlegrid);
     appContext.appElements.battlegridsContainer.appendChild(playerOneBattlegridContainer);
     appContext.appElements.playerOneBattlegridLabel = playerOneBattlegridLabel;
-    console.log("...battlegrid for player one created.");
   }
   function createBattlegridForPlayerComputer(appContext) {
-    console.log("Creating battlegrid for player computer....");
     var playerComputerBattlegridContainer = document.createElement('div');
     playerComputerBattlegridContainer.id = 'player-computer-battlegrid-container';
     var playerComputerBattlegridLabel = document.createElement('button');
@@ -625,7 +500,6 @@ var CreateBattlegrid = function () {
     playerComputerBattlegridContainer.appendChild(playerComputerBattlegrid);
     appContext.appElements.battlegridsContainer.appendChild(playerComputerBattlegridContainer);
     appContext.appElements.playerComputerBattlegridLabel = playerComputerBattlegridLabel;
-    console.log("...battlegrid for player computer created.");
   }
   return {
     createBattlegridForPlayerOne: createBattlegridForPlayerOne,
@@ -764,19 +638,13 @@ var PlayerFactory = function PlayerFactory(appContext) {
     return this.ships;
   }
   function receiveAttack(cellNumber, player) {
-    console.log("player.gameboardState.gameboard[cellNumber]: ".concat(JSON.stringify(player.gameboardState.gameboard[cellNumber])));
     var name = player.gameboardState.gameboard[cellNumber].name;
-    console.log("name: ".concat(name));
     var ship = player.ships[name];
-    console.log("ship: ".concat(ship));
     if (name !== null) {
       player.gameboardState.gameboard[cellNumber].isHit = true;
       ship.hit();
-      console.log("receive attack hit registered");
-      console.log("Ship Hits: ".concat(player.ships[name].getHits()));
     } else {
       player.gameboardState.gameboard[cellNumber].isMiss = true;
-      console.log("Receive attack miss registered");
     }
   }
   function checkIfPlayerShipsSunk() {
@@ -928,7 +796,6 @@ var highlightShipPlacementModule = function () {
     function highlightShipPlacement(targetedCell, appContext, player) {
       var cellNumber = Number(targetedCell.dataset.cellNumber);
       appContext.cellSelected = cellNumber;
-      console.log("Beginning cell highlighting...");
       appContext.highlightedArray.length = 0;
       toggleSubmitButtonOn(appContext);
       checkPlacementModule.checkIsPlacementValid(appContext, player);
@@ -1084,21 +951,21 @@ module.exports = {
   \*********************************************/
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
-var _require = __webpack_require__(/*! ./computerPlayerAttackTurnInitialization */ "./src/modules/computerPlayerAttackTurnInitialization.js"),
+var _require = __webpack_require__(/*! ./computerAIModule */ "./src/modules/computerAIModule.js"),
   computerAttackTurnInitializationModule = _require.computerAttackTurnInitializationModule;
 var _require2 = __webpack_require__(/*! ./highlightBattleMode */ "./src/modules/highlightBattleMode.js"),
   highlightBattleModeModule = _require2.highlightBattleModeModule;
 var _require3 = __webpack_require__(/*! ./initializePlaceShipsModule */ "./src/modules/initializePlaceShipsModule.js"),
   initializePlaceShipsModule = _require3.initializePlaceShipsModule;
+var _require4 = __webpack_require__(/*! ./winStateModule */ "./src/modules/winStateModule.js"),
+  winStateModule = _require4.winStateModule;
 function initializeBattleMode(appContext) {
-  console.log("Initializing BattleMode...");
   hideRandomShipPlacementButton(appContext);
   hideOrientationButton(appContext);
   showPlayerComputerBattlegrid(appContext);
   showBattlegridLabels(appContext);
   initializePlaceShipsModule.updateMessageBox(appContext, "It's your turn to attack.");
   addAttackEventListeners(appContext);
-  console.log("...BattleMode Initialization Complete");
 }
 function showBattlegridLabels(appContext) {
   appContext.appElements.playerOneBattlegridLabel.classList.remove("hidden");
@@ -1120,29 +987,22 @@ function addAttackEventListeners(appContext) {
     cell.attackEventListener = attackEventListener(appContext, cell);
     cell.addEventListener('click', cell.attackEventListener);
   });
-  console.log("Event listeners added");
 }
 var attackEventListener = function attackEventListener(appContext) {
   return function (event) {
     var cellNumber = event.target.getAttribute('data-cellNumber');
-    console.log("Cell Number: ".concat(cellNumber));
     var cell = appContext.playerComputer.gameboardState.gameboard[cellNumber];
-    console.log("Cell: ".concat(cell));
     var cellShipName = cell.name;
-    console.log("cellShipName: ".concat(cellShipName));
     appContext.playerComputer.receiveAttack(cellNumber, appContext.playerComputer);
-    console.log("Attack registered on playerComputer @ ".concat(event.target.getAttribute('data-cellNumber')));
     removeAttackEventListeners(event.target);
+    winStateModule.checkBothPlayersIfAllShipsSunk(appContext);
     if (cell.isHit) {
       highlightBattleModeModule.highlightHit(event.target);
-      console.log("Attack was a hit.");
       if (appContext.playerComputer.ships[cellShipName].isSunk()) {
-        console.log("Ship has been sunk");
         initializePlaceShipsModule.updateMessageBox(appContext, "Good job! You sunk their ".concat(cellShipName));
         highlightBattleModeModule.highlightSunk(appContext.playerComputer.ships[cellShipName].coordinates);
       }
     } else {
-      console.log("Attack was a miss.");
       highlightBattleModeModule.highlightMiss(event.target);
     }
     computerAttackTurnInitializationModule.computerPlayerAttackTurnInitialization(appContext);
@@ -1150,7 +1010,6 @@ var attackEventListener = function attackEventListener(appContext) {
 };
 function removeAttackEventListeners(cell) {
   cell.removeEventListener('click', cell.attackEventListener);
-  console.log("Event listener removed");
 }
 module.exports = {
   initializeBattleMode: initializeBattleMode
@@ -1181,11 +1040,6 @@ var _require5 = __webpack_require__(/*! ./orientationModule */ "./src/modules/or
 var _require6 = __webpack_require__(/*! ./submitButtonEventListenerModule */ "./src/modules/submitButtonEventListenerModule.js"),
   submitButtonEventListenerModule = _require6.submitButtonEventListenerModule;
 var initializePlaceShipsModule = function () {
-  function consoleLogInitializePlaceShipsCompletion(appContext) {
-    console.log("All ships placed sucessfully.");
-    console.log("Player One: ".concat(JSON.stringify(appContext.playerOne)));
-    console.log("Player Computer: ".concat(JSON.stringify(appContext.playerComputer)));
-  }
   function initializePlaceShips(_x, _x2) {
     return _initializePlaceShips.apply(this, arguments);
   }
@@ -1216,8 +1070,7 @@ var initializePlaceShipsModule = function () {
           case 13:
             highlightShipPlacementModule.highlightEventListenerModule.wipeEventListeners(appContext);
             assignRandomShipPlacementForPlayerComputer(appContext);
-            consoleLogInitializePlaceShipsCompletion(appContext);
-          case 16:
+          case 15:
           case "end":
             return _context.stop();
         }
@@ -1323,17 +1176,15 @@ function _initializeOnePlayerMode() {
     return _regeneratorRuntime().wrap(function _callee$(_context) {
       while (1) switch (_context.prev = _context.next) {
         case 0:
-          console.log("Initializing one player mode...");
           hideModeSelectContainer(appContext);
           CreateBattlegrid.createBattlegridForPlayerOne(appContext);
           CreatePlayersForOnePlayerMode(appContext);
-          _context.next = 6;
+          _context.next = 5;
           return Promise.race([initializePlaceShipsModule.initializePlaceShips(appContext, appContext.playerOne), attachEventListenerToRandomShipPlacementButton(appContext)]);
-        case 6:
+        case 5:
           CreateBattlegrid.createBattlegridForPlayerComputer(appContext);
-          console.log("Initialization of one player mode complete.");
           initializeBattleMode(appContext);
-        case 9:
+        case 7:
         case "end":
           return _context.stop();
       }
@@ -1343,6 +1194,57 @@ function _initializeOnePlayerMode() {
 }
 module.exports = {
   initializeOnePlayerMode: initializeOnePlayerMode
+};
+
+/***/ }),
+
+/***/ "./src/modules/registerAttackCellsModule.js":
+/*!**************************************************!*\
+  !*** ./src/modules/registerAttackCellsModule.js ***!
+  \**************************************************/
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+var _require = __webpack_require__(/*! ./highlightBattleMode */ "./src/modules/highlightBattleMode.js"),
+  highlightBattleModeModule = _require.highlightBattleModeModule;
+var _require2 = __webpack_require__(/*! ./initializePlaceShipsModule */ "./src/modules/initializePlaceShipsModule.js"),
+  initializePlaceShipsModule = _require2.initializePlaceShipsModule;
+var registerAttackCellsModule = function () {
+  function registerCellHit(appContext) {
+    appContext.attackCellData.isCellHit = true;
+    appContext.attackCellData.wasPreviousAttackHit = true;
+    var currentCellNumber = appContext.attackCellData.cellHTML.dataset.cellNumber;
+    appContext.playerOne.receiveAttack(currentCellNumber, appContext.playerOne);
+    highlightBattleModeModule.highlightHit(appContext.attackCellData.cellHTML);
+    initializePlaceShipsModule.updateMessageBox(appContext, "The enemy is attacking your ".concat(appContext.attackCellData.cellShipName));
+    if (appContext.attackCellData.calculatedCellNumberToAttack) {
+      registerCalculatedAttack(appContext);
+    } else {
+      registerRandomAttack(appContext);
+    }
+    appContext.attackCellData.isShipTargeted = true;
+    updateIsSunk(appContext);
+  }
+  function registerCalculatedAttack(appContext) {
+    appContext.attackCellData.lastCellHit = appContext.attackCellData.calculatedCellNumberToAttack;
+    appContext.attackCellData.previousHitCoordinates.push(appContext.attackCellData.calculatedCellNumberToAttack);
+    appContext.attackCellData.calculatedCellNumberToAttack = null;
+  }
+  function registerRandomAttack(appContext) {
+    appContext.attackCellData.lastCellHit = appContext.attackCellData.randomCellNumber;
+    appContext.attackCellData.previousHitCoordinates.push(appContext.attackCellData.randomCellNumber);
+  }
+  function updateIsSunk(appContext) {
+    if (appContext.playerOne.ships[appContext.attackCellData.cellShipName].isSunk()) {
+      appContext.attackCellData.wasPreviousAttackSunk = true;
+      initializePlaceShipsModule.updateMessageBox(appContext, "The enemy has sunk your ".concat(appContext.attackCellData.cellShipName, "!!!"));
+    }
+  }
+  return {
+    registerCellHit: registerCellHit
+  };
+}();
+module.exports = {
+  registerAttackCellsModule: registerAttackCellsModule
 };
 
 /***/ }),
@@ -1383,14 +1285,10 @@ var registerShipModule = function () {
   function processRegistrationSuccessForHumanPlayers(appContext) {
     appContext.playerOne.placeShip(appContext.cellSelected, appContext.orientation.isVertical, appContext.currentShipName, appContext.currentShipSize, appContext);
     highlightShipPlacementModule.highlightModule.updateHighlightedFromSelectedToRegistered(appContext);
-    console.log('Placement was successful');
     appContext.appElements.chooseForMeButton.classList.add("hidden");
   }
   function processRegistrationFailureForHumanPlayers(appContext, player) {
-    console.log("registerShipModule appContext: ".concat(appContext));
-    console.log("Process registration failed. Please try different placement.");
     highlightShipPlacementModule.highlightModule.removeHighlightedSelections(appContext);
-    console.log("Previous highlighted selections removed.");
     appContext.highlightedArray.length = 0;
     highlightShipPlacementModule.highlightEventListenerModule.addHighlightShipEventListener(appContext, player);
     showAlert('That placement is invalid. Please try again!');
@@ -1451,7 +1349,6 @@ var submitButtonEventListenerModule = function () {
               toggleSubmitButtonOff(appContext);
               resolve();
             } else {
-              console.log('Placement was unsuccessful, trying again');
               toggleSubmitButtonOff(appContext);
             }
           case 4:
@@ -1483,6 +1380,47 @@ var submitButtonEventListenerModule = function () {
 }();
 module.exports = {
   submitButtonEventListenerModule: submitButtonEventListenerModule
+};
+
+/***/ }),
+
+/***/ "./src/modules/winStateModule.js":
+/*!***************************************!*\
+  !*** ./src/modules/winStateModule.js ***!
+  \***************************************/
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+var _require = __webpack_require__(/*! ./registerShipModule */ "./src/modules/registerShipModule.js"),
+  registerShipModule = _require.registerShipModule;
+var winStateModule = function () {
+  function arePlayerOneShipsSunk(appContext) {
+    if (appContext.playerOne.checkIfPlayerShipsSunk()) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+  function arePlayerComputerShipsSunk(appContext) {
+    if (appContext.playerComputer.checkIfPlayerShipsSunk()) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+  function checkBothPlayersIfAllShipsSunk(appContext) {
+    if (arePlayerComputerShipsSunk(appContext)) {
+      registerShipModule.showAlert('Congratulations!!! You have bested the computer and defeated all their ships.');
+    }
+    if (arePlayerOneShipsSunk(appContext)) {
+      registerShipModule.showAlert('Tough day! You were defeated this time.');
+    }
+  }
+  return {
+    checkBothPlayersIfAllShipsSunk: checkBothPlayersIfAllShipsSunk
+  };
+}();
+module.exports = {
+  winStateModule: winStateModule
 };
 
 /***/ }),

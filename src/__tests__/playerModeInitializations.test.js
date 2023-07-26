@@ -13,7 +13,6 @@ function initializeOnePlayerMode (appContext, hideModeSelectContainer, createBat
     CreatePlayersForOnePlayerMode(appContext);
 
     initializePlaceShipsModule.initializePlaceShips(appContext);
-    console.log(`Initialization of one player mode complete.`);
 }
 
 describe('initializeOnePlayerMode', () => {

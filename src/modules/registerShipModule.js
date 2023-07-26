@@ -35,15 +35,11 @@ const registerShipModule = (function () {
     function processRegistrationSuccessForHumanPlayers(appContext) {
         appContext.playerOne.placeShip(appContext.cellSelected, appContext.orientation.isVertical, appContext.currentShipName, appContext.currentShipSize, appContext);
         highlightShipPlacementModule.highlightModule.updateHighlightedFromSelectedToRegistered(appContext);
-        console.log('Placement was successful');
         appContext.appElements.chooseForMeButton.classList.add("hidden");
     }
     
     function processRegistrationFailureForHumanPlayers(appContext, player) {
-        console.log(`registerShipModule appContext: ${appContext}`)
-        console.log("Process registration failed. Please try different placement.");
         highlightShipPlacementModule.highlightModule.removeHighlightedSelections(appContext);
-        console.log("Previous highlighted selections removed.");
         appContext.highlightedArray.length = 0;
         highlightShipPlacementModule.highlightEventListenerModule.addHighlightShipEventListener(appContext, player);
         showAlert('That placement is invalid. Please try again!');

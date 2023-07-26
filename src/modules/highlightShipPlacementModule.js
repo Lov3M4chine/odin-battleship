@@ -52,8 +52,6 @@ const highlightShipPlacementModule = (function() {
         function highlightShipPlacement (targetedCell, appContext, player) {
             let cellNumber = Number(targetedCell.dataset.cellNumber);
             appContext.cellSelected = cellNumber;
-
-            console.log("Beginning cell highlighting...");
             appContext.highlightedArray.length = 0;
             toggleSubmitButtonOn(appContext);
             checkPlacementModule.checkIsPlacementValid(appContext, player);

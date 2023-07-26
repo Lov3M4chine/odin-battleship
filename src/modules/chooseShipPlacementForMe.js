@@ -31,12 +31,10 @@ function processRandomShipPlacementForPlayerOne(appContext, currentShipKey) {
 }
 
 function assignRandomShipPlacementForPlayerOne (appContext) {
-    console.log(`Initializing automated ship placement for player one...`);
     for (let currentShipKey in appContext.shipList) {
         processRandomShipPlacementForPlayerOne(appContext, currentShipKey);
     }
     highlightAutomatedShipPlacementForPlayerOne(appContext);
-    console.log(`...player one automated ship placement complete.`);
     highlightShipPlacementModule.highlightEventListenerModule.wipeEventListeners(appContext);
     assignRandomShipPlacementForPlayerComputer(appContext);
 }
