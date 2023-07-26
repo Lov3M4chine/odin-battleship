@@ -59,10 +59,8 @@ let attackEventListener = function (appContext) {
             console.log("Attack was a hit.")
             if (appContext.playerComputer.ships[cellShipName].isSunk()) {
                 console.log("Ship has been sunk");
+                initializePlaceShipsModule.updateMessageBox(appContext, `Good job! You sunk their ${cellShipName}`);
                 highlightBattleModeModule.highlightSunk(appContext.playerComputer.ships[cellShipName].coordinates);
-                // if (areComputerPlayerShipsSunk(appContext)) {
-
-                // }
             }
         } else {
             console.log("Attack was a miss.");

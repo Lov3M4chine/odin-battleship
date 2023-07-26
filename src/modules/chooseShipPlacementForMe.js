@@ -1,5 +1,6 @@
 const { randomizeVariablesForPlaceShips, assignRandomShipPlacementForPlayerComputer } = require("./computerPlayerInitialization");
 const { highlightShipPlacementModule } = require("./highlightShipPlacementModule");
+const { submitButtonEventListenerModule } = require("./submitButtonEventListenerModule");
 
 function showRandomShipPlacementButton (appContext) {
     appContext.appElements.chooseForMeButton.classList.remove("hidden");
@@ -8,6 +9,8 @@ function showRandomShipPlacementButton (appContext) {
 function attachEventListenerToRandomShipPlacementButton (appContext) {
     return new Promise(resolve => {
         appContext.appElements.chooseForMeButton.addEventListener('click', () => {
+            highlightShipPlacementModule.highlightModule.removeHighlightedSelections(appContext);
+            submitButtonEventListenerModule.toggleSubmitButtonOff(appContext);
             assignRandomShipPlacementForPlayerOne(appContext);
             resolve();
         }, { once: true });

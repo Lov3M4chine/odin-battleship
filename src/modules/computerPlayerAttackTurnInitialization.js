@@ -7,7 +7,7 @@ const { registerShipModule } = require("./registerShipModule");
 const computerAIModule = (function () {
 
     function processWithTargetedShip(appContext) {
-        console.log("Processing as Targeted ship")
+        console.log("Processing as Targeted ship");
         if (appContext.attackCellData.wasPreviousAttackSunk) {
             processWithPreviousSunk(appContext);
         } else {
@@ -35,6 +35,7 @@ const computerAIModule = (function () {
         (console.log("isVertical reset to null"));
         appContext.attackCellData.lastCellHit = null;
         console.log("Previous sunk, hit, and coordinate reset");
+        initializePlaceShipsModule.updateMessageBox(appContext, `It's your turn.`);
     }
 
     function processWithoutPreviousSunk(appContext) {
@@ -153,7 +154,7 @@ const computerAIModule = (function () {
         appContext.playerOne.receiveAttack(currentCellNumber, appContext.playerOne);
         console.log(appContext.attackCellData.cellHTML)
         highlightBattleModeModule.highlightHit(appContext.attackCellData.cellHTML);
-        initializePlaceShipsModule.updateMessageBox(appContext, `The enemy attacked your ${appContext.attackCellData.cellShipName}`);
+        initializePlaceShipsModule.updateMessageBox(appContext, `The enemy is attacking your ${appContext.attackCellData.cellShipName}`);
         if (appContext.attackCellData.calculatedCellNumberToAttack) {
             registerCalculatedAttack(appContext);
         } else {
@@ -418,7 +419,6 @@ const computerAttackTurnInitializationModule = (function() {
         computerAIModule.checkBothPlayersIfAllShipsSunk(appContext);
         appContext.attackCellData.calculatedCellNumberToAttack = null;
         console.log("Computer player turn is starting....");
-        initializePlaceShipsModule.updateMessageBox(appContext, `The enemy is attacking`);
         computerAIModule.computerPlayerAttack(appContext);
         console.log("Computer player turn has ended....");
         computerAIModule.checkBothPlayersIfAllShipsSunk(appContext);

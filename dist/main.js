@@ -31,12 +31,16 @@ var _require = __webpack_require__(/*! ./computerPlayerInitialization */ "./src/
   assignRandomShipPlacementForPlayerComputer = _require.assignRandomShipPlacementForPlayerComputer;
 var _require2 = __webpack_require__(/*! ./highlightShipPlacementModule */ "./src/modules/highlightShipPlacementModule.js"),
   highlightShipPlacementModule = _require2.highlightShipPlacementModule;
+var _require3 = __webpack_require__(/*! ./submitButtonEventListenerModule */ "./src/modules/submitButtonEventListenerModule.js"),
+  submitButtonEventListenerModule = _require3.submitButtonEventListenerModule;
 function showRandomShipPlacementButton(appContext) {
   appContext.appElements.chooseForMeButton.classList.remove("hidden");
 }
 function attachEventListenerToRandomShipPlacementButton(appContext) {
   return new Promise(function (resolve) {
     appContext.appElements.chooseForMeButton.addEventListener('click', function () {
+      highlightShipPlacementModule.highlightModule.removeHighlightedSelections(appContext);
+      submitButtonEventListenerModule.toggleSubmitButtonOff(appContext);
       assignRandomShipPlacementForPlayerOne(appContext);
       resolve();
     }, {
@@ -134,6 +138,7 @@ var computerAIModule = function () {
     console.log("isVertical reset to null");
     appContext.attackCellData.lastCellHit = null;
     console.log("Previous sunk, hit, and coordinate reset");
+    initializePlaceShipsModule.updateMessageBox(appContext, "It's your turn.");
   }
   function processWithoutPreviousSunk(appContext) {
     console.log("The previous attack did NOT sink a ship.");
@@ -239,7 +244,7 @@ var computerAIModule = function () {
     appContext.playerOne.receiveAttack(currentCellNumber, appContext.playerOne);
     console.log(appContext.attackCellData.cellHTML);
     highlightBattleModeModule.highlightHit(appContext.attackCellData.cellHTML);
-    initializePlaceShipsModule.updateMessageBox(appContext, "The enemy attacked your ".concat(appContext.attackCellData.cellShipName));
+    initializePlaceShipsModule.updateMessageBox(appContext, "The enemy is attacking your ".concat(appContext.attackCellData.cellShipName));
     if (appContext.attackCellData.calculatedCellNumberToAttack) {
       registerCalculatedAttack(appContext);
     } else {
@@ -465,7 +470,6 @@ var computerAttackTurnInitializationModule = function () {
     computerAIModule.checkBothPlayersIfAllShipsSunk(appContext);
     appContext.attackCellData.calculatedCellNumberToAttack = null;
     console.log("Computer player turn is starting....");
-    initializePlaceShipsModule.updateMessageBox(appContext, "The enemy is attacking");
     computerAIModule.computerPlayerAttack(appContext);
     console.log("Computer player turn has ended....");
     computerAIModule.checkBothPlayersIfAllShipsSunk(appContext);
@@ -1134,10 +1138,8 @@ var attackEventListener = function attackEventListener(appContext) {
       console.log("Attack was a hit.");
       if (appContext.playerComputer.ships[cellShipName].isSunk()) {
         console.log("Ship has been sunk");
+        initializePlaceShipsModule.updateMessageBox(appContext, "Good job! You sunk their ".concat(cellShipName));
         highlightBattleModeModule.highlightSunk(appContext.playerComputer.ships[cellShipName].coordinates);
-        // if (areComputerPlayerShipsSunk(appContext)) {
-
-        // }
       }
     } else {
       console.log("Attack was a miss.");
