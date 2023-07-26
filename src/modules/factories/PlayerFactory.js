@@ -37,14 +37,17 @@ const PlayerFactory = (appContext) => {
     }
 
     function receiveAttack(cell, player) {
-        const cellNumber = Number(cell.getAttribute('data-cellNumber'));
+        const cellNumber = Number(cell.getAttribute('data-cell-number'));
         const name = player.gameboardState.gameboard[cellNumber].name;
         const ship = player.ships[name];
     
         if (name !== null) {
             player.gameboardState.gameboard[cellNumber].isHit = true;
             ship.hit();
+            console.log("receive attack hit registered");
+            console.log(`Ship Hits: ${player.ships[name].getHits()}`)
         } else {
+            console.log("Receive attack miss registered")
             player.gameboardState.gameboard[cellNumber].isMiss = true;
         }
     }

@@ -21,6 +21,23 @@ let appContext = {
     // Battlegrid Size
     horizontalSize: 10,
     verticalSize: 10,
+    attackCellData: {
+        randomCellNumber: null,
+        calculatedCellNumberToAttack: null,
+        isCellHit: false,
+        isCellMiss: false,
+        cellShipName: null,
+        cellHTML: null,
+        wasPreviousAttackHit: false,
+        wasPreviousAttackSunk: false,
+        isShipTargeted: false,
+        previousHitCoordinates: [],
+        previousMissCoordinates: [],
+        untouchedCoordinates: [],
+        shipsSunk: [],
+        lastCellHit: null,
+        validateAttackCellCollection: [],
+    },
     appElements: {
         onePlayerMode: document.getElementById("one-player-mode"),
         twoPlayerMode: document.getElementById("two-player-mode"),

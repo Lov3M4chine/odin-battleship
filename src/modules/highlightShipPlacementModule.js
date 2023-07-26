@@ -207,7 +207,8 @@ const highlightShipPlacementModule = (function() {
         }
 
         return {
-            checkIsPlacementValid
+            checkIsPlacementValid,
+            isCellOutOfBounds
         }
     })();
 
