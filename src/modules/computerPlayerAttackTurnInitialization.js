@@ -129,7 +129,10 @@ const computerAIModule = (function () {
         console.log("IsCellHit marked to true");
         appContext.attackCellData.wasPreviousAttackHit = true;
         console.log("PreviousAttackHit marked to true");
-        appContext.playerOne.receiveAttack(appContext.attackCellData.cellHTML, appContext.playerOne);
+        console.log(`HTML: ${appContext.attackCellData.cellHTML}`);
+        let currentCellNumber = appContext.attackCellData.cellHTML.dataset.cellNumber;
+        console.log(currentCellNumber);
+        appContext.playerOne.receiveAttack(currentCellNumber, appContext.playerOne);
         console.log(appContext.attackCellData.cellHTML)
         highlightBattleModeModule.highlightHit(appContext.attackCellData.cellHTML);
         initializePlaceShipsModule.updateMessageBox(appContext, `The enemy attacked your ${appContext.attackCellData.cellShipName}`);
@@ -325,24 +328,38 @@ const computerAIModule = (function () {
               
 
         } else {
+            
             if (randomValue < 0.5) {
                 appContext.attackCellData.calculatedCellNumberToAttack = calculatedCells.randomPossibleCellNumberSmall;
-                appContext.attackCellData.isCellHit = appContext.playerOne.gameboardState.gameboard[appContext.attackCellData.calculatedCellNumberToAttack].isHit;
-                appContext.attackCellData.isCellMiss = appContext.playerOne.gameboardState.gameboard[appContext.attackCellData.calculatedCellNumberToAttack].isMiss;
-                appContext.attackCellData.cellShipName = appContext.playerOne.gameboardState.gameboard[appContext.attackCellData.calculatedCellNumberToAttack].name;
-                appContext.attackCellData.cellHTML = document.getElementById(`playerone-cell-${appContext.attackCellData.calculatedCellNumberToAttack}`);
-                console.log("cellData refreshed with calculated cell");
-                console.log(`Calculated Attack Cell Number: ${appContext.attackCellData.calculatedCellNumberToAttack}`);
-                validateAttackCellModule.validateAttackCell(appContext);
+                let calculatedCellNumber = appContext.attackCellData.calculatedCellNumberToAttack;
+                if (calculatedCellNumber >= 0 && calculatedCellNumber < appContext.horizontalSize * appContext.verticalSize) {
+                    appContext.attackCellData.isCellHit = appContext.playerOne.gameboardState.gameboard[appContext.attackCellData.calculatedCellNumberToAttack].isHit;
+                    appContext.attackCellData.isCellMiss = appContext.playerOne.gameboardState.gameboard[appContext.attackCellData.calculatedCellNumberToAttack].isMiss;
+                    appContext.attackCellData.cellShipName = appContext.playerOne.gameboardState.gameboard[appContext.attackCellData.calculatedCellNumberToAttack].name;
+                    appContext.attackCellData.cellHTML = document.getElementById(`playerone-cell-${appContext.attackCellData.calculatedCellNumberToAttack}`);
+                    console.log("cellData refreshed with calculated cell");
+                    console.log(`Calculated Attack Cell Number: ${appContext.attackCellData.calculatedCellNumberToAttack}`);
+                    validateAttackCellModule.validateAttackCell(appContext);
+                } else {
+                    console.log("Cell is out of bounds");
+                    randomizeAttackCell(appContext);
+                }
+
             } else {
                 appContext.attackCellData.calculatedCellNumberToAttack =  calculatedCells.randomPossibleCellNumberLarge;
-                appContext.attackCellData.isCellHit = appContext.playerOne.gameboardState.gameboard[appContext.attackCellData.calculatedCellNumberToAttack].isHit;
-                appContext.attackCellData.isCellMiss = appContext.playerOne.gameboardState.gameboard[appContext.attackCellData.calculatedCellNumberToAttack].isMiss;
-                appContext.attackCellData.cellShipName = appContext.playerOne.gameboardState.gameboard[appContext.attackCellData.calculatedCellNumberToAttack].name;
-                appContext.attackCellData.cellHTML = document.getElementById(`playerone-cell-${appContext.attackCellData.calculatedCellNumberToAttack}`);
-                console.log("cellData refreshed with calculated cell");
-                console.log(`Calculated Attack Cell Number: ${appContext.attackCellData.calculatedCellNumberToAttack}`);
-                validateAttackCellModule.validateAttackCell(appContext);
+                let calculatedCellNumber = appContext.attackCellData.calculatedCellNumberToAttack;
+                if (calculatedCellNumber >= 0 && calculatedCellNumber < appContext.horizontalSize * appContext.verticalSize) {
+                    appContext.attackCellData.isCellHit = appContext.playerOne.gameboardState.gameboard[appContext.attackCellData.calculatedCellNumberToAttack].isHit;
+                    appContext.attackCellData.isCellMiss = appContext.playerOne.gameboardState.gameboard[appContext.attackCellData.calculatedCellNumberToAttack].isMiss;
+                    appContext.attackCellData.cellShipName = appContext.playerOne.gameboardState.gameboard[appContext.attackCellData.calculatedCellNumberToAttack].name;
+                    appContext.attackCellData.cellHTML = document.getElementById(`playerone-cell-${appContext.attackCellData.calculatedCellNumberToAttack}`);
+                    console.log("cellData refreshed with calculated cell");
+                    console.log(`Calculated Attack Cell Number: ${appContext.attackCellData.calculatedCellNumberToAttack}`);
+                    validateAttackCellModule.validateAttackCell(appContext);
+                } else {
+                    console.log("Cell is out of bounds");
+                    randomizeAttackCell(appContext);
+                }
             }
         }
     }

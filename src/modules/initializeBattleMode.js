@@ -44,10 +44,13 @@ function addAttackEventListeners (appContext) {
 let attackEventListener = function (appContext) {
     return function (event) {
         let cellNumber = event.target.getAttribute('data-cellNumber');
+        console.log(`Cell Number: ${cellNumber}`);
         let cell = (appContext.playerComputer.gameboardState.gameboard[cellNumber]);
+        console.log(`Cell: ${cell}`);
         let cellShipName = cell.name;
+        console.log(`cellShipName: ${cellShipName}`);
 
-        appContext.playerComputer.receiveAttack(event.target, appContext.playerComputer);
+        appContext.playerComputer.receiveAttack(cellNumber, appContext.playerComputer);
         console.log(`Attack registered on playerComputer @ ${event.target.getAttribute('data-cellNumber')}`);
         removeAttackEventListeners(event.target);
 
@@ -61,13 +64,11 @@ let attackEventListener = function (appContext) {
 
                 // }
             }
-            computerAttackTurnInitializationModule.computerPlayerAttackTurnInitialization(appContext);
         } else {
             console.log("Attack was a miss.");
             highlightBattleModeModule.highlightMiss(event.target);
-            computerAttackTurnInitializationModule.computerPlayerAttackTurnInitialization(appContext);
         }
-        
+        computerAttackTurnInitializationModule.computerPlayerAttackTurnInitialization(appContext);   
     }
 };
 

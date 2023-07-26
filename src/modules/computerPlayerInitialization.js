@@ -8,6 +8,7 @@ function assignRandomShipPlacementForPlayerComputer (appContext) {
         processRandomShipPlacementForPlayerComputer(appContext, currentShipKey);
     }
     console.log(`...player computer ship placement complete.`);
+    console.log(`Computer Player: ${JSON.stringify(appContext.playerComputer)}`);
 }
 
 function processRandomShipPlacementForPlayerComputer(appContext, currentShipKey) {
