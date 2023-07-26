@@ -6,9 +6,9 @@
     <title>Battleship</title>
 </head>
 <body>
-    <div id="main-container" class="flex flex-col items-center gap-16">
-        <div class="text-primary-content flex justify-center text-5xl">Battleship</div>
-        <div id="message-box" class="text-primary-content flex justify-center text-3xl"></div>
+    <div id="main-container" class="flex flex-col items-center gap-16 min-w-max">
+        <img id="logo" src="./imgs/battleship-logo.png" alt="battleship-logo">
+        <div id="message-box" class="text-primary-content bg-primary flex justify-center text-3xl rounded mt-5"></div>
         <div class="flex flex-col justify-center gap-4">
             <button id="submit-button" class="btn bg-accent text-accent-content text-2xl hidden">Place Ship</button>
             <button id="horizontal-button" class="btn bg-secondary text-secondary-content text-2xl orientation-button hidden">Orientation: Horizontal</button>
@@ -19,6 +19,38 @@
         <div id="start-game-container" data-testid="mode-select-container" class="flex flex-col justify-center items-center gap-10 flex-grow">
             <button id="one-player-mode" class="btn bg-primary text-primary-content text-6xl">Start Game</button>
         </div>
+        <select id="theme-selector" class="select select-bordered text-3xl" title="Select Theme" data-choose-theme>
+            <option disabled selected>Theme</option>
+            <option value="light">light</option>
+            <option value="dark">dark</option>
+            <option value="cupcake">cupcake</option>
+            <option value="bumblebee">bumblebee</option>
+            <option value="emerald">emerald</option>
+            <option value="corporate">corporate</option>
+            <option value="synthwave">synthwave</option>
+            <option value="retro">retro</option>
+            <option value="cyberpunk">cyberpunk</option>
+            <option value="valentine">valentine</option>
+            <option value="halloween">halloween</option>
+            <option value="garden">garden</option>
+            <option value="forest">forest</option>
+            <option value="aqua">aqua</option>
+            <option value="lofi">lofi</option>
+            <option value="pastel">pastel</option>
+            <option value="fantasy">fantasy</option>
+            <option value="wireframe">wireframe</option>
+            <option value="black">black</option>
+            <option value="luxury">luxury</option>
+            <option value="dracula">dracula</option>
+            <option value="cmyk">cmyk</option>
+            <option value="autumn">autumn</option>
+            <option value="business">business</option>
+            <option value="acid">acid</option>
+            <option value="lemonade">lemonade</option>
+            <option value="night">night</option>
+            <option value="coffee">acid</option>
+            <option value="winter">winter</option>
+          </select>
 
         <!-- Battlegrids -->
         <div id="battlegrids-container" class="flex justify-center gap-6"></div>
