@@ -2,6 +2,7 @@ const { randomizeCellSelected } = require("./computerPlayerInitialization");
 const { highlightBattleModeModule } = require("./highlightBattleMode");
 const { initializePlaceShipsModule } = require("./initializePlaceShipsModule");
 const { highlightShipPlacementModule } = require("./highlightShipPlacementModule");
+const { registerShipModule } = require("./registerShipModule");
 
 const computerAIModule = (function () {
 
@@ -116,10 +117,27 @@ const computerAIModule = (function () {
     }
 
     function arePlayerOneShipsSunk(appContext) {
-        if (appContext.playerOne.checkIfAllShipsSunk()) {
+        if (appContext.playerOne.checkIfPlayerShipsSunk()) {
             return true;
         } else {
             return false;
+        }
+    }
+
+    function arePlayerComputerShipsSunk(appContext) {
+        if (appContext.playerComputer.checkIfPlayerShipsSunk()) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    function checkBothPlayersIfAllShipsSunk(appContext) {
+        if (arePlayerComputerShipsSunk (appContext)) {
+            registerShipModule.showAlert('Congratulations!!! You have bested the computer and defeated all their ships.');
+        } 
+        if (arePlayerOneShipsSunk(appContext)) {
+            registerShipModule.showAlert('Tough day! You were defeated this time.');
         }
     }
 
@@ -223,7 +241,7 @@ const computerAIModule = (function () {
     
         return {
             validateAttackCell,
-            validateRandomCell
+            validateRandomCell,
         }
     })();
 
@@ -308,7 +326,7 @@ const computerAIModule = (function () {
               console.log(`Random Number: ${randomNumber}`);
               appContext.attackCellData.calculatedCellNumberToAttack = randomNumber;
                 let calculatedCellNumber = appContext.attackCellData.calculatedCellNumberToAttack;
-                if (calculatedCellNumber >= 0 && calculatedCellNumber < appContext.horizontalSize * appContext.verticalSize) {
+                if ((calculatedCellNumber >= 0) && (calculatedCellNumber < (appContext.horizontalSize * appContext.verticalSize)) && (!compareValidationCollection(appContext, numbers))) {
                     console.log(`calculatedCellNumber:  ${calculatedCellNumber}`);
                     console.log(`gameboard:  ${JSON.stringify(appContext.playerOne.gameboardState.gameboard)}`);
                     console.log(`gameboard @ calculatedCellNumber:  ${JSON.stringify(appContext.playerOne.gameboardState.gameboard[calculatedCellNumber])}`);
@@ -321,6 +339,7 @@ const computerAIModule = (function () {
                     validateAttackCellModule.validateAttackCell(appContext);
                 } else {
                     console.log("Cell is out of bounds");
+                    appContext.attackCellData.validateAttackCellCollection.push(appContext.attackCellData.calculatedCellNumberToAttack);
                     randomizeAttackCell(appContext);
                 }
 
@@ -332,7 +351,7 @@ const computerAIModule = (function () {
             if (randomValue < 0.5) {
                 appContext.attackCellData.calculatedCellNumberToAttack = calculatedCells.randomPossibleCellNumberSmall;
                 let calculatedCellNumber = appContext.attackCellData.calculatedCellNumberToAttack;
-                if (calculatedCellNumber >= 0 && calculatedCellNumber < appContext.horizontalSize * appContext.verticalSize) {
+                if ((calculatedCellNumber >= 0) && (calculatedCellNumber < (appContext.horizontalSize * appContext.verticalSize)) && (!compareValidationCollection(appContext, numbers))) {
                     appContext.attackCellData.isCellHit = appContext.playerOne.gameboardState.gameboard[appContext.attackCellData.calculatedCellNumberToAttack].isHit;
                     appContext.attackCellData.isCellMiss = appContext.playerOne.gameboardState.gameboard[appContext.attackCellData.calculatedCellNumberToAttack].isMiss;
                     appContext.attackCellData.cellShipName = appContext.playerOne.gameboardState.gameboard[appContext.attackCellData.calculatedCellNumberToAttack].name;
@@ -342,13 +361,14 @@ const computerAIModule = (function () {
                     validateAttackCellModule.validateAttackCell(appContext);
                 } else {
                     console.log("Cell is out of bounds");
+                    appContext.attackCellData.validateAttackCellCollection.push(appContext.attackCellData.calculatedCellNumberToAttack);
                     randomizeAttackCell(appContext);
                 }
 
             } else {
                 appContext.attackCellData.calculatedCellNumberToAttack =  calculatedCells.randomPossibleCellNumberLarge;
                 let calculatedCellNumber = appContext.attackCellData.calculatedCellNumberToAttack;
-                if (calculatedCellNumber >= 0 && calculatedCellNumber < appContext.horizontalSize * appContext.verticalSize) {
+                if ((calculatedCellNumber >= 0) && (calculatedCellNumber < (appContext.horizontalSize * appContext.verticalSize)) && (!compareValidationCollection(appContext, numbers))) {
                     appContext.attackCellData.isCellHit = appContext.playerOne.gameboardState.gameboard[appContext.attackCellData.calculatedCellNumberToAttack].isHit;
                     appContext.attackCellData.isCellMiss = appContext.playerOne.gameboardState.gameboard[appContext.attackCellData.calculatedCellNumberToAttack].isMiss;
                     appContext.attackCellData.cellShipName = appContext.playerOne.gameboardState.gameboard[appContext.attackCellData.calculatedCellNumberToAttack].name;
@@ -358,6 +378,7 @@ const computerAIModule = (function () {
                     validateAttackCellModule.validateAttackCell(appContext);
                 } else {
                     console.log("Cell is out of bounds");
+                    appContext.attackCellData.validateAttackCellCollection.push(appContext.attackCellData.calculatedCellNumberToAttack);
                     randomizeAttackCell(appContext);
                 }
             }
@@ -387,17 +408,20 @@ const computerAIModule = (function () {
     }
 
     return {
-        computerPlayerAttack
+        computerPlayerAttack,
+        checkBothPlayersIfAllShipsSunk
     }
 })();
 
 const computerAttackTurnInitializationModule = (function() {
     function computerPlayerAttackTurnInitialization(appContext) {
+        computerAIModule.checkBothPlayersIfAllShipsSunk(appContext);
         appContext.attackCellData.calculatedCellNumberToAttack = null;
         console.log("Computer player turn is starting....");
         initializePlaceShipsModule.updateMessageBox(appContext, `The enemy is attacking`);
         computerAIModule.computerPlayerAttack(appContext);
         console.log("Computer player turn has ended....");
+        computerAIModule.checkBothPlayersIfAllShipsSunk(appContext);
     }
 
     return {

@@ -1,7 +1,7 @@
 const { highlightShipPlacementModule } = require("./highlightShipPlacementModule");
 
 const registerShipModule = (function () {
-    function showPlaceShipFailureAlert(message) {
+    function showAlert(message) {
         const alertDiv = document.createElement('div');
         alertDiv.classList.add('fixed', 'inset-0', 'flex', 'items-center', 'justify-center', 'z-50', 'bg-black', 'bg-opacity-50');
       
@@ -46,7 +46,7 @@ const registerShipModule = (function () {
         console.log("Previous highlighted selections removed.");
         appContext.highlightedArray.length = 0;
         highlightShipPlacementModule.highlightEventListenerModule.addHighlightShipEventListener(appContext, player);
-        showPlaceShipFailureAlert('That placement is invalid. Please try again!');
+        showAlert('That placement is invalid. Please try again!');
     }
     
     function registerPlaceShipForHumanPlayers(appContext, player) {
@@ -67,7 +67,8 @@ const registerShipModule = (function () {
 
     return {
         registerPlaceShipForHumanPlayers,
-        registerPlaceShipForPlayerComputer
+        registerPlaceShipForPlayerComputer,
+        showAlert
     }
 })();
 

@@ -2,8 +2,6 @@ const { registerShipModule } = require("./registerShipModule");
 
 const submitButtonEventListenerModule = (function () {
 
-    
-
     function toggleSubmitButtonOff (appContext) {
         appContext.appElements.submitButton.classList.add("hidden");
     }

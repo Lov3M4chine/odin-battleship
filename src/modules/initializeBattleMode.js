@@ -72,14 +72,6 @@ let attackEventListener = function (appContext) {
     }
 };
 
-function areComputerPlayerShipsSunk(appContext) {
-    if (appContext.computerPlayer.checkIfPlayerShipsSunk()) {
-        return true;
-    } else {
-        return false;
-    }
-}
-
 function removeAttackEventListeners(cell) {
     cell.removeEventListener('click', cell.attackEventListener);
     console.log("Event listener removed");
