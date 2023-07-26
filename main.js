@@ -104,6 +104,8 @@ var _require3 = __webpack_require__(/*! ./initializePlaceShipsModule */ "./src/m
   initializePlaceShipsModule = _require3.initializePlaceShipsModule;
 var _require4 = __webpack_require__(/*! ./highlightShipPlacementModule */ "./src/modules/highlightShipPlacementModule.js"),
   highlightShipPlacementModule = _require4.highlightShipPlacementModule;
+var _require5 = __webpack_require__(/*! ./registerShipModule */ "./src/modules/registerShipModule.js"),
+  registerShipModule = _require5.registerShipModule;
 var computerAIModule = function () {
   function processWithTargetedShip(appContext) {
     console.log("Processing as Targeted ship");
@@ -204,10 +206,25 @@ var computerAIModule = function () {
     }
   }
   function arePlayerOneShipsSunk(appContext) {
-    if (appContext.playerOne.checkIfAllShipsSunk()) {
+    if (appContext.playerOne.checkIfPlayerShipsSunk()) {
       return true;
     } else {
       return false;
+    }
+  }
+  function arePlayerComputerShipsSunk(appContext) {
+    if (appContext.playerComputer.checkIfPlayerShipsSunk()) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+  function checkBothPlayersIfAllShipsSunk(appContext) {
+    if (arePlayerComputerShipsSunk(appContext)) {
+      registerShipModule.showAlert('Congratulations!!! You have bested the computer and defeated all their ships.');
+    }
+    if (arePlayerOneShipsSunk(appContext)) {
+      registerShipModule.showAlert('Tough day! You were defeated this time.');
     }
   }
   function registerCellHit(appContext) {
@@ -366,7 +383,7 @@ var computerAIModule = function () {
       console.log("Random Number: ".concat(randomNumber));
       appContext.attackCellData.calculatedCellNumberToAttack = randomNumber;
       var calculatedCellNumber = appContext.attackCellData.calculatedCellNumberToAttack;
-      if (calculatedCellNumber >= 0 && calculatedCellNumber < appContext.horizontalSize * appContext.verticalSize) {
+      if (calculatedCellNumber >= 0 && calculatedCellNumber < appContext.horizontalSize * appContext.verticalSize && !compareValidationCollection(appContext, numbers)) {
         console.log("calculatedCellNumber:  ".concat(calculatedCellNumber));
         console.log("gameboard:  ".concat(JSON.stringify(appContext.playerOne.gameboardState.gameboard)));
         console.log("gameboard @ calculatedCellNumber:  ".concat(JSON.stringify(appContext.playerOne.gameboardState.gameboard[calculatedCellNumber])));
@@ -379,13 +396,14 @@ var computerAIModule = function () {
         validateAttackCellModule.validateAttackCell(appContext);
       } else {
         console.log("Cell is out of bounds");
+        appContext.attackCellData.validateAttackCellCollection.push(appContext.attackCellData.calculatedCellNumberToAttack);
         randomizeAttackCell(appContext);
       }
     } else {
       if (randomValue < 0.5) {
         appContext.attackCellData.calculatedCellNumberToAttack = calculatedCells.randomPossibleCellNumberSmall;
         var _calculatedCellNumber = appContext.attackCellData.calculatedCellNumberToAttack;
-        if (_calculatedCellNumber >= 0 && _calculatedCellNumber < appContext.horizontalSize * appContext.verticalSize) {
+        if (_calculatedCellNumber >= 0 && _calculatedCellNumber < appContext.horizontalSize * appContext.verticalSize && !compareValidationCollection(appContext, numbers)) {
           appContext.attackCellData.isCellHit = appContext.playerOne.gameboardState.gameboard[appContext.attackCellData.calculatedCellNumberToAttack].isHit;
           appContext.attackCellData.isCellMiss = appContext.playerOne.gameboardState.gameboard[appContext.attackCellData.calculatedCellNumberToAttack].isMiss;
           appContext.attackCellData.cellShipName = appContext.playerOne.gameboardState.gameboard[appContext.attackCellData.calculatedCellNumberToAttack].name;
@@ -395,12 +413,13 @@ var computerAIModule = function () {
           validateAttackCellModule.validateAttackCell(appContext);
         } else {
           console.log("Cell is out of bounds");
+          appContext.attackCellData.validateAttackCellCollection.push(appContext.attackCellData.calculatedCellNumberToAttack);
           randomizeAttackCell(appContext);
         }
       } else {
         appContext.attackCellData.calculatedCellNumberToAttack = calculatedCells.randomPossibleCellNumberLarge;
         var _calculatedCellNumber2 = appContext.attackCellData.calculatedCellNumberToAttack;
-        if (_calculatedCellNumber2 >= 0 && _calculatedCellNumber2 < appContext.horizontalSize * appContext.verticalSize) {
+        if (_calculatedCellNumber2 >= 0 && _calculatedCellNumber2 < appContext.horizontalSize * appContext.verticalSize && !compareValidationCollection(appContext, numbers)) {
           appContext.attackCellData.isCellHit = appContext.playerOne.gameboardState.gameboard[appContext.attackCellData.calculatedCellNumberToAttack].isHit;
           appContext.attackCellData.isCellMiss = appContext.playerOne.gameboardState.gameboard[appContext.attackCellData.calculatedCellNumberToAttack].isMiss;
           appContext.attackCellData.cellShipName = appContext.playerOne.gameboardState.gameboard[appContext.attackCellData.calculatedCellNumberToAttack].name;
@@ -410,6 +429,7 @@ var computerAIModule = function () {
           validateAttackCellModule.validateAttackCell(appContext);
         } else {
           console.log("Cell is out of bounds");
+          appContext.attackCellData.validateAttackCellCollection.push(appContext.attackCellData.calculatedCellNumberToAttack);
           randomizeAttackCell(appContext);
         }
       }
@@ -436,16 +456,19 @@ var computerAIModule = function () {
     }
   }
   return {
-    computerPlayerAttack: computerPlayerAttack
+    computerPlayerAttack: computerPlayerAttack,
+    checkBothPlayersIfAllShipsSunk: checkBothPlayersIfAllShipsSunk
   };
 }();
 var computerAttackTurnInitializationModule = function () {
   function computerPlayerAttackTurnInitialization(appContext) {
+    computerAIModule.checkBothPlayersIfAllShipsSunk(appContext);
     appContext.attackCellData.calculatedCellNumberToAttack = null;
     console.log("Computer player turn is starting....");
     initializePlaceShipsModule.updateMessageBox(appContext, "The enemy is attacking");
     computerAIModule.computerPlayerAttack(appContext);
     console.log("Computer player turn has ended....");
+    computerAIModule.checkBothPlayersIfAllShipsSunk(appContext);
   }
   return {
     computerPlayerAttackTurnInitialization: computerPlayerAttackTurnInitialization
@@ -1123,13 +1146,6 @@ var attackEventListener = function attackEventListener(appContext) {
     computerAttackTurnInitializationModule.computerPlayerAttackTurnInitialization(appContext);
   };
 };
-function areComputerPlayerShipsSunk(appContext) {
-  if (appContext.computerPlayer.checkIfPlayerShipsSunk()) {
-    return true;
-  } else {
-    return false;
-  }
-}
 function removeAttackEventListeners(cell) {
   cell.removeEventListener('click', cell.attackEventListener);
   console.log("Event listener removed");
@@ -1338,7 +1354,7 @@ module.exports = {
 var _require = __webpack_require__(/*! ./highlightShipPlacementModule */ "./src/modules/highlightShipPlacementModule.js"),
   highlightShipPlacementModule = _require.highlightShipPlacementModule;
 var registerShipModule = function () {
-  function showPlaceShipFailureAlert(message) {
+  function showAlert(message) {
     var alertDiv = document.createElement('div');
     alertDiv.classList.add('fixed', 'inset-0', 'flex', 'items-center', 'justify-center', 'z-50', 'bg-black', 'bg-opacity-50');
     var alertBox = document.createElement('div');
@@ -1375,7 +1391,7 @@ var registerShipModule = function () {
     console.log("Previous highlighted selections removed.");
     appContext.highlightedArray.length = 0;
     highlightShipPlacementModule.highlightEventListenerModule.addHighlightShipEventListener(appContext, player);
-    showPlaceShipFailureAlert('That placement is invalid. Please try again!');
+    showAlert('That placement is invalid. Please try again!');
   }
   function registerPlaceShipForHumanPlayers(appContext, player) {
     return new Promise(function (resolve) {
@@ -1393,7 +1409,8 @@ var registerShipModule = function () {
   }
   return {
     registerPlaceShipForHumanPlayers: registerPlaceShipForHumanPlayers,
-    registerPlaceShipForPlayerComputer: registerPlaceShipForPlayerComputer
+    registerPlaceShipForPlayerComputer: registerPlaceShipForPlayerComputer,
+    showAlert: showAlert
   };
 }();
 module.exports = {
